@@ -56,6 +56,7 @@ import {
   OverviewToolbarComponent,
   OverviewWikiComponent,
   RecentActivityComponent,
+  OverviewFilesComponent,
 } from './components';
 import {
   ClearProjectOverview,
@@ -84,6 +85,7 @@ import {
     ResourceMetadataComponent,
     TranslatePipe,
     Message,
+    OverviewFilesComponent,
   ],
   providers: [DialogService],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,1 +1,17 @@
-<p>overview-files works!</p>
+<div class="wiki flex flex-column p-4 gap-4">
+  <h2>{{ 'project.overview.files.title' | translate }}</h2>
+  @if (isFilesLoading()) {
+    <p-skeleton width="100%" height="5rem" />
+  } @else {
+    @if (noFiles()) {
+      <div [innerHtml]="'project.overview.files.noFilesMessage' | translate"></div>
+    } @else if (fileLoadingError()) {
+      <div [innerHtml]="'project.overview.files.fileLoadingError' | translate"></div>
+    } @else {
+      <!-- <osf-truncated-text [text]="wikiContent()" [hasContent]="true">
+          <osf-markdown [markdownText]="wikiContent()"></osf-markdown>
+        </osf-truncated-text> -->
+      Yay files
+    }
+  }
+</div>

@@ -5,6 +5,7 @@ export { ForkDialogComponent } from './fork-dialog/fork-dialog.component';
 export { OverviewComponentsComponent } from './overview-components/overview-components.component';
 export { OverviewToolbarComponent } from './overview-toolbar/overview-toolbar.component';
 export { OverviewWikiComponent } from './overview-wiki/overview-wiki.component';
+export { OverviewFilesComponent } from './overview-files/overview-files.component';
 export { RecentActivityComponent } from './recent-activity/recent-activity.component';
 export { TogglePublicityDialogComponent } from './toggle-publicity-dialog/toggle-publicity-dialog.component';
 export { DeleteNodeLinkDialogComponent } from '@osf/features/project/overview/components/delete-node-link-dialog/delete-node-link-dialog.component';
