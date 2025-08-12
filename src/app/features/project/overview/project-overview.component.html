@@ -61,7 +61,7 @@
       @if (isAdmin || canWrite) {
         <osf-project-wiki />
       }
-
+      <osf-overview-files />
       <osf-project-components [isCollectionsRoute]="isCollectionsRoute()" [canWrite]="canWrite" />
       <osf-linked-resources [isCollectionsRoute]="isCollectionsRoute()" [canWrite]="canWrite" />
       <osf-recent-activity-list />
