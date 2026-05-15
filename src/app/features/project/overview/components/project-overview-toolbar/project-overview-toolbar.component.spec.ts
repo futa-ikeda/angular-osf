@@ -69,6 +69,7 @@ describe('ProjectOverviewToolbarComponent', () => {
             { selector: BookmarksSelectors.getBookmarksCollectionIdSubmitting, value: false },
             { selector: ProjectOverviewSelectors.getDuplicatedProject, value: null },
             { selector: UserSelectors.isAuthenticated, value: true },
+            { selector: UserSelectors.getActiveFlags, value: [] },
           ],
         }),
         MockProvider(Router, routerMock),
@@ -182,6 +183,20 @@ describe('ProjectOverviewToolbarComponent', () => {
 
     it('should have resourceType set to Project', () => {
       expect(component.resourceType).toBe(ResourceType.Project);
+    });
+  });
+
+  describe('preventDuplicateCreation', () => {
+    it('should return false when activeFlags does not include prevent_project_creation', () => {
+      expect(component.preventDuplicateCreation()).toBe(false);
+    });
+
+    it('should return true when activeFlags includes prevent_project_creation', () => {
+      provideMockStore({
+        selectors: [{ selector: UserSelectors.getActiveFlags, value: ['prevent_project_creation'] }],
+      });
+      fixture.detectChanges();
+      expect(component.preventDuplicateCreation()).toBe(true);
     });
   });
 });

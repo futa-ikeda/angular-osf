@@ -7,6 +7,7 @@ import { of } from 'rxjs';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import { UserSelectors } from '@osf/core/store/user/user.selectors';
 import { ProjectOverviewSelectors } from '@osf/features/project/overview/store';
 import { RegistrySelectors } from '@osf/features/registry/store/registry';
 import { ContributorsListComponent } from '@osf/shared/components/contributors-list/contributors-list.component';
@@ -66,6 +67,7 @@ describe('Component: View Duplicates', () => {
             { selector: ProjectOverviewSelectors.isProjectAnonymous, value: false },
             { selector: RegistrySelectors.getRegistry, value: undefined },
             { selector: RegistrySelectors.isRegistryAnonymous, value: false },
+            { selector: UserSelectors.getActiveFlags, value: [] },
           ],
         }),
         MockProvider(CustomDialogService, mockCustomDialogService),
@@ -82,6 +84,15 @@ describe('Component: View Duplicates', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should disable fork button and show tooltip when preventDuplicateCreation is true', () => {
+    provideMockStore({
+      selectors: [{ selector: UserSelectors.getActiveFlags, value: ['prevent_project_creation'] }],
+    });
+    fixture.detectChanges();
+    expect(component.preventDuplicateCreation()).toBe(true);
+    expect(component.duplicateButtonTooltip()).toBe('project.overview.actions.duplicatingProjectsNotAllowed');
   });
 
   it('should open ForkDialog with width 450px when small and not refresh on failure', () => {

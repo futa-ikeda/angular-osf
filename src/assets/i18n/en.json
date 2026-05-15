@@ -1856,7 +1856,8 @@
         "forkProjectLabel": "Duplicate project",
         "manageContributors": "Manage Contributors",
         "settings": "Settings",
-        "viewDuplication": "View duplicates"
+        "viewDuplication": "View duplicates",
+        "duplicatingProjectsNotAllowed": "Project duplicates can no longer be created."
       },
       "citations": {
         "copyCitation": "Copy citation",
