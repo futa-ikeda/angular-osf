@@ -15,6 +15,7 @@ import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { ScheduledBannerComponent } from '@core/components/osf-banners/scheduled-banner/scheduled-banner.component';
+import { UserSelectors } from '@osf/core/store/user';
 import { CreateProjectDialogComponent } from '@osf/features/my-projects/components';
 import { IconComponent } from '@osf/shared/components/icon/icon.component';
 import { LoadingSpinnerComponent } from '@osf/shared/components/loading-spinner/loading-spinner.component';
@@ -29,7 +30,6 @@ import { CustomDialogService } from '@osf/shared/services/custom-dialog.service'
 import { ProjectRedirectDialogService } from '@osf/shared/services/project-redirect-dialog.service';
 import { ClearMyResources, GetMyProjects, MyResourcesSelectors } from '@osf/shared/stores/my-resources';
 import { TableParameters } from '@shared/models/table-parameters.model';
-
 @Component({
   selector: 'osf-dashboard',
   imports: [
@@ -54,6 +54,7 @@ export class DashboardComponent implements OnInit {
   private readonly projectRedirectDialogService = inject(ProjectRedirectDialogService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
+  private readonly activeFlags = select(UserSelectors.getActiveFlags);
 
   readonly searchControl = new FormControl<string>('');
   readonly activeProject = signal<MyResourcesItem | null>(null);
@@ -72,7 +73,18 @@ export class DashboardComponent implements OnInit {
     return this.projects().filter((project) => project.title.toLowerCase().includes(search));
   });
 
+  readonly projectCreationDisabled = computed(() => this.activeFlags().includes('prevent_project_creation'));
+  readonly buttonTooltip = computed(() =>
+    this.projectCreationDisabled() ? 'myProjects.header.createProjectDisabledTooltip' : ''
+  );
+
   readonly existsProjects = computed(() => this.projects().length || !!this.searchControl.value?.length);
+  readonly noProjectsMessage = computed(() => {
+    if (this.projectCreationDisabled()) {
+      return 'home.loggedIn.dashboard.noCreatedProjectAndCreateProjectDisabled';
+    }
+    return 'home.loggedIn.dashboard.noCreatedProject';
+  });
 
   constructor() {
     this.setupSearchSubscription();

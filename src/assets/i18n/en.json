@@ -796,6 +796,8 @@
     "loggedIn": {
       "dashboard": {
         "createProject": "Create New Project",
+        "createProjectDisabledTooltip": "Projects can no longer be created.",
+
         "getStartedHelp": "Visit Get Started Help Guides",
         "images": {
           "osfCollectionsImageAltText": "OSF Collections",
@@ -804,6 +806,7 @@
           "osfRegistriesImageAltTest": "OSF Registries"
         },
         "noCreatedProject": "You haven’t created a project yet. Click the \"Create New Project\" button above to get started.",
+        "noCreatedProjectAndCreateProjectDisabled": "You haven’t created a project yet.",
         "quickSearch": {
           "goTo": "Go to",
           "myProjects": "My Projects",

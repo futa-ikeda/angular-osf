@@ -13,6 +13,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ScheduledBannerComponent } from '@core/components/osf-banners/scheduled-banner/scheduled-banner.component';
+import { UserSelectors } from '@osf/core/store/user';
 import { CreateProjectDialogComponent } from '@osf/features/my-projects/components';
 import { IconComponent } from '@osf/shared/components/icon/icon.component';
 import { LoadingSpinnerComponent } from '@osf/shared/components/loading-spinner/loading-spinner.component';
@@ -49,6 +50,7 @@ describe('DashboardComponent', () => {
     { selector: MyResourcesSelectors.getProjects, value: [] },
     { selector: MyResourcesSelectors.getTotalProjects, value: 0 },
     { selector: MyResourcesSelectors.getProjectsLoading, value: false },
+    { selector: UserSelectors.getActiveFlags, value: [] },
   ];
 
   interface SetupOverrides extends BaseSetupOverrides {
@@ -96,6 +98,15 @@ describe('DashboardComponent', () => {
   it('should create', () => {
     setup();
     expect(component).toBeTruthy();
+  });
+
+  it('should disable project creation and show tooltip when prevent_project_creation flag is active', () => {
+    setup({
+      selectorOverrides: [{ selector: UserSelectors.getActiveFlags, value: ['prevent_project_creation'] }],
+    });
+
+    expect(component.projectCreationDisabled()).toBe(true);
+    expect(component.buttonTooltip()).toBe('myProjects.header.createProjectDisabledTooltip');
   });
 
   it('should read query params and fetch projects on init', () => {
