@@ -1098,6 +1098,7 @@
     },
     "header": {
       "createProject": "Create Project",
+      "createProjectDisabledTooltip": "Projects can no longer be created.",
       "title": "My Projects"
     },
     "redirectDialog": {
