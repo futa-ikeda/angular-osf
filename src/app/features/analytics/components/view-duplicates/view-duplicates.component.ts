@@ -77,11 +77,16 @@ export class ViewDuplicatesComponent {
   isDuplicatesLoading = select(DuplicatesSelectors.getDuplicatesLoading);
   totalDuplicates = select(DuplicatesSelectors.getDuplicatesTotalCount);
   isAuthenticated = select(UserSelectors.isAuthenticated);
+  activeFlags = select(UserSelectors.getActiveFlags);
 
   readonly pageSize = 10;
 
   currentPage = signal<number>(1);
   firstIndex = computed(() => (this.currentPage() - 1) * this.pageSize);
+  preventDuplicateCreation = computed(() => this.activeFlags().includes('prevent_project_creation'));
+  duplicateButtonTooltip = computed(() =>
+    this.preventDuplicateCreation() ? 'project.overview.actions.duplicatingProjectsNotAllowed' : ''
+  );
 
   readonly forkActionItems = (resourceId: string) => [
     {
