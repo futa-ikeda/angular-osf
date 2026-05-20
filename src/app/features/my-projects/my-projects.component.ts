@@ -25,6 +25,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import { UserSelectors } from '@osf/core/store/user';
 import { MyProjectsTableComponent } from '@osf/shared/components/my-projects-table/my-projects-table.component';
 import { SearchInputComponent } from '@osf/shared/components/search-input/search-input.component';
 import { SelectComponent } from '@osf/shared/components/select/select.component';
@@ -83,6 +84,7 @@ export class MyProjectsComponent implements OnInit {
   readonly tableParamsService = inject(MyProjectsTableParamsService);
   readonly platformId = inject(PLATFORM_ID);
   readonly isBrowser = isPlatformBrowser(this.platformId);
+  readonly activeFlags = select(UserSelectors.getActiveFlags);
 
   readonly isLoading = signal(false);
   readonly isMedium = toSignal(inject(IS_MEDIUM));
@@ -113,6 +115,10 @@ export class MyProjectsComponent implements OnInit {
   readonly bookmarksCollectionId = select(BookmarksSelectors.getBookmarksCollectionId);
   readonly totalBookmarksCount = select(BookmarksSelectors.getBookmarksTotalCount);
   readonly isBookmarks = computed(() => this.selectedTab() === MyProjectsTab.Bookmarks);
+  readonly projectCreationDisabled = computed(() => this.activeFlags().includes('prevent_project_creation'));
+  readonly buttonTooltip = computed(() =>
+    this.projectCreationDisabled() ? 'myProjects.header.createProjectDisabledTooltip' : ''
+  );
 
   readonly actions = createDispatchMap({
     getBookmarksCollectionId: GetBookmarksCollectionId,

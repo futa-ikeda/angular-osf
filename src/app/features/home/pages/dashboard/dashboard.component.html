@@ -8,6 +8,8 @@
         [title]="'home.loggedIn.dashboard.title' | translate"
         [icon]="'fas fa-home'"
         [buttonLabel]="'home.loggedIn.dashboard.createProject' | translate"
+        [isButtonDisabled]="projectCreationDisabled()"
+        [buttonTooltip]="buttonTooltip() | translate"
         (buttonClick)="createProject()"
       />
       <osf-scheduled-banner />
@@ -69,11 +71,13 @@
         [title]="'home.loggedIn.dashboard.welcome' | translate"
         [icon]="'home'"
         [buttonLabel]="'home.loggedIn.dashboard.createProject' | translate"
+        [isButtonDisabled]="projectCreationDisabled()"
+        [buttonTooltip]="buttonTooltip() | translate"
         (buttonClick)="createProject()"
       />
       <div class="flex items-center justify-center min-h-screen bg-white pt-4">
         <div class="text-center max-w-2xl px-6 w-full">
-          <p class="mb-4">{{ 'home.loggedIn.dashboard.noCreatedProject' | translate }}</p>
+          <p class="mb-4">{{ noProjectsMessage() | translate }}</p>
 
           <p class="mb-6">{{ 'home.loggedIn.dashboard.watchVideoBelow' | translate }}</p>
 
