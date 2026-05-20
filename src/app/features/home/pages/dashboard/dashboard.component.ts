@@ -75,7 +75,7 @@ export class DashboardComponent implements OnInit {
 
   readonly projectCreationDisabled = computed(() => this.activeFlags().includes('prevent_project_creation'));
   readonly buttonTooltip = computed(() =>
-    this.projectCreationDisabled() ? 'myProjects.header.createProjectDisabledTooltip' : ''
+    this.projectCreationDisabled() ? 'home.loggedIn.dashboard.createProjectDisabledTooltip' : ''
   );
 
   readonly existsProjects = computed(() => this.projects().length || !!this.searchControl.value?.length);

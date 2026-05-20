@@ -106,7 +106,7 @@ describe('DashboardComponent', () => {
     });
 
     expect(component.projectCreationDisabled()).toBe(true);
-    expect(component.buttonTooltip()).toBe('myProjects.header.createProjectDisabledTooltip');
+    expect(component.buttonTooltip()).toBe('home.loggedIn.dashboard.createProjectDisabledTooltip');
   });
 
   it('should read query params and fetch projects on init', () => {
