@@ -1567,6 +1567,7 @@
           "connectExisting": "Connect An Existing OSF Project",
           "createNew": "Create A New OSF Project"
         },
+        "projectCreationDisabled": "Projects can no longer be created.",
         "successMessages": {
           "projectConnected": "Project connected",
           "projectCreated": "Project created",
