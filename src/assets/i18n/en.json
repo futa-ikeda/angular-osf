@@ -1871,6 +1871,7 @@
       },
       "components": {
         "addComponentButton": "Add Component",
+        "addComponentDisabled": "Project components can no longer be created.",
         "linkProjectsButton": "Link Projects",
         "noComponentsMessage": "Add components to organize your project.",
         "title": "Components"
