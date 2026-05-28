@@ -162,10 +162,18 @@ describe('RegistryOverviewMetadataComponent', () => {
   });
 
   it('should hide associated project section if registry has no associated project', () => {
-    const { fixture } = setup({ registry: { ...MOCK_REGISTRY, hasProject: false } });
+    const { fixture } = setup({ registry: { ...MOCK_REGISTRY, associatedProjectId: 'abc123', hasProject: false } });
     const associatedProjectSection = fixture.nativeElement.querySelector(
       '[data-test-registry-overview-metadata-associated-project-link]'
     );
     expect(associatedProjectSection).toBeNull();
+
+    const { fixture: fixture2 } = setup({
+      registry: { ...MOCK_REGISTRY, associatedProjectId: undefined, hasProject: true },
+    });
+    const associatedProjectSection2 = fixture2.nativeElement.querySelector(
+      '[data-test-registry-overview-metadata-associated-project-link]'
+    );
+    expect(associatedProjectSection2).toBeNull();
   });
 });
