@@ -50,7 +50,7 @@
       <p data-test-registry-overview-metadata-registry-provider>{{ registryProvider()?.name }}</p>
     </div>
 
-    @if (resource.associatedProjectId) {
+    @if (showAssociatedProject()) {
       <div class="flex flex-column gap-2">
         <h3>{{ 'registry.overview.metadata.associatedProject' | translate }}</h3>
 
