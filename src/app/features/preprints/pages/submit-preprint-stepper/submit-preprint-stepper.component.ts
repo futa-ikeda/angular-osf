@@ -21,6 +21,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
+import { UserSelectors } from '@osf/core/store/user/user.selectors';
 import { StepperComponent } from '@osf/shared/components/stepper/stepper.component';
 import { IS_WEB } from '@osf/shared/helpers/breakpoints.tokens';
 import { CanDeactivateComponent } from '@osf/shared/models/can-deactivate.interface';
@@ -80,12 +81,15 @@ export class SubmitPreprintStepperComponent implements OnDestroy, CanDeactivateC
   preprintProvider = select(PreprintProvidersSelectors.getPreprintProviderDetails(this.providerId()));
   isPreprintProviderLoading = select(PreprintProvidersSelectors.isPreprintProviderDetailsLoading);
   hasBeenSubmitted = select(PreprintStepperSelectors.hasBeenSubmitted);
+  activeFlags = select(UserSelectors.getActiveFlags);
 
   currentStep = signal<StepOption>(submitPreprintSteps[0]);
 
   isWeb = toSignal(inject(IS_WEB));
 
   readonly PreprintSteps = PreprintSteps;
+
+  readonly supplementsEnabled = computed(() => !this.activeFlags().includes('prevent_project_creation'));
 
   readonly steps = computed(() => {
     const provider = this.preprintProvider();
@@ -95,7 +99,12 @@ export class SubmitPreprintStepperComponent implements OnDestroy, CanDeactivateC
     }
 
     return submitPreprintSteps
-      .filter((step) => step.value !== PreprintSteps.AuthorAssertions || provider.assertionsEnabled)
+      .filter((step) => {
+        return (
+          (step.value !== PreprintSteps.AuthorAssertions || provider.assertionsEnabled) &&
+          (step.value !== PreprintSteps.Supplements || this.supplementsEnabled())
+        );
+      })
       .map((step, index) => ({ ...step, index }));
   });
 

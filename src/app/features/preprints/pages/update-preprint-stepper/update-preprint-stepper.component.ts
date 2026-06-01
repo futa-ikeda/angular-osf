@@ -20,6 +20,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
+import { UserSelectors } from '@osf/core/store/user/user.selectors';
 import { StepperComponent } from '@osf/shared/components/stepper/stepper.component';
 import { IS_WEB } from '@osf/shared/helpers/breakpoints.tokens';
 import { BrandService } from '@osf/shared/services/brand.service';
@@ -87,6 +88,7 @@ export class UpdatePreprintStepperComponent implements OnDestroy, CanDeactivateC
   isPreprintProviderLoading = select(PreprintProvidersSelectors.isPreprintProviderDetailsLoading);
   hasBeenSubmitted = select(PreprintStepperSelectors.hasBeenSubmitted);
   hasAdminAccess = select(PreprintStepperSelectors.hasAdminAccess);
+  activeFlags = select(UserSelectors.getActiveFlags);
 
   isWeb = toSignal(inject(IS_WEB));
 
@@ -103,6 +105,8 @@ export class UpdatePreprintStepperComponent implements OnDestroy, CanDeactivateC
 
   isPreprintRejected = computed(() => this.preprint()?.reviewsState === ReviewsState.Rejected);
 
+  readonly supplementsEnabled = computed(() => !this.activeFlags().includes('prevent_project_creation'));
+
   readonly updateSteps = computed(() => {
     const provider = this.preprintProvider();
     const preprint = this.preprint();
@@ -118,6 +122,9 @@ export class UpdatePreprintStepperComponent implements OnDestroy, CanDeactivateC
         }
         if (step.value === PreprintSteps.AuthorAssertions) {
           return provider.assertionsEnabled && this.hasAdminAccess();
+        }
+        if (step.value === PreprintSteps.Supplements) {
+          return this.supplementsEnabled();
         }
         return true;
       })
