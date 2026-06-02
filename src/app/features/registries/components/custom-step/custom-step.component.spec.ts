@@ -163,7 +163,7 @@ describe('CustomStepComponent', () => {
     expect(store.dispatch).not.toHaveBeenCalled();
   });
 
-  it('should update update file upload description based on waffle flag value', () => {
+  it('should update file upload description based on waffle flag value', () => {
     const { component } = setup({
       selectorOverrides: [{ selector: UserSelectors.getActiveFlags, value: ['prevent_project_creation'] }],
     });
