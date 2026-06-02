@@ -796,8 +796,7 @@
     "loggedIn": {
       "dashboard": {
         "createProject": "Create New Project",
-        "createProjectDisabledTooltip": "Projects can no longer be created.",
-
+        "createProjectDisabledTooltip": "Project creation is no longer available. OSF is transitioning away from Projects as part of a platform update. Your existing projects remain accessible.",
         "getStartedHelp": "Visit Get Started Help Guides",
         "images": {
           "osfCollectionsImageAltText": "OSF Collections",
@@ -806,7 +805,7 @@
           "osfRegistriesImageAltTest": "OSF Registries"
         },
         "noCreatedProject": "You haven’t created a project yet. Click the \"Create New Project\" button above to get started.",
-        "noCreatedProjectAndCreateProjectDisabled": "You haven’t created a project yet.",
+        "noCreatedProjectAndCreateProjectDisabled": "You don't have any projects.",
         "quickSearch": {
           "goTo": "Go to",
           "myProjects": "My Projects",
@@ -1098,7 +1097,7 @@
     },
     "header": {
       "createProject": "Create Project",
-      "createProjectDisabledTooltip": "Projects can no longer be created.",
+      "createProjectDisabledTooltip": "Project creation is no longer available. OSF is transitioning away from Projects as part of a platform update. Your existing projects remain accessible.",
       "title": "My Projects"
     },
     "redirectDialog": {
@@ -1567,7 +1566,7 @@
           "connectExisting": "Connect An Existing OSF Project",
           "createNew": "Create A New OSF Project"
         },
-        "projectCreationDisabled": "Projects can no longer be created.",
+        "projectCreationDisabled": "Project creation is no longer available. OSF is transitioning away from Projects as part of a platform update. Your existing projects remain accessible.",
         "successMessages": {
           "projectConnected": "Project connected",
           "projectCreated": "Project created",
@@ -1858,7 +1857,7 @@
         "manageContributors": "Manage Contributors",
         "settings": "Settings",
         "viewDuplication": "View duplicates",
-        "duplicatingProjectsNotAllowed": "Project duplicates can no longer be created."
+        "duplicatingProjectsNotAllowed": "Duplicating projects is no longer available. OSF is transitioning away from Projects as part of a platform update."
       },
       "citations": {
         "copyCitation": "Copy citation",
@@ -1872,7 +1871,7 @@
       },
       "components": {
         "addComponentButton": "Add Component",
-        "addComponentDisabled": "Project components can no longer be created.",
+        "addComponentDisabled": "Component creation is no longer available. OSF is transitioning away from Projects as part of a platform update.",
         "linkProjectsButton": "Link Projects",
         "noComponentsMessage": "Add components to organize your project.",
         "title": "Components"
@@ -2839,6 +2838,7 @@
     },
     "files": {
       "description": "Uploaded files will automatically be archived in this registration. They will also be added to a related project that will be created for this registration.",
+      "descriptionNoProject": "Uploaded files will automatically be archived in this registration.",
       "limitText": "You may attach up to 5 file(s) to this question. Files cannot total over 5GB in size."
     },
     "license": {
