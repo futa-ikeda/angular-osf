@@ -44,7 +44,7 @@ export class OverviewComponentsComponent {
   isComponentsSubmitting = select(ProjectOverviewSelectors.getComponentsSubmitting);
   hasMoreComponents = select(ProjectOverviewSelectors.hasMoreComponents);
   project = select(ProjectOverviewSelectors.getProject);
-  activeFlags = select(UserSelectors.getActiveFlags);
+  preventComponentCreation = select(UserSelectors.isProjectCreationDisabled);
 
   reorderedComponents = signal<NodeModel[]>([]);
 
@@ -58,7 +58,6 @@ export class OverviewComponentsComponent {
     () => this.isComponentsSubmitting() || (!this.canEdit() && this.reorderedComponents().length <= 1)
   );
 
-  preventComponentCreation = computed(() => this.activeFlags().includes('prevent_project_creation'));
   createComponentTooltip = computed(() =>
     this.preventComponentCreation() ? 'project.overview.components.addComponentDisabled' : ''
   );

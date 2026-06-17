@@ -50,7 +50,7 @@ describe('DashboardComponent', () => {
     { selector: MyResourcesSelectors.getProjects, value: [] },
     { selector: MyResourcesSelectors.getTotalProjects, value: 0 },
     { selector: MyResourcesSelectors.getProjectsLoading, value: false },
-    { selector: UserSelectors.getActiveFlags, value: [] },
+    { selector: UserSelectors.isProjectCreationDisabled, value: false },
   ];
 
   interface SetupOverrides extends BaseSetupOverrides {
@@ -100,12 +100,11 @@ describe('DashboardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should disable project creation and show tooltip when prevent_project_creation flag is active', () => {
+  it('should disable project creation and show tooltip when isProjectCreationDisabled is true', () => {
     setup({
-      selectorOverrides: [{ selector: UserSelectors.getActiveFlags, value: ['prevent_project_creation'] }],
+      selectorOverrides: [{ selector: UserSelectors.isProjectCreationDisabled, value: true }],
     });
 
-    expect(component.projectCreationDisabled()).toBe(true);
     expect(component.buttonTooltip()).toBe('home.loggedIn.dashboard.createProjectDisabledTooltip');
   });
 

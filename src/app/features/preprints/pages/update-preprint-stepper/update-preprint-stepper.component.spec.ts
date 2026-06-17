@@ -67,7 +67,7 @@ describe('UpdatePreprintStepperComponent', () => {
     { selector: PreprintStepperSelectors.getPreprint, value: mockPreprint },
     { selector: PreprintStepperSelectors.hasBeenSubmitted, value: false },
     { selector: PreprintStepperSelectors.hasAdminAccess, value: false },
-    { selector: UserSelectors.getActiveFlags, value: [] },
+    { selector: UserSelectors.isProjectCreationDisabled, value: false },
   ];
 
   function setup(overrides?: { selectorOverrides?: SignalOverride[] }) {
@@ -170,9 +170,9 @@ describe('UpdatePreprintStepperComponent', () => {
     expect(stepValues).toContain(PreprintSteps.Review);
   });
 
-  it('should filter out Supplements step when waffle flag is active', () => {
+  it('should filter out Supplements step when isProjectCreationDisabled is true', () => {
     setup({
-      selectorOverrides: [{ selector: UserSelectors.getActiveFlags, value: ['prevent_project_creation'] }],
+      selectorOverrides: [{ selector: UserSelectors.isProjectCreationDisabled, value: true }],
     });
 
     const steps = component.updateSteps();
@@ -181,10 +181,8 @@ describe('UpdatePreprintStepperComponent', () => {
     expect(stepValues).not.toContain(PreprintSteps.Supplements);
   });
 
-  it('should include Supplements step when waffle flag is inactive', () => {
-    setup({
-      selectorOverrides: [{ selector: UserSelectors.getActiveFlags, value: [] }],
-    });
+  it('should include Supplements step when isProjectCreationDisabled is false', () => {
+    setup();
 
     const steps = component.updateSteps();
     const stepValues = steps.map((s) => s.value);

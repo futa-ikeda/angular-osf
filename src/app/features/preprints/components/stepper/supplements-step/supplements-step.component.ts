@@ -81,7 +81,7 @@ export class SupplementsStepComponent implements OnInit {
   readonly areAvailableProjectsLoading = select(PreprintStepperSelectors.areAvailableProjectsLoading);
   readonly preprintProject = select(PreprintStepperSelectors.getPreprintProject);
   readonly isPreprintProjectLoading = select(PreprintStepperSelectors.isPreprintProjectLoading);
-  readonly activeFlags = select(UserSelectors.getActiveFlags);
+  readonly createProjectDisabled = select(UserSelectors.isProjectCreationDisabled);
 
   selectedSupplementOption = signal<SupplementOptions>(SupplementOptions.None);
   selectedProjectId = signal<StringOrNull>(null);
@@ -126,7 +126,6 @@ export class SupplementsStepComponent implements OnInit {
     return false;
   });
 
-  createProjectDisabled = computed(() => this.activeFlags().includes('prevent_project_creation'));
   createProjectTooltip = computed(() =>
     this.createProjectDisabled() ? 'preprints.preprintStepper.supplements.projectCreationDisabled' : ''
   );

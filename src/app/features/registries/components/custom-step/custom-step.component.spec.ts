@@ -64,7 +64,7 @@ describe('CustomStepComponent', () => {
     const defaultSignals: SignalOverride[] = [
       { selector: RegistriesSelectors.getPagesSchema, value: overrides.pages ?? [MOCK_REGISTRIES_PAGE] },
       { selector: RegistriesSelectors.getStepsState, value: overrides.stepsState ?? {} },
-      { selector: UserSelectors.getActiveFlags, value: [] },
+      { selector: UserSelectors.isProjectCreationDisabled, value: false },
     ];
     const signals = mergeSignalOverrides(defaultSignals, overrides.selectorOverrides);
 
@@ -163,14 +163,14 @@ describe('CustomStepComponent', () => {
     expect(store.dispatch).not.toHaveBeenCalled();
   });
 
-  it('should update file upload description based on waffle flag value', () => {
+  it('should update file upload description based on isProjectCreationDisabled', () => {
     const { component } = setup({
-      selectorOverrides: [{ selector: UserSelectors.getActiveFlags, value: ['prevent_project_creation'] }],
+      selectorOverrides: [{ selector: UserSelectors.isProjectCreationDisabled, value: true }],
     });
     expect(component.fileUploadDescription()).toBe('shared.files.descriptionNoProject');
 
     const { component: component2 } = setup({
-      selectorOverrides: [{ selector: UserSelectors.getActiveFlags, value: [] }],
+      selectorOverrides: [{ selector: UserSelectors.isProjectCreationDisabled, value: false }],
     });
     expect(component2.fileUploadDescription()).toBe('shared.files.description');
   });

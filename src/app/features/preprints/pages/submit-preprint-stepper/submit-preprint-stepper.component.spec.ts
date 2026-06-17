@@ -57,7 +57,7 @@ describe('SubmitPreprintStepperComponent', () => {
     { selector: PreprintProvidersSelectors.getPreprintProviderDetails(mockProviderId), value: mockProvider },
     { selector: PreprintProvidersSelectors.isPreprintProviderDetailsLoading, value: false },
     { selector: PreprintStepperSelectors.hasBeenSubmitted, value: false },
-    { selector: UserSelectors.getActiveFlags, value: [] },
+    { selector: UserSelectors.isProjectCreationDisabled, value: false },
   ];
 
   function setup(overrides?: { selectorOverrides?: SignalOverride[] }) {
@@ -172,19 +172,17 @@ describe('SubmitPreprintStepperComponent', () => {
     expect(stepValues).toContain(PreprintSteps.AuthorAssertions);
   });
 
-  it('should filter out Supplements step when supplements are disabled via flag', () => {
+  it('should filter out Supplements step when supplements are disabled via isProjectCreationDisabled', () => {
     setup({
-      selectorOverrides: [{ selector: UserSelectors.getActiveFlags, value: ['prevent_project_creation'] }],
+      selectorOverrides: [{ selector: UserSelectors.isProjectCreationDisabled, value: true }],
     });
 
     const stepValues = component.steps().map((s) => s.value);
     expect(stepValues).not.toContain(PreprintSteps.Supplements);
   });
 
-  it('should include Supplements step when supplements are enabled via flag', () => {
-    setup({
-      selectorOverrides: [{ selector: UserSelectors.getActiveFlags, value: [] }],
-    });
+  it('should include Supplements step when supplements are enabled via isProjectCreationDisabled', () => {
+    setup();
 
     const stepValues = component.steps().map((s) => s.value);
     expect(stepValues).toContain(PreprintSteps.Supplements);
