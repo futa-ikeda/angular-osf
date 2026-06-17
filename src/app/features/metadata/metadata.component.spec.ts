@@ -268,6 +268,8 @@ describe('MetadataComponent', () => {
   it('should handle isProjectReadOnly', () => {
     setup([{ selector: UserSelectors.isProjectReadOnly, value: true }]);
 
+    expect(component.isTagsReadOnly()).toBe(true);
+    expect(component.isSubjectsReadOnly()).toBe(true);
     expect(component.disabledButtonTooltip()).toBe('common.errorMessages.actionUnavailable');
   });
 });

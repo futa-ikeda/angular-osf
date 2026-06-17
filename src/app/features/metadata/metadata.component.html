@@ -113,7 +113,7 @@
         <osf-metadata-tags
           [tags]="metadata()?.tags || []"
           (tagsChanged)="onTagsChanged($event)"
-          [readonly]="isRegistrationType() ? !hasAdminAccess() : !hasWriteAccess()"
+          [readonly]="isTagsReadOnly()"
         ></osf-metadata-tags>
 
         <osf-metadata-subjects
@@ -122,7 +122,7 @@
           (updateSelectedSubjects)="updateSelectedSubjects($event)"
           [isSubjectsUpdating]="isSubjectsUpdating()!"
           [selectedSubjects]="selectedSubjects()"
-          [readonly]="!hasAdminAccess()"
+          [readonly]="isSubjectsReadOnly()"
         />
       </div>
     </div>

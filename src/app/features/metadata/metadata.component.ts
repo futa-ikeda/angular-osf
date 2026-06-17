@@ -210,6 +210,20 @@ export class MetadataComponent implements OnInit, OnDestroy {
       (!!this.metadata()?.identifiers?.length || !this.metadata()?.public)
   );
 
+  isTagsReadOnly = computed(() => {
+    if (this.isProjectReadOnly()) {
+      return true;
+    }
+    return this.isRegistrationType() ? !this.hasAdminAccess() : !this.hasWriteAccess();
+  });
+
+  isSubjectsReadOnly = computed(() => {
+    if (this.isProjectReadOnly()) {
+      return true;
+    }
+    return !this.hasAdminAccess();
+  });
+
   isProjectType = computed(() => this.resourceType() === ResourceType.Project);
   isRegistrationType = computed(() => this.resourceType() === ResourceType.Registration);
   disabledButtonTooltip = computed(() => (this.isProjectReadOnly() ? 'common.errorMessages.actionUnavailable' : ''));
