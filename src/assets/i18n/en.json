@@ -484,7 +484,8 @@
       "message": "Are you sure you want to discard your unsaved changes?"
     },
     "errorMessages": {
-      "serverError": "An unexpected error occurred. Please try again later."
+      "serverError": "An unexpected error occurred. Please try again later.",
+      "actionUnavailable": "This action is no longer available. Contact support if you have any questions."
     },
     "hint": {
       "tagSeparators": "Use enter or comma to create a tag.",
