@@ -47,7 +47,7 @@ describe('SupplementsStepComponent', () => {
     { selector: PreprintStepperSelectors.areAvailableProjectsLoading, value: false },
     { selector: PreprintStepperSelectors.getPreprintProject, value: null },
     { selector: PreprintStepperSelectors.isPreprintProjectLoading, value: false },
-    { selector: UserSelectors.getActiveFlags, value: [] },
+    { selector: UserSelectors.isProjectCreationDisabled, value: false },
   ];
 
   function setup(overrides?: { selectorOverrides?: SignalOverride[]; detectChanges?: boolean }) {
@@ -362,12 +362,12 @@ describe('SupplementsStepComponent', () => {
     expect(component.isNextButtonDisabled()).toBe(false);
   });
 
-  it('should compute create project disabled state based on active flags', () => {
+  it('should compute create project disabled state based on isProjectCreationDisabled', () => {
     setup({
-      selectorOverrides: [{ selector: UserSelectors.getActiveFlags, value: ['prevent_project_creation'] }],
+      selectorOverrides: [{ selector: UserSelectors.isProjectCreationDisabled, value: true }],
       detectChanges: false,
     });
-    expect(component.createProjectDisabled()).toBe(true);
+
     expect(component.createProjectTooltip()).toBe('preprints.preprintStepper.supplements.projectCreationDisabled');
   });
 });

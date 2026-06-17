@@ -88,7 +88,7 @@ export class UpdatePreprintStepperComponent implements OnDestroy, CanDeactivateC
   isPreprintProviderLoading = select(PreprintProvidersSelectors.isPreprintProviderDetailsLoading);
   hasBeenSubmitted = select(PreprintStepperSelectors.hasBeenSubmitted);
   hasAdminAccess = select(PreprintStepperSelectors.hasAdminAccess);
-  activeFlags = select(UserSelectors.getActiveFlags);
+  supplementsDisabled = select(UserSelectors.isProjectCreationDisabled);
 
   isWeb = toSignal(inject(IS_WEB));
 
@@ -104,8 +104,6 @@ export class UpdatePreprintStepperComponent implements OnDestroy, CanDeactivateC
   });
 
   isPreprintRejected = computed(() => this.preprint()?.reviewsState === ReviewsState.Rejected);
-
-  readonly supplementsEnabled = computed(() => !this.activeFlags().includes('prevent_project_creation'));
 
   readonly updateSteps = computed(() => {
     const provider = this.preprintProvider();
@@ -124,7 +122,7 @@ export class UpdatePreprintStepperComponent implements OnDestroy, CanDeactivateC
           return provider.assertionsEnabled && this.hasAdminAccess();
         }
         if (step.value === PreprintSteps.Supplements) {
-          return this.supplementsEnabled();
+          return !this.supplementsDisabled();
         }
         return true;
       })

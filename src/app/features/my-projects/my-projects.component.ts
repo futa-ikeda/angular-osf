@@ -84,7 +84,7 @@ export class MyProjectsComponent implements OnInit {
   readonly tableParamsService = inject(MyProjectsTableParamsService);
   readonly platformId = inject(PLATFORM_ID);
   readonly isBrowser = isPlatformBrowser(this.platformId);
-  readonly activeFlags = select(UserSelectors.getActiveFlags);
+  readonly projectCreationDisabled = select(UserSelectors.isProjectCreationDisabled);
 
   readonly isLoading = signal(false);
   readonly isMedium = toSignal(inject(IS_MEDIUM));
@@ -115,7 +115,6 @@ export class MyProjectsComponent implements OnInit {
   readonly bookmarksCollectionId = select(BookmarksSelectors.getBookmarksCollectionId);
   readonly totalBookmarksCount = select(BookmarksSelectors.getBookmarksTotalCount);
   readonly isBookmarks = computed(() => this.selectedTab() === MyProjectsTab.Bookmarks);
-  readonly projectCreationDisabled = computed(() => this.activeFlags().includes('prevent_project_creation'));
   readonly buttonTooltip = computed(() =>
     this.projectCreationDisabled() ? 'myProjects.header.createProjectDisabledTooltip' : ''
   );

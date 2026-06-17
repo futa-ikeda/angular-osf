@@ -65,7 +65,7 @@ describe('OverviewComponentsComponent', () => {
       { selector: ProjectOverviewSelectors.getComponentsSubmitting, value: false },
       { selector: ProjectOverviewSelectors.hasMoreComponents, value: true },
       { selector: ProjectOverviewSelectors.getProject, value: project },
-      { selector: UserSelectors.getActiveFlags, value: [] },
+      { selector: UserSelectors.isProjectCreationDisabled, value: false },
     ];
     const signals = mergeSignalOverrides(defaultSelectors, overrides.selectors);
 
@@ -183,9 +183,9 @@ describe('OverviewComponentsComponent', () => {
     expect(store.dispatch).not.toHaveBeenCalledWith(expect.any(ReorderComponents));
   });
 
-  it('should disable add component button and show tooltip when prevent_project_creation flag is active', () => {
+  it('should disable add component button and show tooltip when isProjectCreationDisabled flag is true', () => {
     setup({
-      selectors: [{ selector: UserSelectors.getActiveFlags, value: ['prevent_project_creation'] }],
+      selectors: [{ selector: UserSelectors.isProjectCreationDisabled, value: true }],
     });
 
     expect(component.preventComponentCreation()).toBe(true);

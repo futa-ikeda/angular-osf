@@ -89,7 +89,7 @@ export class CustomStepComponent implements OnDestroy {
 
   readonly pages = select(RegistriesSelectors.getPagesSchema);
   readonly stepsState = select(RegistriesSelectors.getStepsState);
-  readonly activeFlags = select(UserSelectors.getActiveFlags);
+  readonly projectCreationDisabled = select(UserSelectors.isProjectCreationDisabled);
 
   private readonly actions = createDispatchMap({
     updateStepState: UpdateStepState,
@@ -102,7 +102,7 @@ export class CustomStepComponent implements OnDestroy {
   step = signal(this.route.snapshot.params['step']);
   currentPage = computed(() => this.pages()[this.step() - 1]);
   readonly fileUploadDescription = computed(() => {
-    if (this.activeFlags().includes('prevent_project_creation')) {
+    if (this.projectCreationDisabled()) {
       return 'shared.files.descriptionNoProject';
     }
     return 'shared.files.description';

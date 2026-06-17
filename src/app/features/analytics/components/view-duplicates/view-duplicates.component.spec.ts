@@ -56,7 +56,7 @@ describe('Component: View Duplicates', () => {
       { selector: ProjectOverviewSelectors.isProjectAnonymous, value: false },
       { selector: RegistrySelectors.getRegistry, value: undefined },
       { selector: RegistrySelectors.isRegistryAnonymous, value: false },
-      { selector: UserSelectors.getActiveFlags, value: [] },
+      { selector: UserSelectors.isProjectCreationDisabled, value: false },
     ];
     const signals = mergeSignalOverrides(defaultSelectors, overrides.selectors || []);
 
@@ -94,9 +94,9 @@ describe('Component: View Duplicates', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should disable fork button and show tooltip when preventDuplicateCreation is true', () => {
+  it('should disable fork button and show tooltip when isProjectCreationDisabled is true', () => {
     setup({
-      selectors: [{ selector: UserSelectors.getActiveFlags, value: ['prevent_project_creation'] }],
+      selectors: [{ selector: UserSelectors.isProjectCreationDisabled, value: true }],
     });
     expect(component.preventDuplicateCreation()).toBe(true);
     expect(component.duplicateButtonTooltip()).toBe('project.overview.actions.duplicatingProjectsNotAllowed');

@@ -78,7 +78,7 @@ describe('MyProjectsComponent', () => {
     { selector: BookmarksSelectors.getBookmarks, value: [] },
     { selector: BookmarksSelectors.getBookmarksCollectionId, value: 'bookmark-collection-id' },
     { selector: BookmarksSelectors.getBookmarksTotalCount, value: 0 },
-    { selector: UserSelectors.getActiveFlags, value: [] },
+    { selector: UserSelectors.isProjectCreationDisabled, value: false },
   ];
 
   function setup(selectorOverrides?: SignalOverride[]) {
@@ -134,8 +134,8 @@ describe('MyProjectsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should disable project creation and show tooltip when prevent_project_creation flag is active', () => {
-    setup([{ selector: UserSelectors.getActiveFlags, value: ['prevent_project_creation'] }]);
+  it('should disable project creation and show tooltip when isProjectCreationDisabled is true', () => {
+    setup([{ selector: UserSelectors.isProjectCreationDisabled, value: true }]);
 
     expect(component.projectCreationDisabled()).toBe(true);
     expect(component.buttonTooltip()).toBe('myProjects.header.createProjectDisabledTooltip');

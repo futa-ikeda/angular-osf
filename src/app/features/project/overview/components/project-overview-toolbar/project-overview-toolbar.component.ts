@@ -9,7 +9,7 @@ import { Tooltip } from 'primeng/tooltip';
 
 import { timer } from 'rxjs';
 
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -75,8 +75,7 @@ export class ProjectOverviewToolbarComponent {
 
   duplicatedProject = select(ProjectOverviewSelectors.getDuplicatedProject);
   isAuthenticated = select(UserSelectors.isAuthenticated);
-  activeFlags = select(UserSelectors.getActiveFlags);
-  preventDuplicateCreation = computed(() => this.activeFlags()?.includes('prevent_project_creation') ?? false);
+  preventDuplicateCreation = select(UserSelectors.isProjectCreationDisabled);
 
   actions = createDispatchMap({
     getResourceBookmark: GetResourceBookmark,

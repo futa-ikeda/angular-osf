@@ -67,7 +67,7 @@ describe('ProjectOverviewToolbarComponent', () => {
       { selector: BookmarksSelectors.getBookmarksCollectionIdSubmitting, value: false },
       { selector: ProjectOverviewSelectors.getDuplicatedProject, value: null },
       { selector: UserSelectors.isAuthenticated, value: true },
-      { selector: UserSelectors.getActiveFlags, value: [] },
+      { selector: UserSelectors.isProjectCreationDisabled, value: false },
     ];
     const signals = mergeSignalOverrides(defaultSelectors, overrides.selectors);
 
@@ -208,14 +208,14 @@ describe('ProjectOverviewToolbarComponent', () => {
   });
 
   describe('preventDuplicateCreation', () => {
-    it('should return false when activeFlags does not include prevent_project_creation', () => {
+    it('should return false when isProjectCreationDisabled is false', () => {
       setup();
       expect(component.preventDuplicateCreation()).toBe(false);
     });
 
-    it('should return true when activeFlags includes prevent_project_creation', () => {
+    it('should return true when isProjectCreationDisabled is true', () => {
       setup({
-        selectors: [{ selector: UserSelectors.getActiveFlags, value: ['prevent_project_creation'] }],
+        selectors: [{ selector: UserSelectors.isProjectCreationDisabled, value: true }],
       });
       fixture.detectChanges();
       expect(component.preventDuplicateCreation()).toBe(true);

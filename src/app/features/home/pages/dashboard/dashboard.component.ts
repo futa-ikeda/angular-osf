@@ -54,7 +54,6 @@ export class DashboardComponent implements OnInit {
   private readonly projectRedirectDialogService = inject(ProjectRedirectDialogService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
-  private readonly activeFlags = select(UserSelectors.getActiveFlags);
 
   readonly searchControl = new FormControl<string>('');
   readonly activeProject = signal<MyResourcesItem | null>(null);
@@ -65,6 +64,7 @@ export class DashboardComponent implements OnInit {
   readonly projects = select(MyResourcesSelectors.getProjects);
   readonly totalProjectsCount = select(MyResourcesSelectors.getTotalProjects);
   readonly areProjectsLoading = select(MyResourcesSelectors.getProjectsLoading);
+  readonly projectCreationDisabled = select(UserSelectors.isProjectCreationDisabled);
 
   readonly actions = createDispatchMap({ getMyProjects: GetMyProjects, clearMyResources: ClearMyResources });
 
@@ -73,10 +73,9 @@ export class DashboardComponent implements OnInit {
     return this.projects().filter((project) => project.title.toLowerCase().includes(search));
   });
 
-  readonly projectCreationDisabled = computed(() => this.activeFlags().includes('prevent_project_creation'));
-  readonly buttonTooltip = computed(() =>
-    this.projectCreationDisabled() ? 'home.loggedIn.dashboard.createProjectDisabledTooltip' : ''
-  );
+  readonly buttonTooltip = computed(() => {
+    return this.projectCreationDisabled() ? 'home.loggedIn.dashboard.createProjectDisabledTooltip' : '';
+  });
 
   readonly existsProjects = computed(() => this.projects().length || !!this.searchControl.value?.length);
   readonly noProjectsMessage = computed(() => {
