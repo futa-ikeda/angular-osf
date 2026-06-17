@@ -63,4 +63,9 @@ export class UserSelectors {
   static isProjectCreationDisabled(state: UserStateModel): boolean {
     return state.activeFlags?.includes('prevent_project_creation') || false;
   }
+
+  @Selector([UserState])
+  static isProjectReadOnly(state: UserStateModel): boolean {
+    return state.activeFlags?.includes('project_read_only') || false;
+  }
 }
