@@ -3,6 +3,7 @@ import { createDispatchMap, select } from '@ngxs/store';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
 
 import { debounceTime } from 'rxjs';
 
@@ -21,6 +22,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { UserSelectors } from '@osf/core/store/user/user.selectors';
 import { LoadingSpinnerComponent } from '@osf/shared/components/loading-spinner/loading-spinner.component';
 import { SearchInputComponent } from '@osf/shared/components/search-input/search-input.component';
 import { CollectionsFilters } from '@osf/shared/models/collections/collections-filters.model';
@@ -50,6 +52,7 @@ import { CollectionsMainContentComponent } from '../collections-main-content/col
     SearchInputComponent,
     CollectionsMainContentComponent,
     LoadingSpinnerComponent,
+    Tooltip,
     TranslatePipe,
   ],
   templateUrl: './collections-discover.component.html',
@@ -78,8 +81,10 @@ export class CollectionsDiscoverComponent {
   searchText = select(CollectionsSelectors.getSearchText);
   pageNumber = select(CollectionsSelectors.getPageNumber);
   isProviderLoading = select(CollectionsSelectors.getCollectionProviderLoading);
+  disableAddButton = select(UserSelectors.isProjectReadOnly);
 
   primaryCollectionId = computed(() => this.collectionProvider()?.primaryCollection?.id);
+  disableAddButtonTooltip = computed(() => (this.disableAddButton() ? 'common.errorMessages.actionUnavailable' : ''));
 
   actions = createDispatchMap({
     getCollectionProvider: GetCollectionProvider,
