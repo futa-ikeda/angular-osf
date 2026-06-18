@@ -68,6 +68,7 @@ describe('ProjectOverviewToolbarComponent', () => {
       { selector: ProjectOverviewSelectors.getDuplicatedProject, value: null },
       { selector: UserSelectors.isAuthenticated, value: true },
       { selector: UserSelectors.isProjectCreationDisabled, value: false },
+      { selector: UserSelectors.isProjectReadOnly, value: false },
     ];
     const signals = mergeSignalOverrides(defaultSelectors, overrides.selectors);
 
@@ -219,6 +220,21 @@ describe('ProjectOverviewToolbarComponent', () => {
       });
       fixture.detectChanges();
       expect(component.preventDuplicateCreation()).toBe(true);
+    });
+  });
+
+  describe('projectReadOnlyTooltip', () => {
+    it('should return empty string when isProjectReadOnly is false', () => {
+      setup();
+      expect(component.projectReadOnlyTooltip()).toBe('');
+    });
+
+    it('should return tooltip message when isProjectReadOnly is true', () => {
+      setup({
+        selectors: [{ selector: UserSelectors.isProjectReadOnly, value: true }],
+      });
+      fixture.detectChanges();
+      expect(component.projectReadOnlyTooltip()).toBe('common.errorMessages.actionUnavailable');
     });
   });
 });

@@ -10,6 +10,8 @@
           [routerLink]="'../metadata'"
           severity="secondary"
           [label]="'common.buttons.edit' | translate"
+          [disabled]="isProjectReadOnly()"
+          [pTooltip]="disabledButtonTooltip() | translate"
         ></p-button>
       }
     </div>

@@ -3,11 +3,13 @@ import { createDispatchMap, select } from '@ngxs/store';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
+import { UserSelectors } from '@osf/core/store/user/user.selectors';
 import { AffiliatedInstitutionsViewComponent } from '@osf/shared/components/affiliated-institutions-view/affiliated-institutions-view.component';
 import { ContributorsListComponent } from '@osf/shared/components/contributors-list/contributors-list.component';
 import { ResourceCitationsComponent } from '@osf/shared/components/resource-citations/resource-citations.component';
@@ -43,6 +45,7 @@ import { OverviewSupplementsComponent } from '../overview-supplements/overview-s
     TranslatePipe,
     RouterLink,
     DatePipe,
+    Tooltip,
     TruncatedTextComponent,
     ResourceCitationsComponent,
     OverviewCollectionsComponent,
@@ -79,6 +82,11 @@ export class ProjectOverviewMetadataComponent {
   readonly hasMoreBibliographicContributors = select(ContributorsSelectors.hasMoreBibliographicContributors);
   readonly projectSubmissions = select(CollectionsSelectors.getCurrentProjectSubmissions);
   readonly isProjectSubmissionsLoading = select(CollectionsSelectors.getCurrentProjectSubmissionsLoading);
+  readonly isProjectReadOnly = select(UserSelectors.isProjectReadOnly);
+
+  readonly disabledButtonTooltip = computed(() =>
+    this.isProjectReadOnly() ? 'common.errorMessages.actionUnavailable' : ''
+  );
 
   readonly resourceType = CurrentResourceType.Projects;
   readonly dateFormat = 'MMM d, y, h:mm a';
