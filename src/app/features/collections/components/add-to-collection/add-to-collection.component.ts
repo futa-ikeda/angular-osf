@@ -4,6 +4,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 
 import { Button } from 'primeng/button';
 import { Stepper } from 'primeng/stepper';
+import { Tooltip } from 'primeng/tooltip';
 
 import { filter, map, Observable, of, switchMap } from 'rxjs';
 
@@ -59,6 +60,7 @@ import { SelectProjectStepComponent } from './select-project-step/select-project
     Button,
     Stepper,
     RouterLink,
+    Tooltip,
     TranslatePipe,
     LoadingSpinnerComponent,
     SelectProjectStepComponent,
@@ -95,6 +97,7 @@ export class AddToCollectionComponent implements CanDeactivateComponent {
   selectedProject = select(ProjectsSelectors.getSelectedProject);
   currentUser = select(UserSelectors.getCurrentUser);
   currentCollectionSubmission = select(AddToCollectionSelectors.getCurrentCollectionSubmission);
+  isProjectReadOnly = select(UserSelectors.isProjectReadOnly);
 
   providerId = signal<string>('');
   allowNavigation = signal<boolean>(false);
@@ -110,6 +113,7 @@ export class AddToCollectionComponent implements CanDeactivateComponent {
   isCollectionMetadataDisabled = computed(
     () => !this.selectedProject() || !this.projectMetadataSaved() || !this.projectContributorsSaved()
   );
+  disabledAddButtonTooltip = computed(() => (this.isProjectReadOnly() ? 'common.errorMessages.actionUnavailable' : ''));
 
   actions = createDispatchMap({
     getCollectionProvider: GetCollectionProvider,
