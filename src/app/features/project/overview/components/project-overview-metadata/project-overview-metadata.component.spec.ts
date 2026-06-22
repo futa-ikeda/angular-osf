@@ -7,6 +7,7 @@ import { Mock } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
+import { UserSelectors } from '@osf/core/store/user/user.selectors';
 import { AffiliatedInstitutionsViewComponent } from '@osf/shared/components/affiliated-institutions-view/affiliated-institutions-view.component';
 import { ContributorsListComponent } from '@osf/shared/components/contributors-list/contributors-list.component';
 import { ResourceCitationsComponent } from '@osf/shared/components/resource-citations/resource-citations.component';
@@ -26,7 +27,7 @@ import { FetchSelectedSubjects, SubjectsSelectors } from '@osf/shared/stores/sub
 import { MOCK_PROJECT_OVERVIEW } from '@testing/mocks/project-overview.mock';
 import { provideOSFCore } from '@testing/osf.testing.provider';
 import { RouterMockBuilder, RouterMockType } from '@testing/providers/router-provider.mock';
-import { provideMockStore } from '@testing/providers/store-provider.mock';
+import { mergeSignalOverrides, provideMockStore } from '@testing/providers/store-provider.mock';
 
 import {
   GetProjectIdentifiers,
@@ -50,11 +51,35 @@ describe('ProjectOverviewMetadataComponent', () => {
 
   interface SetupOverrides {
     project?: typeof MOCK_PROJECT_OVERVIEW | null;
+    selectorOverrides?: { selector: any; value: any }[];
   }
 
   function setup(overrides: SetupOverrides = {}) {
     const project = 'project' in overrides ? overrides.project : MOCK_PROJECT_OVERVIEW;
     mockRouter = RouterMockBuilder.create().withUrl('/project/project-1/overview').build();
+
+    const defaultSignals = [
+      { selector: ProjectOverviewSelectors.getProject, value: project },
+      { selector: ProjectOverviewSelectors.isProjectAnonymous, value: false },
+      { selector: ProjectOverviewSelectors.hasWriteAccess, value: true },
+      { selector: ProjectOverviewSelectors.getInstitutions, value: [] },
+      { selector: ProjectOverviewSelectors.isInstitutionsLoading, value: false },
+      { selector: ProjectOverviewSelectors.getIdentifiers, value: [] },
+      { selector: ProjectOverviewSelectors.isIdentifiersLoading, value: false },
+      { selector: ProjectOverviewSelectors.getLicense, value: null },
+      { selector: ProjectOverviewSelectors.isLicenseLoading, value: false },
+      { selector: ProjectOverviewSelectors.getPreprints, value: [] },
+      { selector: ProjectOverviewSelectors.isPreprintsLoading, value: false },
+      { selector: SubjectsSelectors.getSelectedSubjects, value: [] },
+      { selector: SubjectsSelectors.areSelectedSubjectsLoading, value: false },
+      { selector: ContributorsSelectors.getBibliographicContributors, value: [] },
+      { selector: ContributorsSelectors.isBibliographicContributorsLoading, value: false },
+      { selector: ContributorsSelectors.hasMoreBibliographicContributors, value: false },
+      { selector: CollectionsSelectors.getCurrentProjectSubmissions, value: [] },
+      { selector: CollectionsSelectors.getCurrentProjectSubmissionsLoading, value: false },
+      { selector: UserSelectors.isProjectReadOnly, value: false },
+    ];
+    const signals = mergeSignalOverrides(defaultSignals, overrides.selectorOverrides || []);
 
     TestBed.configureTestingModule({
       imports: [
@@ -75,26 +100,7 @@ describe('ProjectOverviewMetadataComponent', () => {
         provideOSFCore(),
         MockProvider(Router, mockRouter),
         provideMockStore({
-          signals: [
-            { selector: ProjectOverviewSelectors.getProject, value: project },
-            { selector: ProjectOverviewSelectors.isProjectAnonymous, value: false },
-            { selector: ProjectOverviewSelectors.hasWriteAccess, value: true },
-            { selector: ProjectOverviewSelectors.getInstitutions, value: [] },
-            { selector: ProjectOverviewSelectors.isInstitutionsLoading, value: false },
-            { selector: ProjectOverviewSelectors.getIdentifiers, value: [] },
-            { selector: ProjectOverviewSelectors.isIdentifiersLoading, value: false },
-            { selector: ProjectOverviewSelectors.getLicense, value: null },
-            { selector: ProjectOverviewSelectors.isLicenseLoading, value: false },
-            { selector: ProjectOverviewSelectors.getPreprints, value: [] },
-            { selector: ProjectOverviewSelectors.isPreprintsLoading, value: false },
-            { selector: SubjectsSelectors.getSelectedSubjects, value: [] },
-            { selector: SubjectsSelectors.areSelectedSubjectsLoading, value: false },
-            { selector: ContributorsSelectors.getBibliographicContributors, value: [] },
-            { selector: ContributorsSelectors.isBibliographicContributorsLoading, value: false },
-            { selector: ContributorsSelectors.hasMoreBibliographicContributors, value: false },
-            { selector: CollectionsSelectors.getCurrentProjectSubmissions, value: [] },
-            { selector: CollectionsSelectors.getCurrentProjectSubmissionsLoading, value: false },
-          ],
+          signals: signals,
         }),
       ],
     });
@@ -172,5 +178,15 @@ describe('ProjectOverviewMetadataComponent', () => {
 
     expect(component.resourceType).toBe(CurrentResourceType.Projects);
     expect(component.dateFormat).toBe('MMM d, y, h:mm a');
+  });
+
+  it('should compute disabledButtonTooltip based on isProjectReadOnly', () => {
+    setup({ selectorOverrides: [{ selector: UserSelectors.isProjectReadOnly, value: true }] });
+    fixture.detectChanges();
+    expect(component.disabledButtonTooltip()).toBe('common.errorMessages.actionUnavailable');
+
+    setup({ selectorOverrides: [{ selector: UserSelectors.isProjectReadOnly, value: false }] });
+    fixture.detectChanges();
+    expect(component.disabledButtonTooltip()).toBe('');
   });
 });

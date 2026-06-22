@@ -9,12 +9,15 @@
           <p class="font-bold">{{ 'project.overview.header.privateProject' | translate }}</p>
         </div>
 
-        <p-toggleswitch
-          class="visibility-switch"
-          [ariaLabel]="'common.accessibility.toggleProjectVisibility' | translate"
-          [(ngModel)]="isPublic"
-          (onChange)="handleToggleProjectPublicity()"
-        />
+        <span [pTooltip]="projectReadOnlyTooltip() | translate">
+          <p-toggleswitch
+            class="visibility-switch"
+            [ariaLabel]="'common.accessibility.toggleProjectVisibility' | translate"
+            [(ngModel)]="isPublic"
+            (onChange)="handleToggleProjectPublicity()"
+            [disabled]="isProjectReadOnly()"
+          />
+        </span>
 
         <div class="flex gap-2" [class.inactive]="!isPublic()">
           <i class="fas fa-lock-open"></i>
