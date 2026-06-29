@@ -1,3 +1,5 @@
+import { select } from '@ngxs/store';
+
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { Button } from 'primeng/button';
@@ -9,6 +11,7 @@ import { Tooltip } from 'primeng/tooltip';
 import { ChangeDetectionStrategy, Component, computed, inject, input, model, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { UserSelectors } from '@osf/core/store/user/user.selectors';
 import { SelectComponent } from '@osf/shared/components/select/select.component';
 import { PERMISSION_OPTIONS } from '@osf/shared/constants/contributors.constants';
 import { ContributorPermission } from '@osf/shared/enums/contributors/contributor-permission.enum';
@@ -58,6 +61,8 @@ export class ContributorsTableComponent {
   remove = output<ContributorModel>();
   loadMore = output<void>();
 
+  isProjectReadonly = select(UserSelectors.isProjectReadOnly);
+
   customDialogService = inject(CustomDialogService);
 
   readonly permissionsOptions: SelectOption[] = PERMISSION_OPTIONS;
@@ -68,6 +73,12 @@ export class ContributorsTableComponent {
   isProject = computed(() => this.resourceType() === ResourceType.Project);
 
   deactivatedContributors = computed(() => this.contributors().some((contributor) => contributor.deactivated));
+
+  canEditContributors = computed(() => this.hasAdminAccess() && !(this.isProjectReadonly() && this.isProject()));
+
+  controlDisabledTooltip = computed(() =>
+    this.isProjectReadonly() && this.isProject() ? 'common.errorMessages.actionUnavailable' : ''
+  );
 
   showLoadMore = computed(() => {
     const currentLoadedItems = this.contributors().length;
