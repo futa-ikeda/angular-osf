@@ -2,7 +2,8 @@
   <osf-sub-header
     [showButton]="hasWriteAccess()"
     [buttonLabel]="'project.metadata.addCommunityMetadataRecord.title' | translate"
-    [isButtonDisabled]="isLoading()"
+    [isButtonDisabled]="isLoading() || isProjectReadOnly()"
+    [buttonTooltip]="disabledButtonTooltip() | translate"
     (buttonClick)="openAddRecord()"
     [title]="'common.labels.metadata' | translate"
   />
@@ -13,7 +14,7 @@
     [selectedCedarTemplate]="selectedCedarTemplate()!"
     [selectedCedarRecord]="selectedCedarRecord()!"
     [cedarFormReadonly]="cedarFormReadonly()"
-    [canEdit]="hasWriteAccess()"
+    [canEdit]="hasWriteAccess() && !isProjectReadOnly()"
     (changeTab)="onTabChange($event)"
     (formSubmit)="onCedarFormSubmit($event)"
     (cedarFormChangeTemplate)="onCedarFormChangeTemplate()"
