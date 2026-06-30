@@ -1124,12 +1124,14 @@
       "descriptions": {
         "file_updated": {
           "daily": "You'll receive a daily summary of file updates.",
-          "instant": "You'll be notified immediately when files are updated.",
+          "instantly": "You'll be notified immediately when files are updated.",
           "none": "You won't receive file update notifications."
         }
       },
+      "disabledForWiki": "This feature is disabled for wikis of private projects.",
       "emailNotifications": "Email Notifications",
       "emailNotificationsText": "These notification settings only apply to you. They do NOT affect any other contributor on this project.",
+      "enabledForWiki": "This feature is enabled for wikis of private projects.",
       "ensureNoInformation": "Ensure the wiki pages, files, registration forms and add-ons do not contain identifying information.",
       "faq": "FAQ",
       "institutionalLogos": "institutional logos to be displayed on public projects",
