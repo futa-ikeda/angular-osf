@@ -1,6 +1,8 @@
 @let resource = currentProject();
 
 @if (resource) {
+  @let customMetadata = customItemMetadata();
+
   <div class="metadata flex flex-column gap-5">
     <div class="metadata-header flex align-items-center justify-content-between">
       <h2>{{ 'common.labels.metadata' | translate }}</h2>
@@ -31,21 +33,24 @@
     </div>
 
     <div class="flex flex-column gap-2">
+      <h3>{{ 'project.overview.metadata.resourceType' | translate }}</h3>
+
+      <p data-test-project-overview-metadata-resource-type>
+        {{
+          customMetadata?.resourceTypeGeneral
+            ? (customMetadata?.resourceTypeGeneral | resourceTypeGeneralLabel)
+            : ('project.overview.metadata.noResourceType' | translate)
+        }}
+      </p>
+    </div>
+
+    <div class="flex flex-column gap-2">
       <h3>{{ 'common.labels.description' | translate }}</h3>
 
       <osf-truncated-text
         [maxVisibleLines]="3"
         [text]="resource.description ? resource.description : ('common.labels.noDescription' | translate)"
       />
-    </div>
-
-    <div class="flex flex-column gap-2">
-      <h3>{{ 'project.overview.metadata.supplements' | translate }}</h3>
-
-      <osf-overview-supplements
-        [supplements]="preprints()"
-        [isLoading]="isPreprintsLoading()"
-      ></osf-overview-supplements>
     </div>
 
     <div class="flex gap-5 lg:gap-2 lg:justify-content-between">
@@ -58,6 +63,45 @@
         <h3>{{ 'project.overview.metadata.dateUpdated' | translate }}</h3>
         <p>{{ resource.dateModified | date: dateFormat }}</p>
       </div>
+    </div>
+
+    <div class="flex flex-column gap-2">
+      <h3>{{ 'common.labels.subjects' | translate }}</h3>
+
+      <osf-subjects-list [subjects]="subjects()" [isLoading]="areSelectedSubjectsLoading()"></osf-subjects-list>
+    </div>
+
+    <div class="flex flex-column gap-2">
+      <h3>{{ 'shared.tags.title' | translate }}</h3>
+
+      <osf-tags-list [tags]="resource.tags" (tagClick)="tagClicked($event)"></osf-tags-list>
+    </div>
+
+    <div class="flex flex-column gap-2">
+      <h3>{{ 'project.overview.metadata.supplements' | translate }}</h3>
+
+      <osf-overview-supplements
+        [supplements]="preprints()"
+        [isLoading]="isPreprintsLoading()"
+      ></osf-overview-supplements>
+    </div>
+
+    <div class="flex flex-column gap-2">
+      <h3>{{ 'project.overview.metadata.funderNames' | translate }}</h3>
+
+      <osf-funders-list [funders]="customMetadata?.funders" [isLoading]="isCustomItemMetadataLoading()" />
+    </div>
+
+    <div class="flex flex-column gap-2">
+      <h3>{{ 'common.labels.language' | translate }}</h3>
+
+      <p data-test-project-overview-metadata-resource-language>
+        {{
+          customMetadata?.language
+            ? (customMetadata?.language | languageLabel)
+            : ('project.overview.metadata.noLanguage' | translate)
+        }}
+      </p>
     </div>
 
     <div class="flex flex-column gap-2">
@@ -85,6 +129,9 @@
     <osf-overview-collections
       [projectSubmissions]="projectSubmissions()"
       [isProjectSubmissionsLoading]="isProjectSubmissionsLoading()"
+      [isCedarMode]="isCedarMode()"
+      [cedarRecords]="cedarRecords()"
+      [cedarTemplates]="cedarTemplates()"
     ></osf-overview-collections>
 
     <div class="flex flex-column gap-2">

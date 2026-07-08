@@ -1,0 +1,20 @@
+<div
+  class="drop-zone-container flex flex-1"
+  (dragenter)="onDragEnter($event)"
+  (dragleave)="onDragLeave($event)"
+  (dragover)="onDragOver($event)"
+  (drop)="onDrop($event)"
+>
+  @if (enabled()) {
+    <div class="drop-zone" [class.active]="isDragOver()">
+      @if (isDragOver()) {
+        <div class="flex flex-column gap-2 align-items-center pointer-events-none">
+          <i class="fa-solid fa-cloud-arrow-up text-5xl"></i>
+          <p class="text-xl">{{ 'files.dropText' | translate }}</p>
+        </div>
+      }
+    </div>
+  }
+
+  <ng-content></ng-content>
+</div>

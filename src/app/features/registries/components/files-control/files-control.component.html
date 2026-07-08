@@ -41,21 +41,17 @@
 
     <osf-files-tree
       [files]="files()"
-      [selectionMode]="null"
       [totalCount]="filesTotalCount()"
-      [storage]="null"
       [currentFolder]="currentFolder()!"
       [isLoading]="isFilesLoading()"
       [scrollHeight]="'500px'"
       [viewOnly]="filesViewOnly()"
-      [resourceId]="projectId()"
-      [provider]="provider()"
-      [selectedFiles]="filesSelection"
-      (selectFile)="onFileTreeSelected($event)"
-      (entryFileClicked)="selectFile($event)"
-      (uploadFilesConfirmed)="uploadFiles($event)"
+      [allowedMenuActions]="allowedMenuActions"
+      (deleteFile)="deleteFile($event)"
+      (fileOpened)="onEntryFileClicked($event)"
+      (uploadFiles)="confirmTreeUpload($event)"
       (loadFiles)="onLoadFiles($event)"
-      (setCurrentFolder)="setCurrentFolder($event)"
+      (currentFolderChanged)="setCurrentFolder($event)"
     >
     </osf-files-tree>
   </div>

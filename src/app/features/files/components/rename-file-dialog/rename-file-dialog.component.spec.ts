@@ -2,8 +2,6 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 
-import { Mocked } from 'vitest';
-
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TextInputComponent } from '@osf/shared/components/text-input/text-input.component';
@@ -18,7 +16,7 @@ describe('RenameFileDialogComponent', () => {
   let component: RenameFileDialogComponent;
   let fixture: ComponentFixture<RenameFileDialogComponent>;
   let dialogRef: DynamicDialogRef;
-  let dialogConfig: Mocked<DynamicDialogConfig>;
+  let dialogConfig: DynamicDialogConfig;
 
   beforeEach(() => {
     const dialogConfigMock = {
@@ -33,7 +31,7 @@ describe('RenameFileDialogComponent', () => {
     fixture = TestBed.createComponent(RenameFileDialogComponent);
     component = fixture.componentInstance;
     dialogRef = TestBed.inject(DynamicDialogRef);
-    dialogConfig = TestBed.inject(DynamicDialogConfig) as Mocked<DynamicDialogConfig>;
+    dialogConfig = TestBed.inject(DynamicDialogConfig);
     fixture.detectChanges();
   });
 
@@ -48,38 +46,44 @@ describe('RenameFileDialogComponent', () => {
   });
 
   it('should initialize form with current name from config', () => {
-    const nameControl = component.renameForm.get('name');
-    expect(nameControl?.value).toBe('test-file.txt');
+    expect(component.renameForm.controls.name.value).toBe('test-file.txt');
   });
 
   it('should be invalid when name is empty', () => {
-    const nameControl = component.renameForm.get('name');
-    nameControl?.setValue('');
-    expect(nameControl?.hasError('required')).toBe(true);
+    component.renameForm.controls.name.setValue('');
+    expect(component.renameForm.controls.name.hasError('required')).toBe(true);
     expect(component.renameForm.invalid).toBe(true);
   });
 
   it('should be invalid when name contains forbidden characters', () => {
-    const nameControl = component.renameForm.get('name');
-    nameControl?.setValue('file@name');
-    expect(nameControl?.hasError('forbiddenCharacters')).toBe(true);
+    component.renameForm.controls.name.setValue('file/name');
+    expect(component.renameForm.controls.name.hasError('forbiddenCharacters')).toBe(true);
   });
 
   it('should be invalid when name ends with period', () => {
-    const nameControl = component.renameForm.get('name');
-    nameControl?.setValue('filename.');
-    expect(nameControl?.hasError('periodAtEnd')).toBe(true);
+    component.renameForm.controls.name.setValue('filename.');
+    expect(component.renameForm.controls.name.hasError('periodAtEnd')).toBe(true);
+  });
+
+  it('should be invalid when name is shorter than min length', () => {
+    component.renameForm.controls.name.setValue('A'.repeat(InputLimits.title.minLength - 1));
+
+    expect(component.renameForm.controls.name.hasError('minlength')).toBe(true);
+  });
+
+  it('should be invalid when name exceeds max length', () => {
+    component.renameForm.controls.name.setValue('A'.repeat(InputLimits.title.maxLength + 1));
+
+    expect(component.renameForm.controls.name.hasError('maxlength')).toBe(true);
   });
 
   it('should be valid when name passes all validations', () => {
-    const nameControl = component.renameForm.get('name');
-    nameControl?.setValue('valid-filename');
+    component.renameForm.controls.name.setValue('valid-filename');
     expect(component.renameForm.valid).toBe(true);
   });
 
-  it('should close dialog with new name when onSubmit is called with valid form', () => {
-    const nameControl = component.renameForm.get('name');
-    nameControl?.setValue('new-filename.txt');
+  it('should close dialog with trimmed name when onSubmit is called with valid form', () => {
+    component.renameForm.controls.name.setValue('  new-filename.txt  ');
 
     component.onSubmit();
 
@@ -87,8 +91,7 @@ describe('RenameFileDialogComponent', () => {
   });
 
   it('should not close dialog when onSubmit is called with invalid form', () => {
-    const nameControl = component.renameForm.get('name');
-    nameControl?.setValue('');
+    component.renameForm.controls.name.setValue('');
 
     component.onSubmit();
 
@@ -101,19 +104,12 @@ describe('RenameFileDialogComponent', () => {
     expect(dialogRef.close).toHaveBeenCalledWith();
   });
 
-  it('should have name control with correct validators', () => {
-    const nameControl = component.renameForm.get('name');
-    expect(nameControl).toBeDefined();
-    expect(nameControl?.hasError('required')).toBe(false);
-  });
-
   it('should handle empty config data', () => {
     dialogConfig.data = undefined;
     fixture = TestBed.createComponent(RenameFileDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    const nameControl = component.renameForm.get('name');
-    expect(nameControl?.value).toBe('');
+    expect(component.renameForm.controls.name.value).toBe('');
   });
 });

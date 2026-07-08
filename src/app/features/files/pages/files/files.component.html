@@ -13,30 +13,24 @@
         <p-select
           class="w-full"
           inputId="in_label"
+          variant="filled"
           [options]="rootFoldersOptions()"
+          [disabled]="isButtonDisabled()"
           [(ngModel)]="currentRootFolder"
           (onChange)="handleRootFolderChange($event.value)"
-          variant="filled"
-        >
-          <ng-template #selectedItem let-selectedOption>
-            <p class="provider-name">{{ selectedOption.label }}</p>
-          </ng-template>
-          <ng-template #item let-option>
-            <p class="provider-name">{{ option.label }}</p>
-          </ng-template>
-        </p-select>
+        />
       }
     </div>
     @if (filesSelection.length) {
       @if (!isMoveDialogOpened()) {
         <osf-files-selection-actions
           [canUpdateFiles]="canUploadFiles()"
-          [selectedFiles]="filesSelection"
+          [selectedFilesCount]="filesSelection.length"
           [hasViewOnly]="hasViewOnly()"
           (deleteSelected)="onDeleteSelected()"
           (moveSelected)="onMoveSelected()"
           (copySelected)="onCopySelected()"
-          (clearSelection)="onClearSelection()"
+          (clearSelection)="clearFilesSelection()"
         ></osf-files-selection-actions>
       }
     } @else {
@@ -128,7 +122,7 @@
       [progress]="progress()"
     ></osf-file-upload-dialog>
 
-    <osf-files-tree
+    <osf-files-tree-explorer
       [files]="files()"
       [totalCount]="filesTotalCount()"
       [currentFolder]="currentFolder()!"
@@ -137,23 +131,22 @@
       [viewOnly]="!canEdit()"
       [supportUpload]="canUploadFiles()"
       [resourceId]="resourceId()"
-      [provider]="provider()"
+      [resourceType]="currentResourceType()"
       [allowedMenuActions]="allowedMenuActions()"
       [scrollHeight]="'500px'"
       [selectedFiles]="filesSelection"
-      (selectFile)="onFileTreeSelected($event)"
-      (unselectFile)="onFileTreeUnselected($event)"
-      (clearSelection)="onClearSelection()"
-      (entryFileClicked)="navigateToFile($event)"
-      (deleteEntryAction)="deleteEntry($event)"
-      (renameEntryAction)="renameEntry($event)"
-      (uploadFilesConfirmed)="uploadFiles($event)"
+      [(foldersStack)]="foldersStack"
+      (fileSelected)="onFileTreeSelected($event)"
+      (fileUnselected)="onFileTreeUnselected($event)"
+      (deleteFile)="deleteEntry($event)"
+      (fileOpened)="navigateToFile($event)"
+      (renameFile)="onRenameFile($event)"
+      (uploadFiles)="confirmTreeUpload($event)"
       (loadFiles)="onLoadFiles($event)"
-      (setCurrentFolder)="setCurrentFolder($event)"
-      (setMoveDialogCurrentFolder)="setMoveDialogCurrentFolder($event)"
-      (updateFoldersStack)="onUpdateFoldersStack($event)"
-      (resetFilesProvider)="resetOnDialogClose()"
+      (currentFolderChanged)="setCurrentFolder($event)"
+      (menuMoveCopy)="onMenuMoveCopy($event)"
+      (dropMove)="onDropMove($event)"
     >
-    </osf-files-tree>
+    </osf-files-tree-explorer>
   </div>
 }

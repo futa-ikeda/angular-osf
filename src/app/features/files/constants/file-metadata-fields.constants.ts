@@ -1,4 +1,4 @@
-import { MetadataField } from '../models';
+import { MetadataField } from '../models/files-metadata-fields.model';
 
 export const FileMetadataFields: MetadataField[] = [
   { key: 'title', label: 'common.labels.title' },

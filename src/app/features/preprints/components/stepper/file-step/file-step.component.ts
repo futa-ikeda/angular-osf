@@ -46,6 +46,7 @@ import { ClearFileDirective } from '@osf/shared/directives/clear-file.directive'
 import { StringOrNull } from '@osf/shared/helpers/types.helper';
 import { FileModel } from '@osf/shared/models/files/file.model';
 import { FileFolderModel } from '@osf/shared/models/files/file-folder.model';
+import { FilePageLinkModel } from '@osf/shared/models/files/file-page-link.model';
 import { ToastService } from '@osf/shared/services/toast.service';
 
 @Component({
@@ -225,7 +226,7 @@ export class FileStepComponent implements OnInit {
     this.actions.getProjectFilesByLink(folder.links.filesLink, 1);
   }
 
-  onLoadFiles(event: { link: string; page: number }) {
+  onLoadFiles(event: FilePageLinkModel) {
     this.actions.getProjectFilesByLink(event.link, event.page);
   }
 }

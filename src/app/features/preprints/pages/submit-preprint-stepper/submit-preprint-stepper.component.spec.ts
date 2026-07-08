@@ -37,7 +37,7 @@ import { PreprintSteps } from '../../enums';
 import { PreprintProviderDetails } from '../../models';
 import { PreprintDraftDeletionService } from '../../services/preprint-draft-deletion.service';
 import { GetPreprintProviderById, PreprintProvidersSelectors } from '../../store/preprint-providers';
-import { DeletePreprint, PreprintStepperSelectors, ResetPreprintStepperState } from '../../store/preprint-stepper';
+import { PreprintStepperSelectors, ResetPreprintStepperState } from '../../store/preprint-stepper';
 
 import { SubmitPreprintStepperComponent } from './submit-preprint-stepper.component';
 
@@ -132,7 +132,7 @@ describe('SubmitPreprintStepperComponent', () => {
     expect(browserTabMock.updateTabStyles).toHaveBeenCalledWith(mockProvider.faviconUrl, mockProvider.name);
   });
 
-  it('should reset services, delegate destroy delete, and reset stepper state', () => {
+  it('should reset services and reset stepper state on destroy', () => {
     setup();
 
     component.ngOnDestroy();
@@ -140,8 +140,6 @@ describe('SubmitPreprintStepperComponent', () => {
     expect(headerStyleMock.resetToDefaults).toHaveBeenCalled();
     expect(brandServiceMock.resetBranding).toHaveBeenCalled();
     expect(browserTabMock.resetToDefaults).toHaveBeenCalled();
-    expect(draftDeletionMock.deleteOnDestroyIfNeeded).toHaveBeenCalledWith(expect.any(Function));
-    expect(store.dispatch).toHaveBeenCalledWith(new DeletePreprint());
     expect(store.dispatch).toHaveBeenCalledWith(new ResetPreprintStepperState());
   });
 
@@ -305,7 +303,6 @@ describe('SubmitPreprintStepperComponent', () => {
     expect(draftDeletionMock.confirmDeleteDraft).toHaveBeenCalledWith(
       expect.objectContaining({
         redirectUrl: '/preprints',
-        onDelete: expect.any(Function),
         onReset: expect.any(Function),
       })
     );

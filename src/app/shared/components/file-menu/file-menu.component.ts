@@ -19,16 +19,14 @@ import { FileMenuAction, FileMenuData, FileMenuFlags } from '@shared/models/file
   styleUrl: './file-menu.component.scss',
 })
 export class FileMenuComponent {
-  private router = inject(Router);
-  private menuManager = inject(MenuManagerService);
-  private viewOnlyService = inject(ViewOnlyLinkHelperService);
+  private readonly router = inject(Router);
+  private readonly menuManager = inject(MenuManagerService);
+  private readonly viewOnlyService = inject(ViewOnlyLinkHelperService);
 
-  isFolder = input<boolean>(false);
-  allowedActions = input<FileMenuFlags>({} as FileMenuFlags);
-  menu = viewChild.required<TieredMenu>('menu');
-  action = output<FileMenuAction>();
-
-  hasViewOnly = computed(() => this.viewOnlyService.hasViewOnlyParam(this.router));
+  readonly isFolder = input<boolean>(false);
+  readonly allowedActions = input<FileMenuFlags>({} as FileMenuFlags);
+  readonly menu = viewChild.required<TieredMenu>('menu');
+  readonly action = output<FileMenuAction>();
 
   private readonly allMenuItems: MenuItem[] = [
     {
@@ -108,7 +106,9 @@ export class FileMenuComponent {
   ];
 
   menuItems = computed(() => {
-    if (this.hasViewOnly()) {
+    const hasViewOnly = this.viewOnlyService.hasViewOnlyParam(this.router);
+
+    if (hasViewOnly) {
       const allowedActionsForFiles = [
         FileMenuType.Download,
         FileMenuType.Embed,

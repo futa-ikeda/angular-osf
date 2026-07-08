@@ -2,6 +2,13 @@
   .p-tree {
     padding: 0;
 
+    .files-table-row {
+      .p-button {
+        --p-button-label-font-weight: 400;
+        --p-button-link-color: var(--dark-blue-1);
+      }
+    }
+
     .p-tree-node-toggle-button {
       display: none;
     }
@@ -18,7 +25,7 @@
 
     .p-tree-node-dragover {
       .files-table-row {
-        background: var(--bg-blue-3);
+        background-color: var(--bg-blue-3);
       }
     }
 
@@ -47,32 +54,27 @@
     }
 
     .p-tree-empty-message {
-      display: none;
+      height: 100%;
     }
 
     .p-tree-node-selected {
       .files-table-row {
         color: var(--white);
-        background: var(--pr-blue-1);
+        background-color: var(--pr-blue-1);
+
+        .p-button {
+          --p-button-link-color: var(--white);
+          --p-button-link-hover-color: var(--white);
+        }
 
         .blue-icon {
           color: var(--white);
         }
       }
     }
-  }
 
-  .empty-state-container {
-    position: absolute;
-    inset: 0;
-    top: 2.75rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    .drop-text {
-      text-align: center;
-      margin-bottom: 2.75rem;
+    .p-tree-loading-icon {
+      color: var(--pr-blue-1);
     }
   }
 }

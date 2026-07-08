@@ -11,7 +11,7 @@ import { CopyButtonComponent } from '@osf/shared/components/copy-button/copy-but
 import { InfoIconComponent } from '@osf/shared/components/info-icon/info-icon.component';
 import { StopPropagationDirective } from '@osf/shared/directives/stop-propagation.directive';
 
-import { OsfFileRevision } from '../../models';
+import { OsfFileRevision } from '../../models/file-revisions.model';
 
 @Component({
   selector: 'osf-file-revisions',

@@ -4,11 +4,11 @@
   [selectedValue]="selectedProject()?.value"
   (changeValue)="onChangeProject($event)"
   [fullWidth]="true"
-  [disabled]="isStorageLoading"
-  [loading]="isLoading"
+  [disabled]="isStorageLoading()"
+  [loading]="isLoading()"
 />
 <div class="my-3">
-  @if (isStorageLoading) {
+  @if (isStorageLoading()) {
     <div class="flex pl-1 gap-3">
       <p-skeleton width="6rem" height="2.5rem" />
       <p-skeleton width="6rem" height="2.5rem" />

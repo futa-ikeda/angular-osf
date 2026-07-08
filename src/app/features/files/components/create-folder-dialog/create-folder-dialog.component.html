@@ -1,10 +1,10 @@
 <form [formGroup]="folderForm" (ngSubmit)="onSubmit()">
   <div class="flex flex-column gap-4">
     <osf-text-input
-      [control]="folderForm.controls['name']"
+      [control]="folderForm.controls.name"
       [label]="'files.dialogs.createFolder.folderName'"
       [placeholder]="'files.dialogs.createFolder.folderNamePlaceholder'"
-      [maxLength]="nameLimit"
+      [maxLength]="nameMaxLength"
       [minLength]="nameMinLength"
     >
     </osf-text-input>

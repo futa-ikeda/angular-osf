@@ -8,11 +8,27 @@ import { StopPropagationDirective } from '@osf/shared/directives/stop-propagatio
 
 import { provideOSFCore } from '@testing/osf.testing.provider';
 
+import { OsfFileRevision } from '../../models/file-revisions.model';
+
 import { FileRevisionsComponent } from './file-revisions.component';
 
 describe('FileRevisionsComponent', () => {
   let component: FileRevisionsComponent;
   let fixture: ComponentFixture<FileRevisionsComponent>;
+  const revisions: OsfFileRevision[] = [
+    {
+      version: '1',
+      dateTime: new Date('2026-01-01T00:00:00Z'),
+      downloads: 2,
+      hashes: { md5: 'md5-1', sha256: 'sha256-1' },
+    },
+    {
+      version: '2',
+      dateTime: new Date('2026-01-02T00:00:00Z'),
+      downloads: 4,
+      hashes: { md5: 'md5-2', sha256: 'sha256-2' },
+    },
+  ];
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -33,74 +49,26 @@ describe('FileRevisionsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize with default values', () => {
+  it('should initialize with default inputs', () => {
     expect(component.fileRevisions()).toBeUndefined();
     expect(component.isLoading()).toBe(false);
   });
 
-  it('should handle loading state input', () => {
-    fixture.componentRef.setInput('isLoading', true);
+  it('should update file revisions input', () => {
+    fixture.componentRef.setInput('fileRevisions', revisions);
     fixture.detectChanges();
 
-    expect(component.isLoading()).toBe(true);
+    expect(component.fileRevisions()).toEqual(revisions);
   });
 
-  it('should emit openRevision event when onOpenRevision is called', () => {
-    const openRevisionSpy = vi.spyOn(component.openRevision, 'emit');
-
-    component.onOpenRevision('1');
-
-    expect(openRevisionSpy).toHaveBeenCalledWith('1');
-  });
-
-  it('should emit downloadRevision event when onDownloadRevision is called', () => {
-    const downloadRevisionSpy = vi.spyOn(component.downloadRevision, 'emit');
-
-    component.onDownloadRevision('2');
-
-    expect(downloadRevisionSpy).toHaveBeenCalledWith('2');
-  });
-
-  it('should handle empty file revisions array', () => {
-    fixture.componentRef.setInput('fileRevisions', []);
-    fixture.detectChanges();
-
-    expect(component.fileRevisions()).toEqual([]);
-  });
-
-  it('should handle null file revisions', () => {
+  it('should support null file revisions input', () => {
     fixture.componentRef.setInput('fileRevisions', null);
     fixture.detectChanges();
 
     expect(component.fileRevisions()).toBeNull();
   });
 
-  it('should have all required outputs defined', () => {
-    expect(component.downloadRevision).toBeDefined();
-    expect(component.openRevision).toBeDefined();
-  });
-
-  it('should handle multiple revision events', () => {
-    const openRevisionSpy = vi.spyOn(component.openRevision, 'emit');
-    const downloadRevisionSpy = vi.spyOn(component.downloadRevision, 'emit');
-
-    component.onOpenRevision('1');
-    component.onDownloadRevision('1');
-    component.onOpenRevision('2');
-    component.onDownloadRevision('2');
-
-    expect(openRevisionSpy).toHaveBeenCalledTimes(2);
-    expect(openRevisionSpy).toHaveBeenCalledWith('1');
-    expect(openRevisionSpy).toHaveBeenCalledWith('2');
-
-    expect(downloadRevisionSpy).toHaveBeenCalledTimes(2);
-    expect(downloadRevisionSpy).toHaveBeenCalledWith('1');
-    expect(downloadRevisionSpy).toHaveBeenCalledWith('2');
-  });
-
   it('should handle loading state changes', () => {
-    expect(component.isLoading()).toBe(false);
-
     fixture.componentRef.setInput('isLoading', true);
     fixture.detectChanges();
 
@@ -110,5 +78,21 @@ describe('FileRevisionsComponent', () => {
     fixture.detectChanges();
 
     expect(component.isLoading()).toBe(false);
+  });
+
+  it('should emit open revision event', () => {
+    const openRevisionSpy = vi.spyOn(component.openRevision, 'emit');
+
+    component.onOpenRevision('1');
+
+    expect(openRevisionSpy).toHaveBeenCalledWith('1');
+  });
+
+  it('should emit download revision event', () => {
+    const downloadRevisionSpy = vi.spyOn(component.downloadRevision, 'emit');
+
+    component.onDownloadRevision('2');
+
+    expect(downloadRevisionSpy).toHaveBeenCalledWith('2');
   });
 });

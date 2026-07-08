@@ -18,10 +18,29 @@ export class SocialShareService {
     return this.environment.webUrl;
   }
 
+  getEmailLink(title: string, url: string): string {
+    return this.generateEmailLink({ title, url });
+  }
+
+  getXLink(title: string, url: string): string {
+    return this.generateXLink({ title, url });
+  }
+
+  getFacebookLink(url: string): string {
+    return this.generateFacebookLink({ title: '', url });
+  }
+
+  getFacebookCustomLink(url: string): string {
+    const encodedUrl = encodeURIComponent(url);
+    const appId = this.environment.facebookAppId;
+
+    return `${SOCIAL_SHARE_URLS.facebookShare}?app_id=${appId}&display=popup&href=${encodedUrl}&redirect_uri=${encodedUrl}`;
+  }
+
   generateAllSharingLinks(content: SocialShareContentModel): SocialShareLinksModel {
     return {
       email: this.generateEmailLink(content),
-      twitter: this.generateTwitterLink(content),
+      twitter: this.generateXLink(content),
       facebook: this.generateFacebookLink(content),
       linkedIn: this.generateLinkedInLink(content),
       mastodon: this.generateMastodonLink(content),
@@ -58,11 +77,11 @@ export class SocialShareService {
     return `${SOCIAL_SHARE_URLS.email}?subject=${subject}&body=${body}`;
   }
 
-  private generateTwitterLink(content: SocialShareContentModel): string {
+  private generateXLink(content: SocialShareContentModel): string {
     const url = encodeURIComponent(content.url);
     const text = encodeURIComponent(content.title);
 
-    return `${SOCIAL_SHARE_URLS.twitter.preview_url}?url=${url}&text=${text}&via=${SOCIAL_SHARE_URLS.twitter.viaHandle}`;
+    return `${SOCIAL_SHARE_URLS.x.preview_url}?url=${url}&text=${text}&via=${SOCIAL_SHARE_URLS.x.viaHandle}`;
   }
 
   private generateFacebookLink(content: SocialShareContentModel): string {

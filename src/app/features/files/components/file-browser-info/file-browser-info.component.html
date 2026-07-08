@@ -1,5 +1,5 @@
 <main class="flex flex-column gap-3">
-  @for (item of filteredInfoItems(); track item.titleKey) {
+  @for (item of filteredInfoItems; track item.titleKey) {
     <div>
       <h3>{{ item.titleKey | translate }}</h3>
       <p>{{ item.descriptionKey | translate }}</p>
@@ -15,5 +15,5 @@
 </main>
 
 <div class="flex justify-content-end">
-  <p-button [label]="'common.buttons.close' | translate" (click)="dialogRef.close()" />
+  <p-button [label]="'common.buttons.close' | translate" (onClick)="dialogRef.close()" />
 </div>

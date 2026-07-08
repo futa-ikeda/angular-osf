@@ -35,10 +35,10 @@ export class CurrentResourceState {
     });
 
     return this.resourceService.getResourceById(action.resourceId).pipe(
-      tap((resourceType) => {
+      tap((resource) => {
         ctx.patchState({
           currentResource: {
-            data: resourceType,
+            data: resource,
             isLoading: false,
             error: null,
           },

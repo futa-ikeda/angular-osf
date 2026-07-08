@@ -1,5 +1,7 @@
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 
+import { Observable } from 'rxjs';
+
 import { Mock } from 'vitest';
 
 import { CustomDialogService } from '@osf/shared/services/custom-dialog.service';
@@ -42,6 +44,12 @@ export class CustomDialogServiceMockBuilder {
 }
 
 export const CustomDialogServiceMock = {
+  dialogRefWithClose<T>(onClose: Observable<T>): DynamicDialogRef {
+    return {
+      onClose,
+      close: vi.fn(),
+    } as unknown as DynamicDialogRef;
+  },
   create() {
     return CustomDialogServiceMockBuilder.create();
   },

@@ -4,30 +4,32 @@ import { Button } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
+import { Textarea } from 'primeng/textarea';
 
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
-import { languageCodes } from '@osf/shared/constants/language.const';
+import { LANGUAGE_CODES } from '@osf/shared/constants/language.const';
 import { resourceTypes } from '@osf/shared/constants/resource-types.const';
 
-import { OsfFileCustomMetadata, PatchFileMetadata } from '../../models';
+import { OsfFileCustomMetadata } from '../../models/file-custom-metadata.model';
+import { PatchFileMetadata } from '../../models/patch-file-metadata.model';
 
 @Component({
   selector: 'osf-edit-file-metadata-dialog',
-  imports: [Button, InputText, Select, ReactiveFormsModule, TranslatePipe],
+  imports: [Button, InputText, Textarea, Select, ReactiveFormsModule, TranslatePipe],
   templateUrl: './edit-file-metadata-dialog.component.html',
   styleUrl: './edit-file-metadata-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditFileMetadataDialogComponent {
   readonly resourceTypes = resourceTypes;
-  readonly languages = languageCodes;
+  readonly languages = LANGUAGE_CODES;
 
   private readonly dialogRef = inject(DynamicDialogRef);
   readonly config = inject(DynamicDialogConfig);
 
-  fileMetadataForm = new FormGroup({
+  readonly fileMetadataForm = new FormGroup({
     title: new FormControl<string | null>(null),
     description: new FormControl<string | null>(null),
     resourceType: new FormControl<string | null>(null),
@@ -35,30 +37,20 @@ export class EditFileMetadataDialogComponent {
   });
 
   constructor() {
-    const fileMetadata = this.config.data as OsfFileCustomMetadata;
+    this.initializeForm();
+  }
+
+  private initializeForm(): void {
+    const fileMetadata = this.config.data as Partial<OsfFileCustomMetadata> | undefined;
+    const resourceTypeGeneral = fileMetadata?.resourceTypeGeneral ?? '';
+    const language = fileMetadata?.language ?? '';
 
     this.fileMetadataForm.patchValue({
-      title: fileMetadata.title,
-      description: fileMetadata.description,
-      resourceType: fileMetadata.resourceTypeGeneral.length ? fileMetadata.resourceTypeGeneral : null,
-      resourceLanguage: fileMetadata.language.length ? fileMetadata.language : null,
+      title: fileMetadata?.title ?? null,
+      description: fileMetadata?.description ?? null,
+      resourceType: resourceTypeGeneral.length ? resourceTypeGeneral : null,
+      resourceLanguage: language.length ? language : null,
     });
-  }
-
-  get titleControl(): FormControl<string | null> {
-    return this.fileMetadataForm.get('title') as FormControl<string | null>;
-  }
-
-  get descriptionControl(): FormControl<string | null> {
-    return this.fileMetadataForm.get('description') as FormControl<string | null>;
-  }
-
-  get resourceTypeControl(): FormControl<string | null> {
-    return this.fileMetadataForm.get('resourceType') as FormControl<string | null>;
-  }
-
-  get resourceLanguageControl(): FormControl<string | null> {
-    return this.fileMetadataForm.get('resourceLanguage') as FormControl<string | null>;
   }
 
   setFileMetadata() {
@@ -66,11 +58,12 @@ export class EditFileMetadataDialogComponent {
       return;
     }
 
+    const { title, description, resourceType, resourceLanguage } = this.fileMetadataForm.getRawValue();
     const formValues: PatchFileMetadata = {
-      title: this.fileMetadataForm.get('title')?.value ?? null,
-      description: this.fileMetadataForm.get('description')?.value ?? null,
-      resource_type_general: this.fileMetadataForm.get('resourceType')?.value ?? '',
-      language: this.fileMetadataForm.get('resourceLanguage')?.value ?? '',
+      title: title ?? null,
+      description: description ?? null,
+      resource_type_general: resourceType ?? '',
+      language: resourceLanguage ?? '',
     };
 
     this.dialogRef.close(formValues);

@@ -1,166 +1,82 @@
-import { select } from '@ngxs/store';
-
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { PrimeTemplate, TreeNode } from 'primeng/api';
-import { Tree, TreeLazyLoadEvent, TreeNodeDropEvent, TreeNodeSelectEvent } from 'primeng/tree';
+import { PrimeTemplate, TreeDragDropService } from 'primeng/api';
+import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { Tree, TreeLazyLoadEvent } from 'primeng/tree';
 
-import { Clipboard } from '@angular/cdk/clipboard';
-import { DatePipe, isPlatformBrowser } from '@angular/common';
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  ElementRef,
-  HostBinding,
-  inject,
-  input,
-  OnDestroy,
-  output,
-  PLATFORM_ID,
-  signal,
-  viewChild,
-} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
 
-import { ENVIRONMENT } from '@core/provider/environment.provider';
-import { ConfirmMoveFileDialogComponent } from '@osf/features/files/components/confirm-move-file-dialog/confirm-move-file-dialog.component';
-import { MoveFileDialogComponent } from '@osf/features/files/components/move-file-dialog/move-file-dialog.component';
-import { RenameFileDialogComponent } from '@osf/features/files/components/rename-file-dialog/rename-file-dialog.component';
-import { embedDynamicJs, embedStaticHtml } from '@osf/features/files/constants';
-import { StopPropagationDirective } from '@osf/shared/directives/stop-propagation.directive';
 import { FileKind } from '@osf/shared/enums/file-kind.enum';
-import { FileMenuType } from '@osf/shared/enums/file-menu-type.enum';
+import { FileTreeMapper } from '@osf/shared/mappers/files/file-tree.mapper';
 import { FilesMapper } from '@osf/shared/mappers/files/files.mapper';
-import { FileSizePipe } from '@osf/shared/pipes/file-size.pipe';
-import { CustomConfirmationService } from '@osf/shared/services/custom-confirmation.service';
-import { CustomDialogService } from '@osf/shared/services/custom-dialog.service';
-import { DataciteService } from '@osf/shared/services/datacite/datacite.service';
-import { FilesService } from '@osf/shared/services/files.service';
-import { ToastService } from '@osf/shared/services/toast.service';
-import { ViewOnlyLinkHelperService } from '@osf/shared/services/view-only-link-helper.service';
+import { FileMenuFlags } from '@osf/shared/models/files/file-menu-action.model';
+import { FilePageLinkModel } from '@osf/shared/models/files/file-page-link.model';
 import { FileModel } from '@shared/models/files/file.model';
 import { FileFolderModel } from '@shared/models/files/file-folder.model';
 import { FileLabelModel } from '@shared/models/files/file-label.model';
-import { FileMenuAction, FileMenuFlags } from '@shared/models/files/file-menu-action.model';
-import { CurrentResourceSelectors } from '@shared/stores/current-resource';
 
-import { FileMenuComponent } from '../file-menu/file-menu.component';
+import { FilesDropZoneComponent } from '../files-drop-zone/files-drop-zone.component';
+import { FilesTreeRowComponent } from '../files-tree-row/files-tree-row.component';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
-
-// [NS] Temporary fix
-type FileTreeNode = FileModel & TreeNode;
 
 @Component({
   selector: 'osf-files-tree',
   imports: [
-    DatePipe,
-    FileSizePipe,
-    PrimeTemplate,
-    TranslatePipe,
+    Button,
     Tree,
+    Tooltip,
+    PrimeTemplate,
     LoadingSpinnerComponent,
-    FileMenuComponent,
-    StopPropagationDirective,
+    FilesDropZoneComponent,
+    FilesTreeRowComponent,
+    TranslatePipe,
   ],
+  providers: [TreeDragDropService],
   templateUrl: './files-tree.component.html',
   styleUrl: './files-tree.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FilesTreeComponent implements OnDestroy, AfterViewInit {
-  @HostBinding('class') classes = 'relative';
-  private dropZoneContainerRef = viewChild<ElementRef>('dropZoneContainer');
-  readonly filesService = inject(FilesService);
-  readonly router = inject(Router);
-  readonly toastService = inject(ToastService);
-  readonly route = inject(ActivatedRoute);
-  readonly customConfirmationService = inject(CustomConfirmationService);
-  readonly customDialogService = inject(CustomDialogService);
-  readonly dataciteService = inject(DataciteService);
-  private readonly viewOnlyService = inject(ViewOnlyLinkHelperService);
+export class FilesTreeComponent {
+  readonly files = input.required<FileModel[]>();
+  readonly currentFolder = input.required<FileFolderModel>();
 
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly environment = inject(ENVIRONMENT);
-  private readonly platformId = inject(PLATFORM_ID);
-  readonly clipboard = inject(Clipboard);
+  readonly totalCount = input<number>(0);
+  readonly isLoading = input<boolean>(false);
+  readonly storage = input<FileLabelModel | null>(null);
+  readonly viewOnly = input<boolean>(true);
+  readonly scrollHeight = input<string>('300px');
+  readonly selectionMode = input<'multiple' | null>(null);
+  readonly allowedMenuActions = input<FileMenuFlags>({} as FileMenuFlags);
 
-  files = input.required<FileModel[]>();
-  totalCount = input<number>(0);
-  isLoading = input<boolean>();
-  currentFolder = input.required<FileFolderModel>();
-  storage = input.required<FileLabelModel | null>();
-  resourceId = input.required<string>();
-  viewOnly = input<boolean>(true);
-  provider = input<string>();
-  allowedMenuActions = input<FileMenuFlags>({} as FileMenuFlags);
-  supportUpload = input<boolean>(true);
-  selectedFiles = input<FileModel[]>([]);
-  scrollHeight = input<string>('300px');
-  selectionMode = input<'multiple' | null>('multiple');
+  readonly fileOpened = output<FileModel>();
+  readonly uploadFiles = output<File[] | File>();
+  readonly currentFolderChanged = output<FileFolderModel>();
+  readonly deleteFile = output<FileModel>();
+  readonly loadFiles = output<FilePageLinkModel>();
 
-  entryFileClicked = output<FileModel>();
-  uploadFilesConfirmed = output<File[] | File>();
-  setCurrentFolder = output<FileFolderModel>();
-  setMoveDialogCurrentFolder = output<FileFolderModel>();
-  deleteEntryAction = output<string>();
-  renameEntryAction = output<{ newName: string; link: string }>();
-  loadFiles = output<{ link: string; page: number }>();
-  selectFile = output<FileModel>();
-  unselectFile = output<FileModel>();
-  clearSelection = output<void>();
-  updateFoldersStack = output<FileFolderModel[]>();
-  resetFilesProvider = output<void>();
-
-  readonly resourceMetadata = select(CurrentResourceSelectors.getCurrentResource);
-
-  foldersStack: FileFolderModel[] = [];
-  lastSelectedFile: FileModel | null = null;
-  itemsPerPage = 10;
-  virtualScrollItemSize = 46;
-
-  isDragOver = signal(false);
+  foldersStack = signal([] as FileFolderModel[]);
   isLoadingMore = signal(false);
 
-  hasViewOnly = computed(() => this.viewOnlyService.hasViewOnlyParam(this.router) || this.viewOnly());
-  visibleFilesCount = computed((): number => {
-    const height = parseInt(this.scrollHeight(), 10);
-    return Math.ceil(height / this.virtualScrollItemSize);
-  });
-
-  get isSomeFileActionAllowed(): boolean {
-    return Object.keys(this.allowedMenuActions()).length > 0;
-  }
+  readonly itemsPerPage = 10;
+  readonly virtualScrollItemSize = 46;
 
   readonly nodes = computed(() => {
     const currentFolder = this.currentFolder();
     const files = this.files();
-    const hasParent = this.foldersStack.length > 0;
-    if (hasParent) {
-      return [
-        {
-          ...currentFolder,
-          previousFolder: hasParent,
-        },
-        ...files,
-      ] as FileModel[];
-    } else {
-      return [...files];
-    }
-  });
 
-  // [NS] Temporary fix
-  readonly selectedNodes = computed(() => this.selectedFiles() as FileTreeNode[]);
+    const values = this.foldersStack().length
+      ? ([{ ...currentFolder, previousFolder: true }, ...files] as FileModel[])
+      : files;
+
+    return FileTreeMapper.toTreeNodes(values);
+  });
 
   constructor() {
     effect(() => {
       const storageChanged = this.storage();
       if (storageChanged) {
-        this.foldersStack = [];
-        this.updateFoldersStack.emit(this.foldersStack);
+        this.foldersStack.set([]);
       }
     });
 
@@ -171,272 +87,30 @@ export class FilesTreeComponent implements OnDestroy, AfterViewInit {
     });
   }
 
-  ngAfterViewInit(): void {
-    if (!this.viewOnly()) {
-      this.dropZoneContainerRef()?.nativeElement?.addEventListener('dragenter', this.dragEnterHandler);
-    }
+  onDropFiles(fileArray: File[]): void {
+    this.uploadFiles.emit(fileArray);
   }
 
-  ngOnDestroy(): void {
-    if (this.dropZoneContainerRef()?.nativeElement) {
-      this.dropZoneContainerRef()!.nativeElement.removeEventListener('dragenter', this.dragEnterHandler);
-    }
+  deleteEntry(file: FileModel): void {
+    this.deleteFile.emit(file);
   }
 
-  private dragEnterHandler = (event: DragEvent) => {
-    if (event.dataTransfer?.types?.includes('Files') && !this.viewOnly()) {
-      this.isDragOver.set(true);
-    }
-  };
-
-  onDragOver(event: DragEvent) {
-    if (this.viewOnly()) {
-      return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-    event.dataTransfer!.dropEffect = 'copy';
-    this.isDragOver.set(true);
-  }
-
-  onDragLeave(event: Event) {
-    if (this.viewOnly()) {
-      return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver.set(false);
-  }
-
-  onDrop(event: DragEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver.set(false);
-
-    if (this.viewOnly()) {
-      return;
-    }
-
-    const files = event.dataTransfer?.files;
-
-    if (files && files.length > 0) {
-      const fileArray = Array.from(files);
-      const isMultiple = files.length > 1;
-
-      this.customConfirmationService.confirmAccept({
-        headerKey: isMultiple ? 'files.dialogs.uploadFiles.title' : 'files.dialogs.uploadFile.title',
-        messageParams: isMultiple ? { count: files.length } : { name: files[0].name },
-        messageKey: isMultiple ? 'files.dialogs.uploadFiles.message' : 'files.dialogs.uploadFile.message',
-        acceptLabelKey: 'common.buttons.upload',
-        onConfirm: () => this.uploadFilesConfirmed.emit(fileArray),
-      });
-    }
-  }
-
-  openEntry(event: Event, file: FileModel | FileFolderModel) {
-    event.stopPropagation();
+  openEntry(file: FileModel) {
     if (file.kind === FileKind.File) {
-      if (file.guid) {
-        this.entryFileClicked.emit(file);
-      } else {
-        this.filesService.getFileGuid(file.id).subscribe((file) => {
-          this.entryFileClicked.emit(file);
-        });
-      }
+      this.fileOpened.emit(file);
     } else {
       const current = this.currentFolder();
-      if (current) {
-        this.foldersStack.push(current);
-        this.updateFoldersStack.emit(this.foldersStack);
-      }
-      const folder = FilesMapper.mapFileToFolder(file as FileModel);
-      this.setCurrentFolder.emit(folder);
-      this.clearSelection.emit();
+      this.foldersStack.update((stack) => [...stack, current]);
+      const folder = FilesMapper.mapFileToFolder(file);
+      this.currentFolderChanged.emit(folder);
     }
   }
 
   openParentFolder() {
-    const previous = this.foldersStack.pop();
-    this.updateFoldersStack.emit(this.foldersStack);
-    if (previous) {
-      this.setCurrentFolder.emit(previous);
-    }
-    this.clearSelection.emit();
-  }
-
-  onFileMenuAction(action: FileMenuAction, file: FileModel): void {
-    const { value, data } = action;
-
-    switch (value) {
-      case FileMenuType.Download:
-        this.downloadFileOrFolder(file);
-        break;
-      case FileMenuType.Delete:
-        this.deleteEntry(file);
-        break;
-      case FileMenuType.Share:
-        this.handleShareAction(file, data?.type);
-        break;
-      case FileMenuType.Embed:
-        this.handleEmbedAction(file, data?.type);
-        break;
-      case FileMenuType.Rename:
-        this.confirmRename(file);
-        break;
-      case FileMenuType.Move:
-        this.moveFile(file, FileMenuType.Move);
-        break;
-      case FileMenuType.Copy:
-        this.moveFile(file, FileMenuType.Copy);
-        break;
-    }
-  }
-
-  downloadFileOrFolder(file: FileModel) {
-    const resourceType = this.resourceMetadata()?.type ?? 'nodes';
-    this.dataciteService
-      .logFileDownload(this.resourceId(), resourceType)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
-    if (file.kind === FileKind.File) {
-      this.downloadFile(file.links.download);
-    } else {
-      const folder = FilesMapper.mapFileToFolder(file as FileModel);
-      this.downloadFolder(folder.links.download);
-    }
-  }
-
-  private handleShareAction(file: FileModel, shareType?: string): void {
-    const emailLink = `mailto:?subject=${file.name}&body=${file.links.html}`;
-    const twitterLink = `https://twitter.com/intent/tweet?url=${file.links.html}&text=${file.name}&via=OSFramework`;
-    const facebookLink = `https://www.facebook.com/dialog/share?app_id=${this.environment.facebookAppId}&display=popup&href=${file.links.html}&redirect_uri=${file.links.html}`;
-
-    switch (shareType) {
-      case 'email':
-        this.openLink(emailLink);
-        break;
-      case 'twitter':
-        this.openLinkNewTab(twitterLink);
-        break;
-      case 'facebook':
-        this.openLinkNewTab(facebookLink);
-        break;
-    }
-  }
-
-  private handleEmbedAction(file: FileModel, embedType?: string): void {
-    let embedHtml = '';
-    if (embedType === 'dynamic') {
-      embedHtml = embedDynamicJs.replace('ENCODED_URL', file.links.render);
-    } else if (embedType === 'static') {
-      embedHtml = embedStaticHtml.replace('ENCODED_URL', file.links.render);
-    }
-
-    if (embedHtml) {
-      this.copyToClipboard(embedHtml);
-    }
-  }
-
-  deleteEntry(file: FileModel): void {
-    this.customConfirmationService.confirmDelete({
-      headerKey: file.kind === FileKind.Folder ? 'files.dialogs.deleteFolder.title' : 'files.dialogs.deleteFile.title',
-      messageParams: { name: file.name },
-      messageKey:
-        file.kind === FileKind.Folder ? 'files.dialogs.deleteFolder.message' : 'files.dialogs.deleteFile.message',
-      acceptLabelKey: 'common.buttons.remove',
-      onConfirm: () => this.confirmDeleteEntry(file.links.delete),
-    });
-  }
-
-  confirmDeleteEntry(link: string): void {
-    this.deleteEntryAction.emit(link);
-  }
-
-  confirmRename(file: FileModel): void {
-    this.customDialogService
-      .open(RenameFileDialogComponent, {
-        header: 'files.dialogs.renameFile.title',
-        width: '448px',
-        data: {
-          currentName: file.name,
-        },
-      })
-      .onClose.subscribe((newName: string) => {
-        if (newName) {
-          this.renameEntry(newName, file);
-        }
-      });
-  }
-
-  renameEntry(newName: string, file: FileModel): void {
-    if (newName.trim() && file.links.upload) {
-      const link = file.links.upload;
-      this.renameEntryAction.emit({ newName, link });
-    }
-  }
-
-  downloadFile(link: string): void {
-    if (isPlatformBrowser(this.platformId)) {
-      window.open(link)?.focus();
-    }
-  }
-
-  openLink(link: string): void {
-    if (isPlatformBrowser(this.platformId)) {
-      window.location.href = link;
-    }
-  }
-
-  openLinkNewTab(link: string): void {
-    if (isPlatformBrowser(this.platformId)) {
-      window.open(link, '_blank', 'noopener,noreferrer');
-    }
-  }
-
-  downloadFolder(downloadLink: string): void {
-    if (isPlatformBrowser(this.platformId) && downloadLink) {
-      const link = this.filesService.getFolderDownloadLink(downloadLink);
-      window.open(link, '_blank')?.focus();
-    }
-  }
-
-  moveFile(file: FileModel, action: string): void {
-    this.setMoveDialogCurrentFolder.emit(this.currentFolder());
-    this.customDialogService
-      .open(MoveFileDialogComponent, {
-        header: 'files.dialogs.moveFile.title',
-        width: '552px',
-        data: {
-          files: [file],
-          resourceId: this.resourceId(),
-          action: action,
-          storageProvider: this.storage()?.folder.provider,
-          foldersStack: structuredClone(this.foldersStack),
-          initialFolder: structuredClone(this.currentFolder()),
-        },
-      })
-      .onClose.subscribe(() => {
-        this.resetFilesProvider.emit();
-      });
-  }
-
-  copyToClipboard(embedHtml: string): void {
-    this.clipboard.copy(embedHtml);
-    this.toastService.showSuccess('files.detail.toast.copiedToClipboard');
-  }
-
-  private loadNextPage(): void {
-    const total = this.totalCount();
-    const loaded = this.files().length;
-    const nextPage = Math.floor(loaded / this.itemsPerPage) + 1;
-
-    if (!this.isLoadingMore() && loaded < total) {
-      this.isLoadingMore.set(true);
-      this.loadFiles.emit({
-        link: this.currentFolder()?.links.filesLink ?? '',
-        page: nextPage,
-      });
-    }
+    const stack = this.foldersStack();
+    const previous = stack[stack.length - 1];
+    this.foldersStack.set(stack.slice(0, -1));
+    this.currentFolderChanged.emit(previous);
   }
 
   onLazyLoad(event: TreeLazyLoadEvent) {
@@ -446,59 +120,14 @@ export class FilesTreeComponent implements OnDestroy, AfterViewInit {
     }
   }
 
-  onNodeSelect(event: TreeNodeSelectEvent) {
-    const files = this.files();
-    const selectedNode = event.node as FileModel;
-    if ((event.originalEvent as PointerEvent).shiftKey && this.lastSelectedFile) {
-      const lastIndex = files.indexOf(this.lastSelectedFile);
-      const currentIndex = files.indexOf(selectedNode);
-      if (lastIndex == currentIndex) {
-        return;
-      }
+  private loadNextPage(): void {
+    const total = this.totalCount();
+    const loaded = this.files().length;
+    const nextPage = Math.floor(loaded / this.itemsPerPage) + 1;
 
-      const start = Math.min(lastIndex, currentIndex);
-      const end = Math.max(lastIndex, currentIndex);
-
-      for (const file of files.slice(start, end)) {
-        this.selectFile.emit(file);
-      }
+    if (!this.isLoadingMore() && loaded < total) {
+      this.isLoadingMore.set(true);
+      this.loadFiles.emit({ link: this.currentFolder().links.filesLink, page: nextPage });
     }
-    this.selectFile.emit(selectedNode);
-    this.lastSelectedFile = selectedNode;
-  }
-
-  onNodeDrop(event: TreeNodeDropEvent) {
-    const dropFile = event.dropNode as FileModel;
-    if (dropFile.kind !== FileKind.Folder) {
-      return;
-    }
-    const files = this.selectedFiles();
-    const dragFile = event.dragNode as FileModel;
-    if (!files.includes(dragFile)) {
-      this.selectFile.emit(dragFile);
-    }
-    this.moveFilesTo(files, dropFile);
-  }
-
-  onNodeUnselect(event: TreeNodeSelectEvent) {
-    this.unselectFile.emit(event.node as FileModel);
-  }
-
-  private moveFilesTo(files: FileModel[], destination: FileModel) {
-    const isMultiple = files.length > 1;
-    this.customDialogService
-      .open(ConfirmMoveFileDialogComponent, {
-        header: isMultiple ? 'files.dialogs.moveFile.dialogTitleMultiple' : 'files.dialogs.moveFile.dialogTitle',
-        width: '552px',
-        data: {
-          files,
-          destination,
-          resourceId: this.resourceId(),
-          storageProvider: this.storage()?.folder.provider,
-        },
-      })
-      .onClose.subscribe(() => {
-        this.resetFilesProvider.emit();
-      });
   }
 }

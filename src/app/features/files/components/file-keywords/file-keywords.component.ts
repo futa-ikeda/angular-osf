@@ -7,7 +7,7 @@ import { Chip } from 'primeng/chip';
 import { InputText } from 'primeng/inputtext';
 import { Skeleton } from 'primeng/skeleton';
 
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -37,30 +37,51 @@ export class FileKeywordsComponent {
   readonly file = select(FilesSelectors.getOpenedFile);
   readonly hasWriteAccess = select(FilesSelectors.hasWriteAccess);
 
-  readonly hasViewOnly = computed(() => this.viewOnlyService.hasViewOnlyParam(this.router));
+  readonly canManageTags = computed(() => !this.viewOnlyService.hasViewOnlyParam(this.router) && this.hasWriteAccess());
+  readonly canEditTags = computed(() => this.canManageTags() && !this.isTagsLoading());
 
   keywordControl = new FormControl('', {
     nonNullable: true,
     validators: [CustomValidators.requiredTrimmed(), Validators.maxLength(InputLimits.name.maxLength)],
   });
 
+  constructor() {
+    effect(() => {
+      if (this.isTagsLoading()) {
+        this.keywordControl.disable({ emitEvent: false });
+      } else {
+        this.keywordControl.enable({ emitEvent: false });
+      }
+    });
+  }
+
   addTag(): void {
     const fileGuid = this.file()?.guid;
 
-    if (this.keywordControl.value && fileGuid) {
-      const updatedTags = [...this.tags(), this.keywordControl.value!];
-      this.updateTags(updatedTags, fileGuid);
+    if (!this.canEditTags() || this.keywordControl.invalid || !fileGuid) {
+      return;
     }
+
+    const updatedTags = [...this.tags(), this.keywordControl.value.trim()];
+    this.updateTags(updatedTags, fileGuid);
   }
 
   deleteTag(value: string): void {
     const fileGuid = this.file()?.guid;
 
-    if (fileGuid) {
-      const updatedTags = [...this.tags()];
-      updatedTags.splice(updatedTags.indexOf(value), 1);
-      this.updateTags(updatedTags, fileGuid);
+    if (!this.canEditTags() || !fileGuid) {
+      return;
     }
+
+    const updatedTags = [...this.tags()];
+    const tagIndex = updatedTags.indexOf(value);
+
+    if (tagIndex < 0) {
+      return;
+    }
+
+    updatedTags.splice(tagIndex, 1);
+    this.updateTags(updatedTags, fileGuid);
   }
 
   private updateTags(updatedTags: string[], fileGuid: string) {

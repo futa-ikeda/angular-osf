@@ -2,18 +2,17 @@ import { Store } from '@ngxs/store';
 
 import { MockComponents, MockProvider } from 'ng-mocks';
 
-import { TreeDragDropService } from 'primeng/api';
-
 import { of, Subject } from 'rxjs';
 
 import { Mock } from 'vitest';
 
-import { HttpEventType } from '@angular/common/http';
+import { HttpEvent, HttpEventType, HttpResponse, HttpUploadProgressEvent } from '@angular/common/http';
 import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import {
   CreateFolder,
+  DeleteDraftRegistrationFiles,
   GetFiles,
   RegistriesSelectors,
   SetFilesIsLoading,
@@ -35,6 +34,7 @@ import {
   CustomDialogServiceMockBuilder,
   CustomDialogServiceMockType,
 } from '@testing/providers/custom-dialog-provider.mock';
+import { FilesServiceMock, FilesServiceMockType } from '@testing/providers/files-service.mock';
 import { provideMockStore } from '@testing/providers/store-provider.mock';
 import { ToastServiceMock, ToastServiceMockType } from '@testing/providers/toast-provider.mock';
 
@@ -44,7 +44,7 @@ describe('FilesControlComponent', () => {
   let component: FilesControlComponent;
   let fixture: ComponentFixture<FilesControlComponent>;
   let store: Store;
-  let mockFilesService: { uploadFile: Mock; getFileGuid: Mock };
+  let filesServiceMock: FilesServiceMockType;
   let mockDialogService: CustomDialogServiceMockType;
   let currentFolderSignal: WritableSignal<FileFolderModel | null>;
   let toastService: ToastServiceMockType;
@@ -54,7 +54,7 @@ describe('FilesControlComponent', () => {
   } as FileFolderModel;
 
   beforeEach(() => {
-    mockFilesService = { uploadFile: vi.fn(), getFileGuid: vi.fn() };
+    filesServiceMock = FilesServiceMock.simple();
     mockDialogService = CustomDialogServiceMockBuilder.create().withDefaultOpen().build();
     currentFolderSignal = signal<FileFolderModel | null>(CURRENT_FOLDER);
     toastService = ToastServiceMock.simple();
@@ -68,9 +68,8 @@ describe('FilesControlComponent', () => {
         provideOSFCore(),
         MockProvider(ToastService, toastService),
         MockProvider(CustomConfirmationService),
-        MockProvider(FilesService, mockFilesService),
+        MockProvider(FilesService, filesServiceMock),
         MockProvider(CustomDialogService, mockDialogService),
-        MockProvider(TreeDragDropService),
         provideMockStore({
           signals: [
             { selector: RegistriesSelectors.getFiles, value: [] },
@@ -88,7 +87,6 @@ describe('FilesControlComponent', () => {
     fixture.componentRef.setInput('attachedFiles', []);
     fixture.componentRef.setInput('filesLink', '/files-link');
     fixture.componentRef.setInput('projectId', 'project-1');
-    fixture.componentRef.setInput('provider', 'provider-1');
     fixture.componentRef.setInput('filesViewOnly', false);
     fixture.detectChanges();
   });
@@ -131,7 +129,7 @@ describe('FilesControlComponent', () => {
 
   it('should open dialog and dispatch createFolder on confirm', () => {
     const onClose$ = new Subject<string>();
-    mockDialogService.open.mockReturnValue({ onClose: onClose$ } as any);
+    mockDialogService.open.mockReturnValue({ onClose: onClose$ } as never);
     (store.dispatch as Mock).mockClear();
 
     component.createFolder();
@@ -143,17 +141,18 @@ describe('FilesControlComponent', () => {
 
   it('should upload file, track progress, and select uploaded file', () => {
     const file = new File(['data'], 'test.txt');
-    const progress = { type: HttpEventType.UploadProgress, loaded: 50, total: 100 };
-    const response = { type: HttpEventType.Response, body: { data: { id: 'files/abc' } } };
+    const progress: HttpUploadProgressEvent = { type: HttpEventType.UploadProgress, loaded: 50, total: 100 };
+    const response = new HttpResponse({ body: { data: { id: 'files/abc' } } });
+    const uploadEvents: HttpEvent<any>[] = [progress, response];
 
-    mockFilesService.uploadFile.mockReturnValue(of(progress, response));
-    mockFilesService.getFileGuid.mockReturnValue(of({ id: 'abc' } as FileModel));
+    filesServiceMock.uploadFile.mockReturnValue(of(...uploadEvents));
+    filesServiceMock.getFileGuid.mockReturnValue(of({ id: 'abc' } as FileModel));
 
     const selectSpy = vi.spyOn(component, 'selectFile');
 
     component.uploadFiles(file);
 
-    expect(mockFilesService.uploadFile).toHaveBeenCalledWith(file, '/upload');
+    expect(filesServiceMock.uploadFile).toHaveBeenCalledWith(file, '/upload');
     expect(component.progress()).toBe(50);
     expect(selectSpy).toHaveBeenCalledWith({ id: 'abc' } as FileModel);
   });
@@ -164,16 +163,16 @@ describe('FilesControlComponent', () => {
     const file = new File(['data'], 'test.txt');
     component.uploadFiles(file);
 
-    expect(mockFilesService.uploadFile).not.toHaveBeenCalled();
+    expect(filesServiceMock.uploadFile).not.toHaveBeenCalled();
   });
 
   it('should handle File array input', () => {
     const file = new File(['data'], 'test.txt');
-    mockFilesService.uploadFile.mockReturnValue(of({ type: HttpEventType.Sent }));
+    filesServiceMock.uploadFile.mockReturnValue(of({ type: HttpEventType.Sent }));
 
     component.uploadFiles([file]);
 
-    expect(mockFilesService.uploadFile).toHaveBeenCalledWith(file, '/upload');
+    expect(filesServiceMock.uploadFile).toHaveBeenCalledWith(file, '/upload');
   });
 
   it('should not emit attachFile when filesViewOnly is true', () => {
@@ -203,15 +202,6 @@ describe('FilesControlComponent', () => {
     expect(store.dispatch).toHaveBeenCalledWith(new SetRegistriesCurrentFolder(folder));
   });
 
-  it('should add file to filesSelection and deduplicate', () => {
-    const file = { id: 'file-1' } as FileModel;
-
-    component.onFileTreeSelected(file);
-    component.onFileTreeSelected(file);
-
-    expect(component.filesSelection).toEqual([file]);
-  });
-
   it('should not open dialog when no newFolder link', () => {
     currentFolderSignal.set({ links: {} } as FileFolderModel);
 
@@ -227,5 +217,20 @@ describe('FilesControlComponent', () => {
 
     expect(store.dispatch).not.toHaveBeenCalledWith(expect.any(SetFilesIsLoading));
     expect(store.dispatch).not.toHaveBeenCalledWith(expect.any(GetFiles));
+  });
+
+  it('should delete entry, show success toast, refresh files, and emit removal', () => {
+    const file = { id: 'file-1', links: { delete: '/delete-link' } } as FileModel;
+    const emitSpy = vi.spyOn(component.removeFromAttachedFiles, 'emit');
+    const toastSpy = vi.spyOn(toastService, 'showSuccess');
+    (store.dispatch as Mock).mockClear();
+
+    component.deleteFile(file);
+
+    expect(store.dispatch).toHaveBeenCalledWith(new DeleteDraftRegistrationFiles('/delete-link'));
+    expect(toastSpy).toHaveBeenCalledWith('files.dialogs.deleteFile.success');
+    expect(store.dispatch).toHaveBeenCalledWith(new SetFilesIsLoading(true));
+    expect(store.dispatch).toHaveBeenCalledWith(new GetFiles('/files-link', 1));
+    expect(emitSpy).toHaveBeenCalledWith('file-1');
   });
 });

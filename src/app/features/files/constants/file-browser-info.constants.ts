@@ -1,6 +1,6 @@
 import { ResourceType } from '@osf/shared/enums/resource-type.enum';
 
-import { FileInfoItem } from '../models';
+import { FileInfoItem } from '../models/info-item.model';
 
 export const FILE_BROWSER_INFO_ITEMS: FileInfoItem[] = [
   {

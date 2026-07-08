@@ -4,7 +4,7 @@ import { Button } from 'primeng/button';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 
 import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { TextInputComponent } from '@osf/shared/components/text-input/text-input.component';
 import { forbiddenFileNameCharacters, InputLimits } from '@osf/shared/constants/input-limits.const';
@@ -17,7 +17,8 @@ import { CustomValidators } from '@osf/shared/helpers/custom-form-validators.hel
 })
 export class CreateFolderDialogComponent {
   readonly dialogRef = inject(DynamicDialogRef);
-  readonly nameLimit = InputLimits.name.maxLength;
+
+  readonly nameMaxLength = InputLimits.name.maxLength;
   readonly nameMinLength = InputLimits.name.minLength;
 
   readonly folderForm = new FormGroup({
@@ -25,6 +26,8 @@ export class CreateFolderDialogComponent {
       nonNullable: true,
       validators: [
         CustomValidators.requiredTrimmed(),
+        Validators.minLength(InputLimits.name.minLength),
+        Validators.maxLength(InputLimits.name.maxLength),
         CustomValidators.forbiddenCharactersValidator(forbiddenFileNameCharacters),
         CustomValidators.noPeriodAtEnd(),
       ],
@@ -37,9 +40,6 @@ export class CreateFolderDialogComponent {
     }
 
     const folderName = this.folderForm.getRawValue().name.trim();
-
-    if (folderName) {
-      this.dialogRef.close(folderName);
-    }
+    this.dialogRef.close(folderName);
   }
 }

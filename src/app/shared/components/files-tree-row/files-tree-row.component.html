@@ -1,0 +1,54 @@
+@let rowFile = file();
+
+@if (rowFile.previousFolder) {
+  <div class="files-table-row previous-folder">
+    <p-button
+      class="link-btn-no-padding w-full h-full"
+      styleClass="w-full h-full justify-content-start"
+      link
+      (onClick)="openParentFolder.emit()"
+      osfStopPropagation
+    >
+      <i class="fas fa-sm fa-angle-left"></i>
+      <i class="fas fa-folder"></i>
+      {{ rowFile.name }}
+    </p-button>
+  </div>
+} @else {
+  <div class="files-table-row" tabindex="0">
+    <div class="table-cell flex align-items-center" [class.pl-6]="hasFoldersStack()">
+      <p-button
+        class="link-btn-no-padding file-link-btn"
+        styleClass="max-w-full"
+        link
+        [label]="rowFile.name"
+        [icon]="isFolder() ? 'fas fa-folder' : 'fas fa-file blue-icon'"
+        (onClick)="onOpenEntry()"
+        osfStopPropagation
+      />
+    </div>
+
+    <div class="files-table-cell">
+      @if (downloadsCount()) {
+        {{ downloadsCount() }} {{ 'common.labels.downloads' | translate }}
+      }
+    </div>
+
+    <div class="files-table-cell">
+      {{ rowFile.size | fileSize }}
+    </div>
+
+    <div class="files-table-cell">
+      {{ rowFile.dateModified | date: 'MMM d, y hh:mm a' }}
+    </div>
+
+    @if (actionsTemplate()) {
+      <div class="ml-auto" osfStopPropagation>
+        <ng-container
+          [ngTemplateOutlet]="actionsTemplate()"
+          [ngTemplateOutletContext]="{ $implicit: rowFile, isFolder: isFolder() }"
+        />
+      </div>
+    }
+  </div>
+}

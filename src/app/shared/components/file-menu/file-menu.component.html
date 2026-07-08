@@ -6,7 +6,7 @@
     variant="text"
     [raised]="true"
     icon="fas fa-ellipsis-v"
-    (click)="onMenuToggle($event)"
+    (onClick)="onMenuToggle($event)"
   ></p-button>
 
   <p-tieredMenu #menu [model]="menuItems()" appendTo="body" popup (onHide)="onMenuHide()">

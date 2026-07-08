@@ -1,6 +1,6 @@
 import { createDispatchMap, select } from '@ngxs/store';
 
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { Skeleton } from 'primeng/skeleton';
 import { TabsModule } from 'primeng/tabs';
@@ -18,9 +18,9 @@ import {
   PLATFORM_ID,
   signal,
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 
-import { ENVIRONMENT } from '@core/provider/environment.provider';
 import { FileProvider } from '@osf/features/files/constants';
 import {
   FilesSelectors,
@@ -32,14 +32,17 @@ import {
 } from '@osf/features/files/store';
 import { FilesTreeComponent } from '@osf/shared/components/files-tree/files-tree.component';
 import { SelectComponent } from '@osf/shared/components/select/select.component';
+import { ResourceType } from '@osf/shared/enums/resource-type.enum';
+import { buildProjectPathOptions } from '@osf/shared/helpers/project-path-options.helper';
+import { mapRootFoldersToStorageLabels } from '@osf/shared/helpers/storage-addon-options.helper';
 import { Primitive } from '@osf/shared/helpers/types.helper';
-import { ConfiguredAddonModel } from '@osf/shared/models/addons/configured-addon.model';
 import { FileModel } from '@osf/shared/models/files/file.model';
 import { FileFolderModel } from '@osf/shared/models/files/file-folder.model';
 import { FileLabelModel } from '@osf/shared/models/files/file-label.model';
+import { FilePageLinkModel } from '@osf/shared/models/files/file-page-link.model';
 import { NodeShortInfoModel } from '@osf/shared/models/nodes/node-with-children.model';
-import { ProjectModel } from '@osf/shared/models/projects/projects.model';
 import { SelectOption } from '@osf/shared/models/select-option.model';
+import { FilesService } from '@osf/shared/services/files.service';
 import { ViewOnlyLinkHelperService } from '@osf/shared/services/view-only-link-helper.service';
 
 @Component({
@@ -50,23 +53,21 @@ import { ViewOnlyLinkHelperService } from '@osf/shared/services/view-only-link-h
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FilesWidgetComponent {
-  rootOption = input.required<SelectOption>();
-  components = input.required<NodeShortInfoModel[]>();
-  areComponentsLoading = input<boolean>(false);
-  router = inject(Router);
-  activeRoute = inject(ActivatedRoute);
+  readonly rootOption = input.required<SelectOption>();
+  readonly components = input.required<NodeShortInfoModel[]>();
+  readonly areComponentsLoading = input<boolean>(false);
 
-  private readonly environment = inject(ENVIRONMENT);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly viewOnlyService = inject(ViewOnlyLinkHelperService);
-  private readonly platformId = inject(PLATFORM_ID);
-  private readonly isBrowser = isPlatformBrowser(this.platformId);
+  private readonly filesService = inject(FilesService);
+  private readonly translateService = inject(TranslateService);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   readonly files = select(FilesSelectors.getFiles);
   readonly filesTotalCount = select(FilesSelectors.getFilesTotalCount);
   readonly isFilesLoading = select(FilesSelectors.isFilesLoading);
   readonly currentFolder = select(FilesSelectors.getCurrentFolder);
-  readonly provider = select(FilesSelectors.getProvider);
   readonly rootFolders = select(FilesSelectors.getRootFolders);
   readonly isRootFoldersLoading = select(FilesSelectors.isRootFoldersLoading);
   readonly configuredStorageAddons = select(FilesSelectors.getConfiguredStorageAddons);
@@ -75,23 +76,14 @@ export class FilesWidgetComponent {
   currentRootFolder = model<FileLabelModel | null>(null);
   pageNumber = signal(1);
 
-  readonly osfStorageLabel = 'OSF Storage';
-
   readonly options = computed(() => {
     const components = this.components().filter((component) => this.rootOption().value !== component.id);
-    return [this.rootOption(), ...this.buildOptions(components)];
+    return [this.rootOption(), ...buildProjectPathOptions({ nodes: components })];
   });
 
   readonly storageAddons = computed(() => {
-    const rootFolders = this.rootFolders();
-    const addons = this.configuredStorageAddons();
-    if (rootFolders && addons) {
-      return rootFolders.map((folder) => ({
-        label: this.getAddonName(addons, folder.provider),
-        folder: folder,
-      }));
-    }
-    return [];
+    const osfLabel = this.translateService.instant('files.storageLocation');
+    return mapRootFoldersToStorageLabels(this.rootFolders(), this.configuredStorageAddons(), osfLabel);
   });
 
   readonly hasViewOnly = computed(() => this.viewOnlyService.hasViewOnlyParam(this.router));
@@ -104,9 +96,7 @@ export class FilesWidgetComponent {
     resetState: ResetFilesState,
   });
 
-  get isStorageLoading() {
-    return this.isConfiguredStorageAddonsLoading() || this.isRootFoldersLoading();
-  }
+  readonly isStorageLoading = computed(() => this.isConfiguredStorageAddonsLoading() || this.isRootFoldersLoading());
 
   selectedRoot: string | null = null;
 
@@ -129,7 +119,7 @@ export class FilesWidgetComponent {
         const osfRootFolder = rootFolders.find((folder) => folder.provider === FileProvider.OsfStorage);
         if (osfRootFolder) {
           this.currentRootFolder.set({
-            label: this.osfStorageLabel,
+            label: this.translateService.instant('files.storageLocation'),
             folder: osfRootFolder,
           });
         }
@@ -160,57 +150,8 @@ export class FilesWidgetComponent {
   }
 
   private getStorageAddons(projectId: string) {
-    const resourcePath = 'nodes';
-    const folderLink = `${this.environment.apiDomainUrl}/v2/${resourcePath}/${projectId}/files/`;
-    const iriLink = `${this.environment.webUrl}/${projectId}`;
-    this.actions.getRootFolders(folderLink);
-    this.actions.getConfiguredStorageAddons(iriLink);
-  }
-
-  private flatComponents(
-    components: (Partial<ProjectModel> & { children?: ProjectModel[] })[] = [],
-    parentPath = '..'
-  ): SelectOption[] {
-    return components.flatMap((component) => {
-      const currentPath = parentPath ? `${parentPath}/${component.title ?? ''}` : (component.title ?? '');
-
-      return [
-        {
-          value: component.id ?? '',
-          label: currentPath,
-        },
-        ...this.flatComponents(component.children ?? [], currentPath),
-      ];
-    });
-  }
-
-  private buildOptions(nodes: NodeShortInfoModel[] = [], parentPath = '..'): SelectOption[] {
-    return nodes.reduce<SelectOption[]>((acc, node) => {
-      const pathParts: string[] = [];
-
-      let current: NodeShortInfoModel | undefined = node;
-      while (current) {
-        pathParts.unshift(current.title ?? '');
-        current = nodes.find((n) => n.id === current?.parentId);
-      }
-
-      const fullPath = parentPath ? `${parentPath}/${pathParts.join('/')}` : pathParts.join('/');
-
-      acc.push({
-        value: node.id,
-        label: fullPath,
-      });
-
-      return acc;
-    }, []);
-  }
-
-  private getAddonName(addons: ConfiguredAddonModel[], provider: string): string {
-    if (provider === FileProvider.OsfStorage) {
-      return this.osfStorageLabel;
-    } else {
-      return addons.find((addon) => addon.externalServiceName === provider)?.displayName ?? '';
-    }
+    this.actions.getRootFolders(projectId, ResourceType.Project);
+    this.actions.getConfiguredStorageAddons(projectId);
   }
 
   onChangeProject(value: Primitive) {
@@ -225,20 +166,34 @@ export class FilesWidgetComponent {
   }
 
   navigateToFile(file: FileModel) {
-    const extras = this.hasViewOnly()
-      ? { queryParams: { view_only: this.viewOnlyService.getViewOnlyParamFromUrl(this.router.url) } }
-      : undefined;
+    if (file.guid) {
+      this.openFile(file.guid);
+      return;
+    }
 
-    const url = this.router.serializeUrl(this.router.createUrlTree(['/', file.guid], extras));
-
-    window.open(url, '_blank');
+    this.filesService
+      .getFileGuid(file.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((file) => {
+        if (file.guid) {
+          this.openFile(file.guid);
+        }
+      });
   }
 
-  onLoadFiles(event: { link: string; page: number }) {
+  onLoadFiles(event: FilePageLinkModel) {
     this.actions.getFiles(event.link, event.page);
   }
 
   setCurrentFolder(folder: FileFolderModel) {
     this.actions.setCurrentFolder(folder);
+  }
+
+  private openFile(guid: string): void {
+    const extras = this.hasViewOnly()
+      ? { queryParams: { view_only: this.viewOnlyService.getViewOnlyParamFromUrl(this.router.url) } }
+      : undefined;
+
+    window.open(this.router.serializeUrl(this.router.createUrlTree(['/', guid], extras)), '_blank');
   }
 }

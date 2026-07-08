@@ -1,8 +1,8 @@
-@if (selectedFiles().length > 0) {
+@if (selectedFilesCount() > 0) {
   <div class="flex align-items-center flex-wrap gap-2 p-1 -mb-2">
     <div>
       <span class="mr-2">
-        <b>{{ selectedFiles().length }}</b> {{ 'files.selectedFiles' | translate }}
+        <b>{{ selectedFilesCount() }}</b> {{ 'files.selectedFiles' | translate }}
       </span>
 
       <p-button

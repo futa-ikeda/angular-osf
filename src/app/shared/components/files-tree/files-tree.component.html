@@ -1,118 +1,58 @@
-<div #dropZoneContainer class="drop-zone-container flex flex-1">
-  @if (!hasViewOnly() && supportUpload()) {
-    <div
-      class="drop-zone"
-      [class.active]="isDragOver()"
-      (dragleave)="onDragLeave($event)"
-      (dragover)="onDragOver($event)"
-      (drop)="onDrop($event)"
-    >
-      @if (isDragOver()) {
-        <div class="flex flex-column gap-2 align-items-center pointer-events-none">
-          <i class="fa-solid fa-cloud-arrow-up text-5xl"></i>
-          <p class="drop-text text-xl">{{ 'files.dropText' | translate }}</p>
-        </div>
-      }
-    </div>
-  }
-
+<osf-files-drop-zone class="flex flex-1" [enabled]="!viewOnly()" (filesDropped)="onDropFiles($event)">
   @if (isLoading() && !isLoadingMore()) {
     <div class="flex flex-1">
       <osf-loading-spinner></osf-loading-spinner>
     </div>
   } @else {
-    <div class="flex-1">
-      <div class="files-table flex">
-        <p-tree
-          class="tree-table w-full"
-          [draggableNodes]="!hasViewOnly() && supportUpload()"
-          [droppableNodes]="!hasViewOnly() && supportUpload()"
-          [lazy]="true"
-          [loading]="isLoadingMore()"
-          [selectionMode]="selectionMode()"
-          [selection]="selectedNodes()"
-          [scrollHeight]="scrollHeight()"
-          [value]="nodes()"
-          [virtualScroll]="true"
-          [virtualScrollItemSize]="virtualScrollItemSize"
-          (onLazyLoad)="onLazyLoad($event)"
-          (onNodeSelect)="onNodeSelect($event)"
-          (onNodeUnselect)="onNodeUnselect($event)"
-          (onNodeDrop)="onNodeDrop($event)"
-        >
-          <ng-template let-file pTemplate="default">
-            @if (file.previousFolder) {
-              <div
-                class="files-table-row"
-                tabindex="0"
-                (click)="openParentFolder()"
-                (keydown.enter)="openParentFolder()"
-              >
-                <div class="flex align-items-center gap-2">
-                  <i class="fas fa-sm fa-angle-left"></i>
-                  <i class="fas fa-folder"></i>
-                  {{ file.name ?? '' }}
-                </div>
-              </div>
-            } @else {
-              <div class="files-table-row" tabindex="0">
-                <div class="flex gap-2 table-cell" [class.pl-6]="foldersStack.length">
-                  <div
-                    class="flex align-items-center gap-2 hover:underline py-1 max-w-full"
-                    (click)="openEntry($event, file)"
-                    (keydown.enter)="openEntry($event, file)"
-                    tabindex="0"
-                  >
-                    <i [class]="file.kind !== 'folder' ? 'fas fa-file blue-icon' : 'fas fa-folder'"></i>
-                    <span class="entry-title">{{ file?.name ?? '' }}</span>
-                  </div>
-                </div>
+    <div class="files-table flex">
+      <p-tree
+        class="tree-table w-full"
+        [lazy]="true"
+        [loading]="isLoadingMore()"
+        [selectionMode]="selectionMode()"
+        [scrollHeight]="scrollHeight()"
+        [value]="nodes()"
+        [virtualScroll]="true"
+        [virtualScrollItemSize]="virtualScrollItemSize"
+        (onLazyLoad)="onLazyLoad($event)"
+      >
+        <ng-template let-file pTemplate="default">
+          <osf-files-tree-row
+            [file]="file.data"
+            [hasFoldersStack]="foldersStack().length > 0"
+            [actionsTemplate]="rowActions"
+            (openParentFolder)="openParentFolder()"
+            (openEntry)="openEntry($event)"
+          ></osf-files-tree-row>
+        </ng-template>
 
-                <div class="files-table-cell">
-                  @if (file.extra.downloads) {
-                    {{
-                      file.kind === 'file' ? file.extra.downloads + ' ' + ('common.labels.downloads' | translate) : ''
-                    }}
-                  }
-                </div>
-
-                <div class="files-table-cell">
-                  {{ file.size | fileSize }}
-                </div>
-
-                <div class="files-table-cell">
-                  {{ file.dateModified | date: 'MMM d, y hh:mm a' }}
-                </div>
-
-                @if (isSomeFileActionAllowed && !selectedFiles().length) {
-                  <div class="relative ml-auto">
-                    <osf-file-menu
-                      (action)="onFileMenuAction($event, file)"
-                      [isFolder]="file.kind === 'folder'"
-                      [allowedActions]="allowedMenuActions()"
-                      osfStopPropagation
-                    >
-                    </osf-file-menu>
-                  </div>
-                }
-              </div>
-            }
-          </ng-template>
-        </p-tree>
-
-        @if (!files().length) {
-          <div class="empty-state-container p-4">
-            @if (hasViewOnly() || !supportUpload()) {
+        <ng-template pTemplate="empty">
+          <div class="flex align-items-center justify-content-center h-full p-4">
+            @if (viewOnly()) {
               <h3 class="font-normal mb-4 text-no-transform">{{ 'files.emptyState' | translate }}</h3>
             } @else {
-              <div class="drop-text">
+              <div class="flex flex-column align-items-center justify-content-center">
                 <i class="fa-solid fa-cloud-arrow-up text-5xl"></i>
-                <p class="text-xl">{{ 'files.dropText' | translate }}</p>
+                <p class="text-xl text-center">{{ 'files.dropText' | translate }}</p>
               </div>
             }
           </div>
-        }
-      </div>
+        </ng-template>
+      </p-tree>
     </div>
   }
-</div>
+</osf-files-drop-zone>
+
+<ng-template #rowActions let-file let-isFolder="isFolder">
+  @if (allowedMenuActions().delete) {
+    <p-button
+      icon="fas fa-trash"
+      severity="danger"
+      text
+      rounded
+      [pTooltip]="'common.buttons.delete' | translate"
+      tooltipPosition="top"
+      (onClick)="deleteEntry(file)"
+    />
+  }
+</ng-template>

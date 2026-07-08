@@ -25,4 +25,5 @@ export const MOCK_REGISTRATION: RegistrationCard = {
   hasPapers: false,
   hasSupplements: true,
   currentUserPermissions: [UserPermissions.Admin, UserPermissions.Write, UserPermissions.Read],
+  allowUpdates: true,
 };

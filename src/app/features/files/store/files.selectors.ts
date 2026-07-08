@@ -8,7 +8,8 @@ import { FileDetailsModel, FileModel } from '@osf/shared/models/files/file.model
 import { FileFolderModel } from '@osf/shared/models/files/file-folder.model';
 import { ResourceMetadata } from '@osf/shared/models/resource-metadata.model';
 
-import { OsfFileCustomMetadata, OsfFileRevision } from '../models';
+import { OsfFileCustomMetadata } from '../models/file-custom-metadata.model';
+import { OsfFileRevision } from '../models/file-revisions.model';
 
 import { FilesStateModel } from './files.model';
 import { FilesState } from './files.state';

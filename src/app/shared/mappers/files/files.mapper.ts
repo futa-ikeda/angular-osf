@@ -60,6 +60,8 @@ export class FilesMapper {
   }
 
   static getFileDetails(data: FileDetailsDataJsonApi): FileDetailsModel {
+    const target = data.embeds?.target?.data;
+
     return {
       id: data.id,
       guid: data.attributes.guid,
@@ -76,7 +78,7 @@ export class FilesMapper {
       showAsUnviewed: data.attributes.show_as_unviewed,
       extra: this.getFileExtra(data.attributes.extra),
       links: this.getFileLinks(data.links),
-      target: BaseNodeMapper.getNodeData(data.embeds!.target.data),
+      target: target ? BaseNodeMapper.getNodeData(target) : null,
     };
   }
 

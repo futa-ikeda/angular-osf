@@ -7,9 +7,16 @@ import { Mock } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
-import { UserSelectors } from '@osf/core/store/user/user.selectors';
+import { UserSelectors } from '@core/store/user';
+import {
+  GetCedarMetadataRecords,
+  GetCedarMetadataTemplates,
+  GetCustomItemMetadata,
+  MetadataSelectors,
+} from '@osf/features/metadata/store';
 import { AffiliatedInstitutionsViewComponent } from '@osf/shared/components/affiliated-institutions-view/affiliated-institutions-view.component';
 import { ContributorsListComponent } from '@osf/shared/components/contributors-list/contributors-list.component';
+import { FundersListComponent } from '@osf/shared/components/funders-list/funders-list.component';
 import { ResourceCitationsComponent } from '@osf/shared/components/resource-citations/resource-citations.component';
 import { ResourceDoiComponent } from '@osf/shared/components/resource-doi/resource-doi.component';
 import { ResourceLicenseComponent } from '@osf/shared/components/resource-license/resource-license.component';
@@ -77,7 +84,12 @@ describe('ProjectOverviewMetadataComponent', () => {
       { selector: ContributorsSelectors.hasMoreBibliographicContributors, value: false },
       { selector: CollectionsSelectors.getCurrentProjectSubmissions, value: [] },
       { selector: CollectionsSelectors.getCurrentProjectSubmissionsLoading, value: false },
+      { selector: UserSelectors.getActiveFlags, value: [] },
       { selector: UserSelectors.isProjectReadOnly, value: false },
+      { selector: MetadataSelectors.getCedarRecords, value: [] },
+      { selector: MetadataSelectors.getCedarTemplates, value: null },
+      { selector: MetadataSelectors.getCustomItemMetadata, value: null },
+      { selector: MetadataSelectors.isCustomItemMetadataLoading, value: false },
     ];
     const signals = mergeSignalOverrides(defaultSignals, overrides.selectorOverrides || []);
 
@@ -93,7 +105,8 @@ describe('ProjectOverviewMetadataComponent', () => {
           ResourceLicenseComponent,
           SubjectsListComponent,
           TagsListComponent,
-          OverviewSupplementsComponent
+          OverviewSupplementsComponent,
+          FundersListComponent
         ),
       ],
       providers: [
@@ -127,7 +140,10 @@ describe('ProjectOverviewMetadataComponent', () => {
     expect(dispatchMock).toHaveBeenCalledWith(new GetProjectPreprints('project-1'));
     expect(dispatchMock).toHaveBeenCalledWith(new FetchSelectedSubjects('project-1', ResourceType.Project));
     expect(dispatchMock).toHaveBeenCalledWith(new GetProjectSubmissions('project-1'));
+    expect(dispatchMock).toHaveBeenCalledWith(new GetCustomItemMetadata('project-1'));
     expect(dispatchMock).toHaveBeenCalledWith(new GetProjectLicense(MOCK_PROJECT_OVERVIEW.licenseId));
+    expect(dispatchMock).toHaveBeenCalledWith(new GetCedarMetadataRecords('project-1', ResourceType.Project));
+    expect(dispatchMock).toHaveBeenCalledWith(new GetCedarMetadataTemplates());
   });
 
   it('should not dispatch init actions when project is null', () => {

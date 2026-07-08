@@ -7,11 +7,10 @@ import { Select } from 'primeng/select';
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
-import { languageCodes } from '@osf/shared/constants/language.const';
-import { LanguageCodeModel } from '@shared/models/language-code.model';
+import { LANGUAGE_CODES } from '@osf/shared/constants/language.const';
+import { RESOURCE_TYPE_GENERAL_OPTIONS } from '@osf/shared/constants/resource-type-general-options.const';
 
-import { RESOURCE_TYPE_OPTIONS } from '../../constants';
-import { CustomItemMetadataRecord, ResourceInformationForm } from '../../models';
+import { ResourceInformationForm } from '../../models';
 
 @Component({
   selector: 'osf-resource-information-dialog',
@@ -28,26 +27,12 @@ export class ResourceInformationDialogComponent implements OnInit {
     resourceLanguage: new FormControl(''),
   });
 
-  resourceTypeOptions = RESOURCE_TYPE_OPTIONS;
-  languageOptions = languageCodes.map((lang: LanguageCodeModel) => ({
-    label: lang.name,
-    value: lang.code,
-  }));
-
-  get customItemMetadata(): CustomItemMetadataRecord | null {
-    return this.config.data?.customItemMetadata || null;
-  }
-
-  get isEditMode(): boolean {
-    return !!this.customItemMetadata;
-  }
-
-  getResourceTypeName(resourceType: string): string {
-    return Object.fromEntries(RESOURCE_TYPE_OPTIONS.map((item) => [item.value, item.label]))[resourceType];
-  }
+  resourceTypeOptions = RESOURCE_TYPE_GENERAL_OPTIONS;
+  languageOptions = LANGUAGE_CODES;
 
   ngOnInit(): void {
-    const metadata = this.customItemMetadata;
+    const metadata = this.config.data?.customItemMetadata;
+
     if (metadata) {
       this.resourceForm.patchValue({
         resourceType: metadata.resourceTypeGeneral || '',
@@ -57,13 +42,11 @@ export class ResourceInformationDialogComponent implements OnInit {
   }
 
   save(): void {
-    if (this.resourceForm.valid) {
-      const formValue = this.resourceForm.getRawValue();
-      this.dialogRef.close({
-        resourceTypeGeneral: formValue.resourceType,
-        language: formValue.resourceLanguage,
-      });
-    }
+    const formValue = this.resourceForm.getRawValue();
+    this.dialogRef.close({
+      resourceTypeGeneral: formValue.resourceType,
+      language: formValue.resourceLanguage,
+    });
   }
 
   cancel(): void {

@@ -29,11 +29,8 @@ export const filesRoutes: Routes = [
       {
         path: ':fileGuid',
         data: { canonicalPathTemplate: 'files/:fileGuid' },
-        loadComponent: () => {
-          return import('@osf/features/files/pages/file-detail/file-detail.component').then(
-            (c) => c.FileDetailComponent
-          );
-        },
+        loadComponent: () =>
+          import('@osf/features/files/pages/file-detail/file-detail.component').then((c) => c.FileDetailComponent),
       },
     ],
   },

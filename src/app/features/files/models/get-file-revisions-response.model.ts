@@ -2,7 +2,7 @@ import { ApiData, JsonApiResponse } from '@osf/shared/models/common/json-api.mod
 
 export interface FileRevisionJsonApi {
   extra: {
-    downloads: 0;
+    downloads: number;
     hashes: {
       md5: string;
       sha256: string;

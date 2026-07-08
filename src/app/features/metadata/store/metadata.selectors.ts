@@ -17,6 +17,11 @@ export class MetadataSelectors {
   }
 
   @Selector([MetadataState])
+  static isCustomItemMetadataLoading(state: MetadataStateModel) {
+    return state.customMetadata?.isLoading ?? false;
+  }
+
+  @Selector([MetadataState])
   static getLoading(state: MetadataStateModel) {
     return state.metadata?.isLoading || state.customMetadata?.isLoading || false;
   }
@@ -39,6 +44,16 @@ export class MetadataSelectors {
   @Selector([MetadataState])
   static getCedarTemplates(state: MetadataStateModel) {
     return state.cedarTemplates.data;
+  }
+
+  @Selector([MetadataState])
+  static getCedarTemplatesExcludingCollections(state: MetadataStateModel) {
+    const templates = state.cedarTemplates.data;
+    if (!templates) return null;
+    return {
+      ...templates,
+      data: templates.data.filter((t) => !t.attributes.is_for_collections),
+    };
   }
 
   @Selector([MetadataState])

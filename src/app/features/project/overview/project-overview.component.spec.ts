@@ -34,6 +34,7 @@ import { provideOSFCore } from '@testing/osf.testing.provider';
 import { CustomDialogServiceMockBuilder } from '@testing/providers/custom-dialog-provider.mock';
 import { ActivatedRouteMockBuilder } from '@testing/providers/route-provider.mock';
 import { RouterMockBuilder, RouterMockType } from '@testing/providers/router-provider.mock';
+import { SignpostingServiceMock, SignpostingServiceMockType } from '@testing/providers/signposting-provider.mock';
 import {
   BaseSetupOverrides,
   mergeSignalOverrides,
@@ -68,10 +69,7 @@ describe('ProjectOverviewComponent', () => {
   let routerMock: RouterMockType;
   let customDialogServiceMock: ReturnType<CustomDialogServiceMockBuilder['build']>;
   let toastServiceMock: ToastServiceMockType;
-  let signpostingServiceMock: {
-    addSignposting: Mock;
-    removeSignpostingLinkTags: Mock;
-  };
+  let signpostingServiceMock: SignpostingServiceMockType;
 
   const mockProject = MOCK_PROJECT_OVERVIEW as ProjectOverviewModel;
 
@@ -126,10 +124,7 @@ describe('ProjectOverviewComponent', () => {
       .build();
 
     toastServiceMock = ToastServiceMock.simple();
-    signpostingServiceMock = {
-      addSignposting: vi.fn(),
-      removeSignpostingLinkTags: vi.fn(),
-    };
+    signpostingServiceMock = SignpostingServiceMock.simple();
     const viewOnlyLinkHelperMock = ViewOnlyLinkHelperMock.simple();
     const signals = mergeSignalOverrides(defaultSignals, overrides.selectorOverrides);
 

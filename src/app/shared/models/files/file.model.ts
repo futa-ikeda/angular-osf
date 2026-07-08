@@ -29,7 +29,7 @@ export interface FileDetailsModel extends BaseFileModel {
   currentVersion: number;
   showAsUnviewed: boolean;
   links: FileLinksModel;
-  target: BaseNodeModel;
+  target: BaseNodeModel | null;
 }
 
 export interface FileExtraModel {

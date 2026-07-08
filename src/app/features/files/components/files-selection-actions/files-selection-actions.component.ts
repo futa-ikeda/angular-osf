@@ -4,8 +4,6 @@ import { Button } from 'primeng/button';
 
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
-import { FileModel } from '@osf/shared/models/files/file.model';
-
 @Component({
   selector: 'osf-files-selection-actions',
   imports: [Button, TranslatePipe],
@@ -14,7 +12,7 @@ import { FileModel } from '@osf/shared/models/files/file.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FilesSelectionActionsComponent {
-  selectedFiles = input<FileModel[]>([]);
+  selectedFilesCount = input<number>(0);
   canUpdateFiles = input<boolean>(true);
   hasViewOnly = input<boolean>(false);
   copySelected = output<void>();

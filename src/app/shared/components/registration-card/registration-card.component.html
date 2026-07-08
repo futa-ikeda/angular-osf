@@ -5,7 +5,7 @@
         <div class="flex align-items-center flex-wrap gap-2 w-full">
           <osf-icon [iconClass]="registrationData().public ? 'fas fa-lock-open' : 'fas fa-lock'"></osf-icon>
           <h2 class="align-self-center word-break-word">
-            {{ (registrationData().title | fixSpecialChar) || ('project.registrations.card.noTitle' | translate) }}
+            {{ registrationData().title || ('project.registrations.card.noTitle' | translate) }}
           </h2>
           @if (!isDraft()) {
             <osf-status-badge [status]="registrationData().status" />
@@ -49,12 +49,11 @@
             </div>
             <div class="flex gap-2 mt-1">
               @if (isDraft()) {
-                @if (hasWriteAccess) {
+                @if (hasWriteAccess()) {
                   <p-button
                     severity="primary"
                     [label]="'common.buttons.review' | translate"
                     [routerLink]="['/registries/drafts/', registrationData().id, 'review']"
-                    routerLinkActive="router-link-active"
                   />
                   <p-button
                     severity="secondary"
@@ -62,7 +61,7 @@
                     [routerLink]="['/registries/drafts/', registrationData().id, 'metadata']"
                   />
                 }
-                @if (hasAdminAccess) {
+                @if (hasAdminAccess()) {
                   <p-button
                     severity="danger"
                     [label]="'common.buttons.delete' | translate"
@@ -77,15 +76,15 @@
                   routerLinkActive="router-link-active"
                   [label]="'common.buttons.view' | translate"
                 ></p-button>
-                @if (showButtons) {
-                  @if (isApproved) {
+                @if (showButtons()) {
+                  @if (isApproved()) {
                     <p-button
                       severity="secondary"
                       (onClick)="updateRegistration(registrationData().id)"
                       [label]="'common.buttons.update' | translate"
                     ></p-button>
                   }
-                  @if (isInProgress || isUnapproved) {
+                  @if (isInProgress() || isUnapproved()) {
                     <p-button
                       severity="secondary"
                       (onClick)="continueUpdateRegistration(registrationData().id)"
@@ -97,7 +96,7 @@
             </div>
           </div>
 
-          @if (isApproved) {
+          @if (isApproved()) {
             <div class="flex flex-column min-w-max">
               <h3 class="mb-3">{{ 'shared.resources.title' | translate }}</h3>
               <osf-data-resources

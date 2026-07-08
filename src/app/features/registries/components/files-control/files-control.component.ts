@@ -2,7 +2,6 @@ import { createDispatchMap, select } from '@ngxs/store';
 
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { TreeDragDropService } from 'primeng/api';
 import { Button } from 'primeng/button';
 
 import { filter, finalize, switchMap, take } from 'rxjs';
@@ -11,20 +10,25 @@ import { HttpEventType } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 
-import { CreateFolderDialogComponent } from '@osf/features/files/components';
+import { CreateFolderDialogComponent } from '@osf/features/files/components/create-folder-dialog/create-folder-dialog.component';
 import { FileUploadDialogComponent } from '@osf/shared/components/file-upload-dialog/file-upload-dialog.component';
 import { FilesTreeComponent } from '@osf/shared/components/files-tree/files-tree.component';
 import { LoadingSpinnerComponent } from '@osf/shared/components/loading-spinner/loading-spinner.component';
 import { FILE_SIZE_LIMIT } from '@osf/shared/constants/files-limits.const';
 import { ClearFileDirective } from '@osf/shared/directives/clear-file.directive';
+import { FileMenuType } from '@osf/shared/enums/file-menu-type.enum';
+import { FileMenuFlags } from '@osf/shared/models/files/file-menu-action.model';
+import { FilePageLinkModel } from '@osf/shared/models/files/file-page-link.model';
 import { CustomDialogService } from '@osf/shared/services/custom-dialog.service';
 import { FilesService } from '@osf/shared/services/files.service';
+import { FilesTreeActionsService } from '@osf/shared/services/files-tree-actions.service';
 import { ToastService } from '@osf/shared/services/toast.service';
 import { FileModel } from '@shared/models/files/file.model';
 import { FileFolderModel } from '@shared/models/files/file-folder.model';
 
 import {
   CreateFolder,
+  DeleteDraftRegistrationFiles,
   GetFiles,
   GetRootFolders,
   RegistriesSelectors,
@@ -45,17 +49,18 @@ import {
   templateUrl: './files-control.component.html',
   styleUrl: './files-control.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [TreeDragDropService],
 })
 export class FilesControlComponent {
   attachedFiles = input.required<Partial<FileModel>[]>();
   filesLink = input.required<string>();
   projectId = input.required<string>();
-  provider = input.required<string>();
   filesViewOnly = input<boolean>(false);
   attachFile = output<FileModel>();
+  removeFromAttachedFiles = output<string>();
+  openFile = output<FileModel>();
 
   private readonly filesService = inject(FilesService);
+  private readonly filesTreeActionsService = inject(FilesTreeActionsService);
   private readonly customDialogService = inject(CustomDialogService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly toastService = inject(ToastService);
@@ -68,9 +73,9 @@ export class FilesControlComponent {
   readonly progress = signal(0);
   readonly fileName = signal('');
   readonly dataLoaded = signal(false);
+  readonly allowedMenuActions = { [FileMenuType.Delete]: true } as FileMenuFlags;
 
   fileIsUploading = signal(false);
-  filesSelection: FileModel[] = [];
 
   private readonly actions = createDispatchMap({
     createFolder: CreateFolder,
@@ -78,11 +83,20 @@ export class FilesControlComponent {
     setFilesIsLoading: SetFilesIsLoading,
     setCurrentFolder: SetRegistriesCurrentFolder,
     getRootFolders: GetRootFolders,
+    deleteDraftRegistrationFiles: DeleteDraftRegistrationFiles,
   });
 
   constructor() {
     this.setupRootFoldersLoader();
     this.setupCurrentFolderWatcher();
+  }
+
+  deleteFile(file: FileModel): void {
+    this.actions.deleteDraftRegistrationFiles(file?.links.delete).subscribe(() => {
+      this.toastService.showSuccess('files.dialogs.deleteFile.success');
+      this.refreshFilesList();
+      this.removeFromAttachedFiles.emit(file.id);
+    });
   }
 
   onFileSelected(event: Event): void {
@@ -115,6 +129,11 @@ export class FilesControlComponent {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => this.refreshFilesList());
+  }
+
+  confirmTreeUpload(files: File | File[]): void {
+    const fileArray = Array.isArray(files) ? files : [files];
+    this.filesTreeActionsService.confirmDropFiles(fileArray, () => this.uploadFiles(files));
   }
 
   uploadFiles(files: File | File[]): void {
@@ -153,17 +172,17 @@ export class FilesControlComponent {
       });
   }
 
+  onEntryFileClicked(file: FileModel): void {
+    this.selectFile(file);
+    this.openFile.emit(file);
+  }
+
   selectFile(file: FileModel): void {
     if (this.filesViewOnly()) return;
     this.attachFile.emit(file);
   }
 
-  onFileTreeSelected(file: FileModel): void {
-    this.filesSelection.push(file);
-    this.filesSelection = [...new Set(this.filesSelection)];
-  }
-
-  onLoadFiles(event: { link: string; page: number }) {
+  onLoadFiles(event: FilePageLinkModel) {
     this.actions.getFiles(event.link, event.page);
   }
 

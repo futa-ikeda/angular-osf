@@ -9,14 +9,21 @@ import { Router } from '@angular/router';
 
 import { SENTRY_TOKEN } from '@core/provider/sentry.provider';
 import { AuthService } from '@core/services/auth.service';
+import { MaintenanceModeService } from '@core/services/maintenance-mode.service';
+import { UserSelectors } from '@core/store/user';
 import { ToastService } from '@osf/shared/services/toast.service';
 import { ViewOnlyLinkHelperService } from '@osf/shared/services/view-only-link-helper.service';
 
 import { provideOSFCore } from '@testing/osf.testing.provider';
 import { AuthServiceMock, AuthServiceMockType } from '@testing/providers/auth-service.mock';
 import { LoaderServiceMock, provideLoaderServiceMock } from '@testing/providers/loader-service.mock';
+import {
+  MaintenanceModeServiceMock,
+  MaintenanceModeServiceMockType,
+} from '@testing/providers/maintenance-mode.service.mock';
 import { RouterMockBuilder, RouterMockType } from '@testing/providers/router-provider.mock';
 import { SentryMock, SentryMockType } from '@testing/providers/sentry-provider.mock';
+import { provideMockStore } from '@testing/providers/store-provider.mock';
 import { ToastServiceMock, ToastServiceMockType } from '@testing/providers/toast-provider.mock';
 import { ViewOnlyLinkHelperMock, ViewOnlyLinkHelperMockType } from '@testing/providers/view-only-link-helper.mock';
 
@@ -28,14 +35,21 @@ describe('errorInterceptor', () => {
   let toastServiceMock: ToastServiceMockType;
   let loaderServiceMock: LoaderServiceMock;
   let authServiceMock: AuthServiceMockType;
+  let maintenanceModeServiceMock: MaintenanceModeServiceMockType;
   let viewOnlyHelperMock: ViewOnlyLinkHelperMockType;
   let sentryMock: SentryMockType;
 
-  function setup(platformId: 'browser' | 'server' = 'browser', viewOnly = false, routerUrl = '/dashboard') {
+  function setup(
+    platformId: 'browser' | 'server' = 'browser',
+    viewOnly = false,
+    routerUrl = '/dashboard',
+    isAuthenticated = false
+  ) {
     router = RouterMockBuilder.create().withUrl(routerUrl).withNavigate(vi.fn().mockResolvedValue(true)).build();
     toastServiceMock = ToastServiceMock.simple();
     loaderServiceMock = new LoaderServiceMock();
     authServiceMock = AuthServiceMock.simple();
+    maintenanceModeServiceMock = MaintenanceModeServiceMock.simple();
     viewOnlyHelperMock = ViewOnlyLinkHelperMock.simple(viewOnly);
     sentryMock = SentryMock.simple();
 
@@ -43,9 +57,13 @@ describe('errorInterceptor', () => {
       providers: [
         provideOSFCore(),
         provideLoaderServiceMock(loaderServiceMock),
+        provideMockStore({
+          selectors: [{ selector: UserSelectors.isAuthenticated, value: isAuthenticated }],
+        }),
         MockProvider(Router, router),
         MockProvider(ToastService, toastServiceMock),
         MockProvider(AuthService, authServiceMock),
+        MockProvider(MaintenanceModeService, maintenanceModeServiceMock),
         MockProvider(ViewOnlyLinkHelperService, viewOnlyHelperMock),
         MockProvider(PLATFORM_ID, platformId),
         { provide: SENTRY_TOKEN, useValue: sentryMock },
@@ -107,15 +125,30 @@ describe('errorInterceptor', () => {
     expect(toastServiceMock.showError).not.toHaveBeenCalled();
   });
 
-  it('should logout on 401 in browser when not view-only', async () => {
-    setup('browser', false);
+  it('should navigate to sign in on 401 in browser when anonymous and not view-only', async () => {
+    setup('browser', false, '/dashboard', false);
     const request = createRequest('/api/v2/nodes/abc');
     const error = new HttpErrorResponse({ status: 401, error: {}, url: request.url });
 
     const caught = await runInterceptor(request, error);
 
     expect(caught?.status).toBe(401);
-    expect(authServiceMock.logout).toHaveBeenCalled();
+    expect(authServiceMock.navigateToSignIn).toHaveBeenCalled();
+    expect(authServiceMock.logout).not.toHaveBeenCalled();
+    expect(loaderServiceMock.hide).not.toHaveBeenCalled();
+    expect(toastServiceMock.showError).not.toHaveBeenCalled();
+  });
+
+  it('should logout on 401 in browser when authenticated and not view-only', async () => {
+    setup('browser', false, '/dashboard', true);
+    const request = createRequest('/api/v2/nodes/abc');
+    const error = new HttpErrorResponse({ status: 401, error: {}, url: request.url });
+
+    const caught = await runInterceptor(request, error);
+
+    expect(caught?.status).toBe(401);
+    expect(authServiceMock.logout).toHaveBeenCalledWith(window.location.href);
+    expect(authServiceMock.navigateToSignIn).not.toHaveBeenCalled();
     expect(loaderServiceMock.hide).not.toHaveBeenCalled();
     expect(toastServiceMock.showError).not.toHaveBeenCalled();
   });
@@ -153,6 +186,23 @@ describe('errorInterceptor', () => {
 
     expect(caught?.status).toBe(403);
     expect(router.navigate).not.toHaveBeenCalled();
+    expect(loaderServiceMock.hide).toHaveBeenCalled();
+    expect(toastServiceMock.showError).not.toHaveBeenCalled();
+  });
+
+  it('should activate maintenance mode on 503 maintenance response', async () => {
+    setup('browser', false);
+    const request = createRequest('/api/v2/');
+    const error = new HttpErrorResponse({
+      status: 503,
+      error: { meta: { maintenance_mode: true } },
+      url: request.url,
+    });
+
+    const caught = await runInterceptor(request, error);
+
+    expect(caught?.status).toBe(503);
+    expect(maintenanceModeServiceMock.activate).toHaveBeenCalled();
     expect(loaderServiceMock.hide).toHaveBeenCalled();
     expect(toastServiceMock.showError).not.toHaveBeenCalled();
   });

@@ -20,10 +20,6 @@ import { provideOSFCore } from '@testing/osf.testing.provider';
 import { BrandServiceMock, BrandServiceMockType } from '@testing/providers/brand-service.mock';
 import { BrowserTabServiceMock, BrowserTabServiceMockType } from '@testing/providers/browser-tab-service.mock';
 import { HeaderStyleServiceMock, HeaderStyleServiceMockType } from '@testing/providers/header-style-service.mock';
-import {
-  PreprintDraftDeletionServiceMock,
-  PreprintDraftDeletionServiceMockType,
-} from '@testing/providers/preprint-draft-deletion-provider.mock';
 import { ActivatedRouteMockBuilder } from '@testing/providers/route-provider.mock';
 import { mergeSignalOverrides, provideMockStore, SignalOverride } from '@testing/providers/store-provider.mock';
 
@@ -36,14 +32,8 @@ import { TitleAndAbstractStepComponent } from '../../components/stepper/title-an
 import { submitPreprintSteps } from '../../constants';
 import { PreprintSteps, ReviewsState } from '../../enums';
 import { PreprintProviderDetails } from '../../models';
-import { PreprintDraftDeletionService } from '../../services/preprint-draft-deletion.service';
 import { GetPreprintProviderById, PreprintProvidersSelectors } from '../../store/preprint-providers';
-import {
-  DeletePreprint,
-  FetchPreprintById,
-  PreprintStepperSelectors,
-  ResetPreprintStepperState,
-} from '../../store/preprint-stepper';
+import { FetchPreprintById, PreprintStepperSelectors, ResetPreprintStepperState } from '../../store/preprint-stepper';
 
 import { UpdatePreprintStepperComponent } from './update-preprint-stepper.component';
 
@@ -54,7 +44,6 @@ describe('UpdatePreprintStepperComponent', () => {
   let brandServiceMock: BrandServiceMockType;
   let headerStyleMock: HeaderStyleServiceMockType;
   let browserTabMock: BrowserTabServiceMockType;
-  let draftDeletionMock: PreprintDraftDeletionServiceMockType;
 
   const mockProvider: PreprintProviderDetails = PREPRINT_PROVIDER_DETAILS_MOCK;
   const mockPreprint = PREPRINT_MOCK;
@@ -80,7 +69,6 @@ describe('UpdatePreprintStepperComponent', () => {
     brandServiceMock = BrandServiceMock.simple();
     headerStyleMock = HeaderStyleServiceMock.simple();
     browserTabMock = BrowserTabServiceMock.simple();
-    draftDeletionMock = PreprintDraftDeletionServiceMock.simple();
 
     TestBed.configureTestingModule({
       imports: [
@@ -104,12 +92,6 @@ describe('UpdatePreprintStepperComponent', () => {
         MockProvider(IS_WEB, of(true)),
         provideMockStore({ signals }),
       ],
-    });
-
-    TestBed.overrideComponent(UpdatePreprintStepperComponent, {
-      set: {
-        providers: [{ provide: PreprintDraftDeletionService, useValue: draftDeletionMock }],
-      },
     });
 
     store = TestBed.inject(Store);
@@ -346,45 +328,5 @@ describe('UpdatePreprintStepperComponent', () => {
     component.moveToPreviousStep();
 
     expect(component.currentStep()).toEqual(firstStep);
-  });
-
-  it('should return false from isPreprintRejected when preprint is not rejected', () => {
-    setup();
-
-    expect(component.isPreprintRejected()).toBe(false);
-  });
-
-  it('should return true from isPreprintRejected when preprint is rejected', () => {
-    setup({
-      selectorOverrides: [
-        {
-          selector: PreprintStepperSelectors.getPreprint,
-          value: { ...mockPreprint, reviewsState: ReviewsState.Rejected },
-        },
-      ],
-    });
-
-    expect(component.isPreprintRejected()).toBe(true);
-  });
-
-  it('should request draft deletion with update redirect and action callbacks', () => {
-    setup();
-
-    component.requestDeletePreprint();
-
-    expect(draftDeletionMock.confirmDeleteDraft).toHaveBeenCalledWith(
-      expect.objectContaining({
-        redirectUrl: '/my-preprints',
-        onDelete: expect.any(Function),
-        onReset: expect.any(Function),
-      })
-    );
-
-    const { onDelete, onReset } = draftDeletionMock.confirmDeleteDraft.mock.calls[0][0];
-    onDelete();
-    onReset();
-
-    expect(store.dispatch).toHaveBeenCalledWith(new DeletePreprint());
-    expect(store.dispatch).toHaveBeenCalledWith(new ResetPreprintStepperState());
   });
 });

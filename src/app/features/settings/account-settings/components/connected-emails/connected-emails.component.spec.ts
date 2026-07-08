@@ -2,8 +2,6 @@ import { Store } from '@ngxs/store';
 
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
-
 import { of, Subject } from 'rxjs';
 
 import { Mock } from 'vitest';
@@ -114,9 +112,7 @@ describe('ConnectedEmailsComponent', () => {
 
   it('should open add email dialog and show confirmation dialog when dialog returns email', () => {
     const onClose = new Subject<string>();
-    customDialogService.open.mockReturnValue({
-      onClose,
-    } as unknown as DynamicDialogRef);
+    customDialogService.open.mockReturnValue(CustomDialogServiceMock.dialogRefWithClose(onClose));
     const showConfirmationSpy = vi.spyOn(component, 'showConfirmationSentDialog');
 
     component.addEmail();

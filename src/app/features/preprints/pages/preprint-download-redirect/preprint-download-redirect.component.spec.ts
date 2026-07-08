@@ -8,6 +8,10 @@ import { SocialShareService } from '@osf/shared/services/social-share.service';
 
 import { provideOSFCore } from '@testing/osf.testing.provider';
 import { ActivatedRouteMockBuilder } from '@testing/providers/route-provider.mock';
+import {
+  SocialShareServiceMockBuilder,
+  SocialShareServiceMockType,
+} from '@testing/providers/social-share-provider.mock';
 
 import { PreprintDownloadRedirectComponent } from './preprint-download-redirect.component';
 
@@ -22,9 +26,9 @@ describe('PreprintDownloadRedirectComponent', () => {
       .withParams(id ? { id } : {})
       .build();
 
-    const mockSocialShareService = {
-      createDownloadUrl: vi.fn().mockReturnValue(MOCK_DOWNLOAD_URL),
-    };
+    const mockSocialShareService: SocialShareServiceMockType = SocialShareServiceMockBuilder.create()
+      .withCreateDownloadUrl(vi.fn().mockReturnValue(MOCK_DOWNLOAD_URL))
+      .build();
 
     TestBed.configureTestingModule({
       imports: [PreprintDownloadRedirectComponent],

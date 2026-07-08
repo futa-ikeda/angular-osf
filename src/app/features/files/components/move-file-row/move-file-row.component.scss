@@ -1,0 +1,30 @@
+.files-table-row {
+  border-bottom: 1px solid var(--grey-2);
+  color: var(--dark-blue-1);
+  height: 2.75rem;
+}
+
+.filename-link {
+  min-width: 0;
+  max-width: 100%;
+  cursor: pointer;
+
+  &.disabled {
+    color: var(--grey-1);
+    cursor: not-allowed;
+  }
+
+  &:not(.disabled):hover {
+    text-decoration: underline;
+  }
+}
+
+.disabled-icon {
+  color: var(--grey-1);
+}
+
+.link-btn-no-padding {
+  --p-button-label-font-weight: 400;
+  --p-button-link-hover-color: var(--dark-blue-1);
+  --p-button-link-color: var(--dark-blue-1);
+}

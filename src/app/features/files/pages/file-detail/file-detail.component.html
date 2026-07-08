@@ -1,9 +1,6 @@
-<osf-sub-header
-  [isLoading]="isFileLoading()"
-  title="{{ file()?.name }}{{
-    fileVersion ? ' (' + ('project.wiki.version.title' | translate) + ' ' + fileVersion + ')' : ''
-  }}"
-/>
+@let currentFile = file();
+
+<osf-sub-header [isLoading]="isFileLoading()" [title]="headerTitle()" />
 
 <p-tabs [value]="selectedTab" (valueChange)="onTabChange($event)" class="ml-auto mr-4">
   <p-tablist>
@@ -13,7 +10,7 @@
   </p-tablist>
 </p-tabs>
 
-<div class="flex gap-4 bg-white flex-column h-full flex-1 p-4 h-full">
+<div class="flex gap-4 bg-white flex-column h-full flex-1 p-4">
   <div class="flex">
     <div class="flex align-items-center gap-2 back-navigation font-semibold">
       <i class="pi pi-angle-left text-base"></i>
@@ -23,7 +20,7 @@
     </div>
 
     <div class="flex gap-3 ml-auto sm-round-padding-btn">
-      @if (!isAnonymous() && !hasViewOnly() && hasWriteAccess()) {
+      @if (canManageFileActions()) {
         <p-button
           severity="secondary"
           [label]="'files.detail.actions.addCommunityMetadata' | translate"
@@ -31,23 +28,23 @@
         ></p-button>
       }
 
-      @if (file()?.links?.download) {
+      @if (currentFile?.links?.download) {
         <p-button
           severity="secondary"
           class="btn-icon-only"
           icon="fas fa-download"
           [ariaLabel]="'common.buttons.download' | translate"
-          (click)="downloadFile(file()?.links?.download!)"
+          (onClick)="downloadFile()"
         />
       }
-      @if (file()?.links?.render) {
+      @if (currentFile?.links?.render) {
         <div class="relative">
           <p-button
             severity="secondary"
             class="btn-icon-only"
             icon="fas fa-file-import"
             [ariaLabel]="'common.buttons.embed' | translate"
-            (click)="embedMenu.toggle($event)"
+            (onClick)="embedMenu.toggle($event)"
           />
 
           <p-menu appendTo="body" [model]="embedItems" popup #embedMenu>
@@ -57,7 +54,7 @@
           </p-menu>
         </div>
       }
-      @if (file()?.links?.html) {
+      @if (currentFile?.links?.html) {
         <div class="relative">
           <p-button
             severity="secondary"
@@ -74,13 +71,13 @@
           </p-menu>
         </div>
       }
-      @if (showDeleteButton()) {
+      @if (canManageFileActions()) {
         <p-button
           severity="danger"
           [ariaLabel]="'common.buttons.delete' | translate"
           class="btn-icon-only"
           icon="fas fa-trash"
-          (click)="confirmDelete(file()!)"
+          (onClick)="confirmDelete()"
         />
       }
     </div>
@@ -121,7 +118,7 @@
       } @else {
         <div class="file-metadata-tabs flex flex-column flex-1">
           <osf-metadata-tabs
-            [loading]="isLoading()"
+            [loading]="isFileLoading()"
             [tabs]="tabs()"
             [selectedTab]="selectedMetadataTab()"
             [selectedCedarTemplate]="selectedCedarTemplate()!"

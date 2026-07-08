@@ -37,14 +37,8 @@ import { SupplementsStepComponent } from '../../components/stepper/supplements-s
 import { TitleAndAbstractStepComponent } from '../../components/stepper/title-and-abstract-step/title-and-abstract-step.component';
 import { submitPreprintSteps } from '../../constants';
 import { PreprintSteps, ProviderReviewsWorkflow, ReviewsState } from '../../enums';
-import { PreprintDraftDeletionService } from '../../services/preprint-draft-deletion.service';
 import { GetPreprintProviderById, PreprintProvidersSelectors } from '../../store/preprint-providers';
-import {
-  DeletePreprint,
-  FetchPreprintById,
-  PreprintStepperSelectors,
-  ResetPreprintStepperState,
-} from '../../store/preprint-stepper';
+import { FetchPreprintById, PreprintStepperSelectors, ResetPreprintStepperState } from '../../store/preprint-stepper';
 
 @Component({
   selector: 'osf-update-preprint-stepper',
@@ -62,7 +56,6 @@ import {
   templateUrl: './update-preprint-stepper.component.html',
   styleUrl: './update-preprint-stepper.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [PreprintDraftDeletionService],
 })
 export class UpdatePreprintStepperComponent implements OnDestroy, CanDeactivateComponent {
   @HostBinding('class') classes = 'flex-1 flex flex-column w-full';
@@ -71,39 +64,35 @@ export class UpdatePreprintStepperComponent implements OnDestroy, CanDeactivateC
   private readonly brandService = inject(BrandService);
   private readonly headerStyleHelper = inject(HeaderStyleService);
   private readonly browserTabHelper = inject(BrowserTabService);
-  private readonly draftDeletionService = inject(PreprintDraftDeletionService);
 
-  private providerId = toSignal(this.route.params.pipe(map((params) => params['providerId'])));
-  private preprintId = toSignal(this.route.params.pipe(map((params) => params['preprintId'])));
+  private readonly providerId = toSignal(this.route.params.pipe(map((params) => params['providerId'])));
+  private readonly preprintId = toSignal(this.route.params.pipe(map((params) => params['preprintId'])));
 
-  private actions = createDispatchMap({
+  private readonly actions = createDispatchMap({
     getPreprintProviderById: GetPreprintProviderById,
     resetState: ResetPreprintStepperState,
     fetchPreprint: FetchPreprintById,
-    deletePreprint: DeletePreprint,
   });
 
-  preprintProvider = select(PreprintProvidersSelectors.getPreprintProviderDetails(this.providerId()));
-  preprint = select(PreprintStepperSelectors.getPreprint);
-  isPreprintProviderLoading = select(PreprintProvidersSelectors.isPreprintProviderDetailsLoading);
-  hasBeenSubmitted = select(PreprintStepperSelectors.hasBeenSubmitted);
-  hasAdminAccess = select(PreprintStepperSelectors.hasAdminAccess);
-  supplementsDisabled = select(UserSelectors.isProjectCreationDisabled);
+  readonly preprintProvider = select(PreprintProvidersSelectors.getPreprintProviderDetails(this.providerId()));
+  readonly preprint = select(PreprintStepperSelectors.getPreprint);
+  readonly isPreprintProviderLoading = select(PreprintProvidersSelectors.isPreprintProviderDetailsLoading);
+  readonly hasBeenSubmitted = select(PreprintStepperSelectors.hasBeenSubmitted);
+  readonly hasAdminAccess = select(PreprintStepperSelectors.hasAdminAccess);
+  readonly supplementsDisabled = select(UserSelectors.isProjectCreationDisabled);
 
-  isWeb = toSignal(inject(IS_WEB));
+  readonly isWeb = toSignal(inject(IS_WEB));
 
-  currentStep = signal<StepOption>(submitPreprintSteps[0]);
+  readonly currentStep = signal<StepOption>(submitPreprintSteps[0]);
 
   readonly PreprintSteps = PreprintSteps;
 
-  editAndResubmitMode = computed(() => {
+  readonly editAndResubmitMode = computed(() => {
     const providerIsPremod = this.preprintProvider()?.reviewsWorkflow === ProviderReviewsWorkflow.PreModeration;
     const preprintIsRejected = this.preprint()?.reviewsState === ReviewsState.Rejected;
 
     return providerIsPremod && preprintIsRejected;
   });
-
-  isPreprintRejected = computed(() => this.preprint()?.reviewsState === ReviewsState.Rejected);
 
   readonly updateSteps = computed(() => {
     const provider = this.preprintProvider();
@@ -188,13 +177,5 @@ export class UpdatePreprintStepperComponent implements OnDestroy, CanDeactivateC
     if (prevStep) {
       this.currentStep.set(prevStep);
     }
-  }
-
-  requestDeletePreprint(): void {
-    this.draftDeletionService.confirmDeleteDraft({
-      onDelete: () => this.actions.deletePreprint(),
-      onReset: () => this.actions.resetState(),
-      redirectUrl: '/my-preprints',
-    });
   }
 }

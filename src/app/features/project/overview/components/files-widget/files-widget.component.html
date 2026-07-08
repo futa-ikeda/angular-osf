@@ -6,9 +6,9 @@
     [(selectedValue)]="selectedRoot"
     (changeValue)="onChangeProject($event)"
     [fullWidth]="true"
-    [disabled]="isStorageLoading"
+    [disabled]="isStorageLoading()"
   />
-  @if (isStorageLoading) {
+  @if (isStorageLoading()) {
     <div class="flex pl-1 gap-3">
       <p-skeleton width="6rem" height="2.5rem" />
       <p-skeleton width="6rem" height="2.5rem" />
@@ -37,14 +37,11 @@
     [totalCount]="filesTotalCount()"
     [currentFolder]="currentFolder()!"
     [storage]="currentRootFolder()!"
-    [isLoading]="isFilesLoading() || isStorageLoading"
-    [resourceId]="selectedRoot!"
-    [provider]="provider()"
-    [selectionMode]="null"
+    [isLoading]="isFilesLoading() || isStorageLoading()"
     [scrollHeight]="'300px'"
-    (entryFileClicked)="navigateToFile($event)"
+    (fileOpened)="navigateToFile($event)"
     (loadFiles)="onLoadFiles($event)"
-    (setCurrentFolder)="setCurrentFolder($event)"
+    (currentFolderChanged)="setCurrentFolder($event)"
   >
   </osf-files-tree>
 </section>

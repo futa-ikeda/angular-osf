@@ -23,6 +23,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
 import { ENVIRONMENT } from '@core/provider/environment.provider';
+import { SocialShareService } from '@osf/shared/services/social-share.service';
 
 import { CEDAR_CONFIG, CEDAR_VIEWER_CONFIG } from '../../constants';
 import { CedarMetadataHelper } from '../../helpers';
@@ -62,6 +63,7 @@ export class CedarTemplateFormComponent {
 
   private route = inject(ActivatedRoute);
   readonly environment = inject(ENVIRONMENT);
+  private readonly socialShareService = inject(SocialShareService);
 
   readonly recordId = signal<string>('');
   readonly downloadUrl = signal<string>('');
@@ -184,18 +186,18 @@ export class CedarTemplateFormComponent {
 
   handleEmailShare(): void {
     const url = window.location.href;
-    window.location.href = `mailto:?subject=${this.schemaName()}&body=${url}`;
+    window.location.href = this.socialShareService.getEmailLink(this.schemaName(), url);
   }
 
   handleXShare(): void {
     const url = window.location.href;
-    const link = `https://x.com/intent/tweet?url=${url}&text=${this.schemaName()}&via=OSFramework`;
+    const link = this.socialShareService.getXLink(this.schemaName(), url);
     window.open(link, '_blank', 'noopener,noreferrer');
   }
 
   handleFacebookShare(): void {
     const url = window.location.href;
-    const link = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+    const link = this.socialShareService.getFacebookLink(url);
     window.open(link, '_blank', 'noopener,noreferrer');
   }
 }

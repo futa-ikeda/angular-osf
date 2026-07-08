@@ -1,6 +1,7 @@
 import { FileFolderModel } from '@osf/shared/models/files/file-folder.model';
+import { ResourceType } from '@shared/enums/resource-type.enum';
 
-import { PatchFileMetadata } from '../models';
+import { PatchFileMetadata } from '../models/patch-file-metadata.model';
 
 export class GetFiles {
   static readonly type = '[Files] Get Files';
@@ -131,25 +132,31 @@ export class DeleteEntry {
 export class GetRootFolders {
   static readonly type = '[Files] Get Folders';
 
-  constructor(public folderLink: string) {}
+  constructor(
+    public resourceId: string,
+    public resourceType: ResourceType
+  ) {}
 }
 
 export class GetConfiguredStorageAddons {
   static readonly type = '[Files] Get ConfiguredStorageAddons';
 
-  constructor(public resourceUri: string) {}
+  constructor(public resourceId: string) {}
 }
 
 export class GetMoveDialogRootFolders {
   static readonly type = '[Files] Get Move Dialog Folders';
 
-  constructor(public folderLink: string) {}
+  constructor(
+    public resourceId: string,
+    public resourceType: ResourceType
+  ) {}
 }
 
 export class GetMoveDialogConfiguredStorageAddons {
   static readonly type = '[Files] Get Move Dialog ConfiguredStorageAddons';
 
-  constructor(public resourceUri: string) {}
+  constructor(public resourceId: string) {}
 }
 
 export class GetStorageSupportedFeatures {

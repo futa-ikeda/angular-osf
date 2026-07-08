@@ -1,7 +1,5 @@
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import { Mock } from 'vitest';
-
 import { PLATFORM_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -14,6 +12,10 @@ import { PREPRINT_MOCK } from '@testing/mocks/preprint.mock';
 import { PREPRINT_PROVIDER_DETAILS_MOCK } from '@testing/mocks/preprint-provider-details';
 import { provideOSFCore } from '@testing/osf.testing.provider';
 import { DataciteServiceMockBuilder, DataciteServiceMockType } from '@testing/providers/datacite.service.mock';
+import {
+  SocialShareServiceMockBuilder,
+  SocialShareServiceMockType,
+} from '@testing/providers/social-share-provider.mock';
 import { BaseSetupOverrides, mergeSignalOverrides, provideMockStore } from '@testing/providers/store-provider.mock';
 
 import { ShareAndDownloadComponent } from './share-and-download.component';
@@ -22,7 +24,7 @@ describe('ShareAndDownloadComponent', () => {
   let component: ShareAndDownloadComponent;
   let fixture: ComponentFixture<ShareAndDownloadComponent>;
   let dataciteService: DataciteServiceMockType;
-  let socialShareService: { createDownloadUrl: Mock };
+  let socialShareService: SocialShareServiceMockType;
 
   const mockPreprint = PREPRINT_MOCK;
   const mockProvider = PREPRINT_PROVIDER_DETAILS_MOCK;
@@ -33,7 +35,9 @@ describe('ShareAndDownloadComponent', () => {
 
   function setup(overrides: SetupOverrides = {}) {
     dataciteService = DataciteServiceMockBuilder.create().build();
-    socialShareService = { createDownloadUrl: vi.fn().mockReturnValue('https://example.com/download') };
+    socialShareService = SocialShareServiceMockBuilder.create()
+      .withCreateDownloadUrl(vi.fn().mockReturnValue('https://example.com/download'))
+      .build();
 
     TestBed.configureTestingModule({
       imports: [ShareAndDownloadComponent, MockComponent(SocialsShareButtonComponent)],

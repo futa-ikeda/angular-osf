@@ -11,7 +11,8 @@ import { Tree, TreeModule } from 'primeng/tree';
 
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule } from '@angular/forms';
 
 import { SubjectModel } from '@osf/shared/models/subject/subject.model';
@@ -27,11 +28,14 @@ import { SearchInputComponent } from '../search-input/search-input.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SubjectsComponent {
+  readonly destroyRef = inject(DestroyRef);
+
   subjects = select(SubjectsSelectors.getSubjects);
   subjectsLoading = select(SubjectsSelectors.getSubjectsLoading);
   searchedSubjects = select(SubjectsSelectors.getSearchedSubjects);
-  areSubjectsUpdating = input<boolean>(false);
   isSearching = select(SubjectsSelectors.getSearchedSubjectsLoading);
+
+  areSubjectsUpdating = input<boolean>(false);
   selected = input<SubjectModel[]>([]);
   readonly = input<boolean>(false);
   searchChanged = output<string>();
@@ -51,9 +55,11 @@ export class SubjectsComponent {
   searchControl = new FormControl<string>('');
 
   constructor() {
-    this.searchControl.valueChanges.pipe(debounceTime(300), distinctUntilChanged()).subscribe((value) => {
-      this.searchChanged.emit(value ?? '');
-    });
+    this.searchControl.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        this.searchChanged.emit(value ?? '');
+      });
   }
 
   loadNode(event: TreeNode) {

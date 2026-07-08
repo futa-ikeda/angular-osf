@@ -73,7 +73,6 @@ export class CustomStepComponent implements OnDestroy {
   stepsData = input.required<Record<string, any>>();
   filesLink = input.required<string>();
   projectId = input.required<string>();
-  provider = input.required<string>();
   filesViewOnly = input<boolean>(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -100,6 +99,7 @@ export class CustomStepComponent implements OnDestroy {
   readonly INPUT_VALIDATION_MESSAGES = INPUT_VALIDATION_MESSAGES;
 
   step = signal(this.route.snapshot.params['step']);
+  draftId = signal(this.route.snapshot.params['id']);
   currentPage = computed(() => this.pages()[this.step() - 1]);
   readonly fileUploadDescription = computed(() => {
     if (this.projectCreationDisabled()) {
@@ -143,12 +143,19 @@ export class CustomStepComponent implements OnDestroy {
     });
   }
 
-  removeFromAttachedFiles(file: AttachedFile, questionKey: string): void {
+  onOpenFile(file: FileModel): void {
+    if (this.draftId() && file.guid) {
+      const url = this.router.serializeUrl(this.router.createUrlTree([this.draftId(), 'files', file.guid, 'preview']));
+      window.open(url, '_blank');
+    }
+  }
+
+  removeFromAttachedFiles(fileId: string | undefined, questionKey: string): void {
     if (!this.attachedFiles[questionKey]) {
       return;
     }
 
-    this.attachedFiles[questionKey] = this.attachedFiles[questionKey].filter((f) => f.file_id !== file.file_id);
+    this.attachedFiles[questionKey] = this.attachedFiles[questionKey].filter((f) => f.file_id !== fileId);
     this.stepForm.patchValue({ [questionKey]: this.attachedFiles[questionKey] });
     this.updateAction.emit({
       [questionKey]: this.mapFilesToPayload(this.attachedFiles[questionKey]),

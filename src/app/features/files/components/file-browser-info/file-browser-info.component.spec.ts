@@ -2,8 +2,6 @@ import { MockProvider } from 'ng-mocks';
 
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 
-import { Mocked } from 'vitest';
-
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ResourceType } from '@osf/shared/enums/resource-type.enum';
@@ -17,10 +15,9 @@ describe('FileBrowserInfoComponent', () => {
   let component: FileBrowserInfoComponent;
   let fixture: ComponentFixture<FileBrowserInfoComponent>;
   let dialogRef: DynamicDialogRef;
-  let dialogConfig: Mocked<DynamicDialogConfig>;
 
-  beforeEach(() => {
-    const dialogConfigMock = { data: ResourceType.Project };
+  function setup(resourceType?: ResourceType): void {
+    const dialogConfigMock: Pick<DynamicDialogConfig, 'data'> = { data: resourceType };
 
     TestBed.configureTestingModule({
       imports: [FileBrowserInfoComponent],
@@ -30,34 +27,47 @@ describe('FileBrowserInfoComponent', () => {
     fixture = TestBed.createComponent(FileBrowserInfoComponent);
     component = fixture.componentInstance;
     dialogRef = TestBed.inject(DynamicDialogRef);
-    dialogConfig = TestBed.inject(DynamicDialogConfig) as Mocked<DynamicDialogConfig>;
     fixture.detectChanges();
-  });
+  }
 
   it('should create', () => {
+    setup(ResourceType.Project);
+
     expect(component).toBeTruthy();
   });
 
-  it('should initialize with correct properties', () => {
-    expect(component.dialogRef).toBeDefined();
-    expect(component.config).toBeDefined();
-    expect(component.infoItems).toBeDefined();
-    expect(component.resourceType()).toBe(ResourceType.Project);
-  });
+  it('should set resourceType from dialog config', () => {
+    setup(ResourceType.Registration);
 
-  it('should compute resourceType from config data', () => {
-    expect(component.resourceType()).toBe(ResourceType.Project);
+    expect(component.resourceType).toBe(ResourceType.Registration);
   });
 
   it('should default to Project when config data is undefined', () => {
-    dialogConfig.data = undefined;
-    fixture.detectChanges();
+    setup();
 
-    expect(component.resourceType()).toBe(ResourceType.Project);
+    expect(component.resourceType).toBe(ResourceType.Project);
+  });
+
+  it('should filter items for project resource type', () => {
+    setup(ResourceType.Project);
+
+    expect(component.filteredInfoItems.length).toBe(component.infoItems.length);
+  });
+
+  it('should filter items for registration resource type', () => {
+    setup(ResourceType.Registration);
+
+    expect(component.filteredInfoItems.length).toBeLessThan(component.infoItems.length);
+    expect(
+      component.filteredInfoItems.every((item) => item.showForResourceTypes.includes(ResourceType.Registration))
+    ).toBe(true);
   });
 
   it('should close dialog when close method is called', () => {
+    setup(ResourceType.Project);
+
     component.dialogRef.close();
+
     expect(dialogRef.close).toHaveBeenCalled();
   });
 });

@@ -8,7 +8,7 @@ import { Card } from 'primeng/card';
 import { tap } from 'rxjs';
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 import { CreateSchemaResponse, FetchAllSchemaResponses, RegistriesSelectors } from '@osf/features/registries/store';
@@ -16,7 +16,6 @@ import { RegistrationReviewStates } from '@osf/shared/enums/registration-review-
 import { RevisionReviewStates } from '@osf/shared/enums/revision-review-states.enum';
 import { UserPermissions } from '@osf/shared/enums/user-permissions.enum';
 import { RegistrationCard } from '@osf/shared/models/registration/registration-card.model';
-import { FixSpecialCharPipe } from '@osf/shared/pipes/fix-special-char.pipe';
 
 import { ContributorsListComponent } from '../contributors-list/contributors-list.component';
 import { DataResourcesComponent } from '../data-resources/data-resources.component';
@@ -37,7 +36,6 @@ import { TruncatedTextComponent } from '../truncated-text/truncated-text.compone
     IconComponent,
     TruncatedTextComponent,
     ContributorsListComponent,
-    FixSpecialCharPipe,
   ],
   templateUrl: './registration-card.component.html',
   styleUrl: './registration-card.component.scss',
@@ -52,6 +50,7 @@ export class RegistrationCardComponent {
   readonly deleteDraft = output<string>();
 
   private router = inject(Router);
+
   schemaResponse = select(RegistriesSelectors.getSchemaResponse);
 
   actions = createDispatchMap({
@@ -59,46 +58,36 @@ export class RegistrationCardComponent {
     createSchemaResponse: CreateSchemaResponse,
   });
 
-  get hasAdminAccess(): boolean {
-    return this.registrationData().currentUserPermissions.includes(UserPermissions.Admin);
-  }
+  readonly hasAdminAccess = computed(() =>
+    this.registrationData().currentUserPermissions.includes(UserPermissions.Admin)
+  );
 
-  get hasWriteAccess(): boolean {
-    return this.registrationData().currentUserPermissions.includes(UserPermissions.Write);
-  }
+  readonly hasWriteAccess = computed(() =>
+    this.registrationData().currentUserPermissions.includes(UserPermissions.Write)
+  );
 
-  get isAccepted(): boolean {
-    return this.registrationData().reviewsState === RegistrationReviewStates.Accepted;
-  }
+  readonly isAccepted = computed(() => this.registrationData().reviewsState === RegistrationReviewStates.Accepted);
+  readonly isPending = computed(() => this.registrationData().reviewsState === RegistrationReviewStates.Pending);
+  readonly isApproved = computed(() => this.registrationData().revisionState === RevisionReviewStates.Approved);
+  readonly isUnapproved = computed(() => this.registrationData().revisionState === RevisionReviewStates.Unapproved);
+  readonly isEmbargo = computed(() => this.registrationData().reviewsState === RegistrationReviewStates.Embargo);
 
-  get isPending(): boolean {
-    return this.registrationData().reviewsState === RegistrationReviewStates.Pending;
-  }
+  readonly isInProgress = computed(
+    () => this.registrationData().revisionState === RevisionReviewStates.RevisionInProgress
+  );
 
-  get isApproved(): boolean {
-    return this.registrationData().revisionState === RevisionReviewStates.Approved;
-  }
-
-  get isUnapproved(): boolean {
-    return this.registrationData().revisionState === RevisionReviewStates.Unapproved;
-  }
-
-  get isInProgress(): boolean {
-    return this.registrationData().revisionState === RevisionReviewStates.RevisionInProgress;
-  }
-
-  get isEmbargo(): boolean {
-    return this.registrationData().reviewsState === RegistrationReviewStates.Embargo;
-  }
-
-  get isRootRegistration(): boolean {
+  readonly isRootRegistration = computed(() => {
     const registration = this.registrationData();
     return !registration.rootParentId || registration.id === registration.rootParentId;
-  }
+  });
 
-  get showButtons(): boolean {
-    return this.isRootRegistration && (this.isAccepted || this.isPending || this.isEmbargo) && this.hasAdminAccess;
-  }
+  readonly showButtons = computed(
+    () =>
+      this.isRootRegistration() &&
+      (this.isAccepted() || this.isPending() || this.isEmbargo()) &&
+      this.hasAdminAccess() &&
+      this.registrationData().allowUpdates
+  );
 
   updateRegistration(id: string): void {
     this.actions
@@ -125,11 +114,15 @@ export class RegistrationCardComponent {
 
   private navigateToJustificationPage(): void {
     const revisionId = this.schemaResponse()?.id;
+    if (!revisionId) return;
+
     this.router.navigate([`/registries/revisions/${revisionId}/justification`]);
   }
 
   private navigateToJustificationReview(): void {
     const revisionId = this.schemaResponse()?.id;
+    if (!revisionId) return;
+
     this.router.navigate([`/registries/revisions/${revisionId}/review`]);
   }
 }

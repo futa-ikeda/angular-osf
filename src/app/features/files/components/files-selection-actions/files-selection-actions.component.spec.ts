@@ -23,27 +23,34 @@ describe('FilesSelectionActionsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize with default values', () => {
-    expect(component.selectedFiles()).toEqual([]);
+  it('should initialize with default inputs', () => {
+    expect(component.selectedFilesCount()).toBe(0);
     expect(component.canUpdateFiles()).toBe(true);
     expect(component.hasViewOnly()).toBe(false);
   });
 
-  it('should handle canUpdateFiles input', () => {
+  it('should update selected files count input', () => {
+    fixture.componentRef.setInput('selectedFilesCount', 3);
+    fixture.detectChanges();
+
+    expect(component.selectedFilesCount()).toBe(3);
+  });
+
+  it('should update canUpdateFiles input', () => {
     fixture.componentRef.setInput('canUpdateFiles', false);
     fixture.detectChanges();
 
     expect(component.canUpdateFiles()).toBe(false);
   });
 
-  it('should handle hasViewOnly input', () => {
+  it('should update hasViewOnly input', () => {
     fixture.componentRef.setInput('hasViewOnly', true);
     fixture.detectChanges();
 
     expect(component.hasViewOnly()).toBe(true);
   });
 
-  it('should emit copySelected event', () => {
+  it('should emit copySelected output', () => {
     const copySelectedSpy = vi.spyOn(component.copySelected, 'emit');
 
     component.copySelected.emit();
@@ -51,7 +58,7 @@ describe('FilesSelectionActionsComponent', () => {
     expect(copySelectedSpy).toHaveBeenCalled();
   });
 
-  it('should emit moveSelected event', () => {
+  it('should emit moveSelected output', () => {
     const moveSelectedSpy = vi.spyOn(component.moveSelected, 'emit');
 
     component.moveSelected.emit();
@@ -59,7 +66,7 @@ describe('FilesSelectionActionsComponent', () => {
     expect(moveSelectedSpy).toHaveBeenCalled();
   });
 
-  it('should emit deleteSelected event', () => {
+  it('should emit deleteSelected output', () => {
     const deleteSelectedSpy = vi.spyOn(component.deleteSelected, 'emit');
 
     component.deleteSelected.emit();
@@ -67,25 +74,11 @@ describe('FilesSelectionActionsComponent', () => {
     expect(deleteSelectedSpy).toHaveBeenCalled();
   });
 
-  it('should emit clearSelection event', () => {
+  it('should emit clearSelection output', () => {
     const clearSelectionSpy = vi.spyOn(component.clearSelection, 'emit');
 
     component.clearSelection.emit();
 
     expect(clearSelectionSpy).toHaveBeenCalled();
-  });
-
-  it('should have all required outputs defined', () => {
-    expect(component.copySelected).toBeDefined();
-    expect(component.moveSelected).toBeDefined();
-    expect(component.deleteSelected).toBeDefined();
-    expect(component.clearSelection).toBeDefined();
-  });
-
-  it('should handle empty selected files array', () => {
-    fixture.componentRef.setInput('selectedFiles', []);
-    fixture.detectChanges();
-
-    expect(component.selectedFiles()).toEqual([]);
   });
 });

@@ -1,5 +1,5 @@
 export interface OsfFileRevision {
-  downloads: 0;
+  downloads: number;
   hashes: {
     md5: string;
     sha256: string;

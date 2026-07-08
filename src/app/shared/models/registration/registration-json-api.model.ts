@@ -5,6 +5,7 @@ import { UserPermissions } from '@osf/shared/enums/user-permissions.enum';
 import { ApiData, MetaJsonApi, PaginationLinksJsonApi } from '../common/json-api.model';
 import { ContributorDataJsonApi } from '../contributors/contributor-response-json-api.model';
 import { LicenseRecordJsonApi } from '../license/licenses-json-api.model';
+import { RegistrationProviderAttributesJsonApi } from '../provider/registration-provider-json-api.model';
 
 export interface DraftRegistrationResponseJsonApi {
   data: DraftRegistrationDataJsonApi;
@@ -138,9 +139,7 @@ export interface RegistrationEmbedsJsonApi {
   };
   provider?: {
     data: {
-      attributes: {
-        name: string;
-      };
+      attributes: RegistrationProviderAttributesJsonApi;
     };
   };
 }

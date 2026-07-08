@@ -4,7 +4,7 @@ import { formatDate } from '@angular/common';
 import { inject, Injectable, LOCALE_ID } from '@angular/core';
 
 import { ENVIRONMENT } from '@core/provider/environment.provider';
-import { OsfFileCustomMetadata } from '@osf/features/files/models';
+import { OsfFileCustomMetadata } from '@osf/features/files/models/file-custom-metadata.model';
 import { PreprintModel } from '@osf/features/preprints/models';
 import { ProjectOverviewModel } from '@osf/features/project/overview/models';
 import { RegistrationOverviewModel } from '@osf/features/registry/models';

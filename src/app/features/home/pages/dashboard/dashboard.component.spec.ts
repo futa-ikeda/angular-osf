@@ -2,8 +2,6 @@ import { Store } from '@ngxs/store';
 
 import { MockComponents, MockProvider } from 'ng-mocks';
 
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
-
 import { Subject } from 'rxjs';
 
 import { Mock } from 'vitest';
@@ -202,7 +200,7 @@ describe('DashboardComponent', () => {
   it('should open create project dialog and redirect on close result', () => {
     setup();
     const onClose$ = new Subject<{ project: { id: string } }>();
-    customDialogService.open.mockReturnValue({ onClose: onClose$.asObservable() } as unknown as DynamicDialogRef);
+    customDialogService.open.mockReturnValue(CustomDialogServiceMock.dialogRefWithClose(onClose$.asObservable()));
 
     component.createProject();
     onClose$.next({ project: { id: 'p1' } });

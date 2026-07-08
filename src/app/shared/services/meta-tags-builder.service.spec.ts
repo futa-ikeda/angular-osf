@@ -4,7 +4,7 @@ import { MockProvider } from 'ng-mocks';
 import { LOCALE_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { OsfFileCustomMetadata } from '@osf/features/files/models';
+import { OsfFileCustomMetadata } from '@osf/features/files/models/file-custom-metadata.model';
 import { FileKind } from '@osf/shared/enums/file-kind.enum';
 import { FileDetailsModel } from '@osf/shared/models/files/file.model';
 

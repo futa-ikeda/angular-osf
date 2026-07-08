@@ -1,78 +1,187 @@
-import { HttpTestingController } from '@angular/common/http/testing';
-import { inject, TestBed } from '@angular/core/testing';
+import { MockProvider } from 'ng-mocks';
 
-import { getConfiguredAddonsData } from '@testing/data/addons/addons.configured.data';
-import { getResourceReferencesData } from '@testing/data/files/resource-references.data';
-import { provideOSFCore, provideOSFHttp } from '@testing/osf.testing.provider';
+import { firstValueFrom, of } from 'rxjs';
+
+import { HttpResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+
+import { ENVIRONMENT } from '@core/provider/environment.provider';
+import { ResourceType } from '@osf/shared/enums/resource-type.enum';
+import { AddonMapper } from '@osf/shared/mappers/addon.mapper';
+import { FilesMapper } from '@osf/shared/mappers/files/files.mapper';
+import { FileModel } from '@osf/shared/models/files/file.model';
+
+import { FileModelMock } from '@testing/mocks/file.model.mock';
+import { JsonApiServiceMock, JsonApiServiceMockType } from '@testing/providers/json-api.service.mock';
 
 import { FilesService } from './files.service';
+import { JsonApiService } from './json-api.service';
 
-describe.skip('Service: Files', () => {
+describe('FilesService', () => {
   let service: FilesService;
+  let jsonApiService: JsonApiServiceMockType;
 
-  beforeEach(() => {
+  function setup() {
+    jsonApiService = JsonApiServiceMock.simple();
+
     TestBed.configureTestingModule({
-      providers: [provideOSFCore(), provideOSFHttp(), FilesService],
+      providers: [
+        FilesService,
+        MockProvider(JsonApiService, jsonApiService),
+        MockProvider(ENVIRONMENT, {
+          apiDomainUrl: 'https://api.test',
+          addonsApiUrl: 'https://addons.test',
+          webUrl: 'https://web.test',
+        }),
+      ],
     });
 
     service = TestBed.inject(FilesService);
+  }
+
+  it('should create', () => {
+    setup();
+    expect(service).toBeTruthy();
+    expect(service.apiUrl).toBe('https://api.test/v2');
+    expect(service.addonsApiUrl).toBe('https://addons.test');
   });
 
-  it('should test getResourceReferences', inject([HttpTestingController], (httpMock: HttpTestingController) => {
-    let results!: string;
-    service.getResourceReferences('reference-url').subscribe({
-      next: (result) => {
-        results = result;
+  it('should request files with filtering params and map response', async () => {
+    setup();
+    const mappedFile = FileModelMock.simple({ id: 'mapped' });
+    const mapperSpy = vi.spyOn(FilesMapper, 'getFiles').mockReturnValue([mappedFile]);
+    jsonApiService.get.mockReturnValue(of({ data: [{ id: 'raw' }], meta: { total: 1 } }));
+
+    const response = await firstValueFrom(service.getFiles('/files', 'term', '-name', 2));
+
+    expect(jsonApiService.get).toHaveBeenCalledWith('/files', {
+      sort: '-name',
+      page: '2',
+      'fields[files]': 'name,guid,kind,extra,size,path,materialized_path,date_modified,parent_folder,files',
+      'filter[name]': 'term',
+    });
+    expect(mapperSpy).toHaveBeenCalledWith([{ id: 'raw' }]);
+    expect(response.files).toEqual([mappedFile]);
+    expect(response.meta).toEqual({ total: 1 });
+  });
+
+  it('should map resource type to root folders url', () => {
+    setup();
+    const getFoldersSpy = vi.spyOn(service, 'getFolders').mockReturnValue(of({ files: [] }));
+
+    service.getRootFolders('abc', ResourceType.Project).subscribe();
+    service.getRootFolders('abc', ResourceType.Registration).subscribe();
+    service.getRootFolders('abc', ResourceType.Preprint).subscribe();
+
+    expect(getFoldersSpy).toHaveBeenNthCalledWith(1, 'https://api.test/v2/nodes/abc/files/');
+    expect(getFoldersSpy).toHaveBeenNthCalledWith(2, 'https://api.test/v2/registrations/abc/files/');
+    expect(getFoldersSpy).toHaveBeenNthCalledWith(3, 'https://api.test/v2/preprints/abc/files/');
+  });
+
+  it('should upload file with create params and without params for update', () => {
+    setup();
+    const file = new File(['body'], 'a.txt');
+    jsonApiService.putFile.mockReturnValue(of(new HttpResponse({ status: 200 })));
+
+    service.uploadFile(file, '/upload').subscribe();
+    service.uploadFile(file, '/upload', true).subscribe();
+
+    expect(jsonApiService.putFile).toHaveBeenNthCalledWith(1, '/upload', file, {
+      kind: 'file',
+      name: 'a.txt',
+    });
+    expect(jsonApiService.putFile).toHaveBeenNthCalledWith(2, '/upload', file, undefined);
+  });
+
+  it('should post move file payload with optional replace conflict', () => {
+    setup();
+    jsonApiService.post.mockReturnValue(of({}));
+
+    service.moveFile('/move', '/dest', 'node-1', 'osfstorage', 'move').subscribe();
+    service.moveFile('/move', '/dest', 'node-1', 'osfstorage', 'move', true).subscribe();
+
+    expect(jsonApiService.post).toHaveBeenNthCalledWith(1, '/move', {
+      action: 'move',
+      path: '/dest',
+      provider: 'osfstorage',
+      resource: 'node-1',
+      conflict: undefined,
+    });
+    expect(jsonApiService.post).toHaveBeenNthCalledWith(2, '/move', {
+      action: 'move',
+      path: '/dest',
+      provider: 'osfstorage',
+      resource: 'node-1',
+      conflict: 'replace',
+    });
+  });
+
+  it('should build folder download link with correct separator', () => {
+    setup();
+    expect(service.getFolderDownloadLink('/files/1')).toBe('/files/1?zip=');
+    expect(service.getFolderDownloadLink('/files/1?foo=bar')).toBe('/files/1?foo=bar&zip=');
+  });
+
+  it('should return empty reference when addons api response has no data', async () => {
+    setup();
+    jsonApiService.get.mockReturnValue(of({ data: [] }));
+
+    const link = await firstValueFrom(service.getResourceReferences('https://web.test/resource'));
+    expect(link).toBe('');
+  });
+
+  it('should return empty configured addons when reference url is empty', async () => {
+    setup();
+    vi.spyOn(service, 'getResourceReferences').mockReturnValue(of(''));
+
+    const addons = await firstValueFrom(service.getConfiguredStorageAddons('node-1'));
+    expect(addons).toEqual([]);
+  });
+
+  it('should fetch configured addons and map response', async () => {
+    setup();
+    vi.spyOn(service, 'getResourceReferences').mockReturnValue(of('https://addons.test/resource-ref'));
+    const addonSpy = vi.spyOn(AddonMapper, 'fromConfiguredAddonResponse').mockReturnValue({ id: 'addon-1' } as never);
+    jsonApiService.get.mockReturnValue(of({ data: [{ id: 'raw-addon' }] }));
+
+    const addons = await firstValueFrom(service.getConfiguredStorageAddons('node-1'));
+
+    expect(jsonApiService.get).toHaveBeenCalledWith('https://addons.test/resource-ref/configured_storage_addons');
+    expect(addonSpy).toHaveBeenCalledWith({ id: 'raw-addon' });
+    expect(addons).toEqual([{ id: 'addon-1' }]);
+  });
+
+  it('should fetch external storage service and map addon', async () => {
+    setup();
+    const addon = { id: 'service-1' };
+    const addonSpy = vi.spyOn(AddonMapper, 'fromResponse').mockReturnValue(addon as never);
+    jsonApiService.get.mockReturnValue(of({ data: { id: 'raw' } }));
+
+    const result = await firstValueFrom(service.getExternalStorageService('service-1'));
+
+    expect(jsonApiService.get).toHaveBeenCalledWith(
+      'https://addons.test/configured-storage-addons/service-1/external_storage_service/'
+    );
+    expect(addonSpy).toHaveBeenCalledWith({ id: 'raw' });
+    expect(result).toEqual(addon);
+  });
+
+  it('should call updateTags with correct patch payload', () => {
+    setup();
+    const fileDetails = FileModelMock.simple() as unknown as FileModel;
+    const fileDetailsSpy = vi.spyOn(FilesMapper, 'getFileDetails').mockReturnValue(fileDetails as never);
+    jsonApiService.patch.mockReturnValue(of({ id: 'file-1' }));
+
+    service.updateTags(['one', 'two'], 'file-1').subscribe();
+
+    expect(jsonApiService.patch).toHaveBeenCalledWith('https://api.test/v2/files/file-1/', {
+      data: {
+        id: 'file-1',
+        type: 'files',
+        relationships: {},
+        attributes: { tags: ['one', 'two'] },
       },
     });
-
-    const request = httpMock.expectOne(
-      'http://addons.localhost:8000/resource-references?filter%5Bresource_uri%5D=reference-url'
-    );
-    expect(request.request.method).toBe('GET');
-    request.flush(getResourceReferencesData());
-
-    expect(results).toBe('http://addons.localhost:8000/resource-references/3193f97c-e6d8-41a4-8312-b73483442086');
-    expect(httpMock.verify).toBeTruthy();
-  }));
-
-  it('should test getConfiguredStorageAddons', inject([HttpTestingController], (httpMock: HttpTestingController) => {
-    let results: any[] = [];
-    service.getConfiguredStorageAddons('reference-url').subscribe((result) => {
-      results = result;
-    });
-
-    let request = httpMock.expectOne(
-      'http://addons.localhost:8000/resource-references?filter%5Bresource_uri%5D=reference-url'
-    );
-    expect(request.request.method).toBe('GET');
-    request.flush(getResourceReferencesData());
-
-    request = httpMock.expectOne(
-      'http://addons.localhost:8000/resource-references/3193f97c-e6d8-41a4-8312-b73483442086/configured_storage_addons'
-    );
-    expect(request.request.method).toBe('GET');
-    request.flush(getConfiguredAddonsData());
-
-    expect(results[0]).toEqual(
-      Object({
-        baseAccountId: '62ed6dd7-f7b7-4003-b7b4-855789c1f991',
-        baseAccountType: 'authorized-storage-accounts',
-        connectedCapabilities: ['ACCESS', 'UPDATE'],
-        connectedOperationNames: ['list_child_items', 'list_root_items', 'get_item_info'],
-        currentUserIsOwner: true,
-        displayName: 'Google Drive',
-        externalServiceName: 'googledrive',
-        externalStorageServiceId: '8aeb85e9-3a73-426f-a89b-5624b4b9d418',
-        id: '756579dc-3a24-4849-8866-698a60846ac3',
-        resourceType: undefined,
-        rootFolderId: '0AIl0aR4C9JAFUk9PVA',
-        selectedStorageItemId: '0AIl0aR4C9JAFUk9PVA',
-        targetUrl: undefined,
-        type: 'configured-storage-addons',
-      })
-    );
-
-    expect(httpMock.verify).toBeTruthy();
-  }));
+    expect(fileDetailsSpy).toHaveBeenCalledWith({ id: 'file-1' });
+  });
 });

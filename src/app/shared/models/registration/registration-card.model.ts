@@ -26,4 +26,5 @@ export interface RegistrationCard {
   hasSupplements?: boolean;
   rootParentId?: string | null;
   currentUserPermissions: UserPermissions[];
+  allowUpdates: boolean;
 }

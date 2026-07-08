@@ -73,6 +73,7 @@ export class RegistrationMapper {
       public: registration.attributes.public,
       contributors: ContributorsMapper.getContributors(registration.embeds?.bibliographic_contributors?.data),
       currentUserPermissions: registration.attributes.current_user_permissions,
+      allowUpdates: registration.embeds?.provider?.data?.attributes?.allow_updates ?? false,
     };
   }
 
@@ -97,6 +98,7 @@ export class RegistrationMapper {
       contributors: ContributorsMapper.getContributors(registration?.embeds?.bibliographic_contributors?.data),
       rootParentId: registration.relationships.root?.data?.id,
       currentUserPermissions: registration.attributes.current_user_permissions,
+      allowUpdates: registration.embeds?.provider?.data?.attributes?.allow_updates ?? false,
     };
   }
 

@@ -4,7 +4,7 @@ import { Button } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { TextInputComponent } from '@osf/shared/components/text-input/text-input.component';
 import { forbiddenFileNameCharacters, InputLimits } from '@osf/shared/constants/input-limits.const';
@@ -28,6 +28,8 @@ export class RenameFileDialogComponent {
       nonNullable: true,
       validators: [
         CustomValidators.requiredTrimmed(),
+        Validators.minLength(InputLimits.title.minLength),
+        Validators.maxLength(InputLimits.title.maxLength),
         CustomValidators.forbiddenCharactersValidator(forbiddenFileNameCharacters),
         CustomValidators.noPeriodAtEnd(),
       ],
@@ -36,7 +38,7 @@ export class RenameFileDialogComponent {
 
   onSubmit(): void {
     if (this.renameForm.valid) {
-      const newName = this.renameForm.getRawValue().name;
+      const newName = this.renameForm.getRawValue().name.trim();
       this.dialogRef.close(newName);
     }
   }

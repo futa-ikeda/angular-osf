@@ -33,11 +33,7 @@ export class SocialsShareButtonComponent {
         ? this.socialShareService.createPreprintUrl(this.resourceId(), this.resourceProvider())
         : this.socialShareService.createGuidUrl(this.resourceId());
 
-    const shareableContent: SocialShareContentModel = {
-      id: this.resourceId(),
-      title: this.resourceTitle(),
-      url: resourceUrl,
-    };
+    const shareableContent: SocialShareContentModel = { title: this.resourceTitle(), url: resourceUrl };
 
     return this.socialShareService.generateSocialActionItems(shareableContent);
   });

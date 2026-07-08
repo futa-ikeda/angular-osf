@@ -34,12 +34,20 @@ describe('CreateFolderDialogComponent', () => {
   });
 
   it('should expose name limits from shared input limits', () => {
-    expect(component.nameLimit).toBe(InputLimits.name.maxLength);
+    expect(component.nameMaxLength).toBe(InputLimits.name.maxLength);
     expect(component.nameMinLength).toBe(InputLimits.name.minLength);
   });
 
   it('should not close dialog when form is invalid', () => {
     component.folderForm.controls.name.setValue('');
+
+    component.onSubmit();
+
+    expect(dialogRef.close).not.toHaveBeenCalled();
+  });
+
+  it('should not close dialog when value is only whitespace', () => {
+    component.folderForm.controls.name.setValue('   ');
 
     component.onSubmit();
 
@@ -64,6 +72,22 @@ describe('CreateFolderDialogComponent', () => {
 
   it('should not close dialog when value ends with period', () => {
     component.folderForm.controls.name.setValue('Folder.');
+
+    component.onSubmit();
+
+    expect(dialogRef.close).not.toHaveBeenCalled();
+  });
+
+  it('should not close dialog when value is shorter than minimum length', () => {
+    component.folderForm.controls.name.setValue('A'.repeat(InputLimits.name.minLength - 1));
+
+    component.onSubmit();
+
+    expect(dialogRef.close).not.toHaveBeenCalled();
+  });
+
+  it('should not close dialog when value exceeds maximum length', () => {
+    component.folderForm.controls.name.setValue('A'.repeat(InputLimits.name.maxLength + 1));
 
     component.onSubmit();
 

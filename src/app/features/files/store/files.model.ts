@@ -8,7 +8,8 @@ import { AsyncStateModel } from '@osf/shared/models/store/async-state.model';
 import { AsyncStateWithTotalCount } from '@osf/shared/models/store/async-state-with-total-count.model';
 
 import { FileProvider } from '../constants';
-import { OsfFileCustomMetadata, OsfFileRevision } from '../models';
+import { OsfFileCustomMetadata } from '../models/file-custom-metadata.model';
+import { OsfFileRevision } from '../models/file-revisions.model';
 
 export interface FilesStateModel {
   files: AsyncStateWithTotalCount<FileModel[]>;

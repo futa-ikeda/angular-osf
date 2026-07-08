@@ -2,8 +2,6 @@ import { Store } from '@ngxs/store';
 
 import { MockComponents, MockProvider } from 'ng-mocks';
 
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
-
 import { of, Subject, throwError } from 'rxjs';
 
 import { Mock } from 'vitest';
@@ -35,6 +33,7 @@ import {
 import { MOCK_USER } from '@testing/mocks/data.mock';
 import { provideOSFCore } from '@testing/osf.testing.provider';
 import {
+  CustomDialogServiceMock,
   CustomDialogServiceMockBuilder,
   CustomDialogServiceMockType,
 } from '@testing/providers/custom-dialog-provider.mock';
@@ -65,11 +64,8 @@ describe('InstitutionsProjectsComponent', () => {
 
   const mockInstitution = { ...MOCK_ADMIN_INSTITUTIONS_INSTITUTION, id: 'inst-1' };
 
-  function createDialogRef<T>(onClose$: Subject<T>): DynamicDialogRef {
-    return {
-      onClose: onClose$.asObservable(),
-      close: vi.fn(),
-    } as unknown as DynamicDialogRef;
+  function createDialogRef<T>(onClose$: Subject<T>) {
+    return CustomDialogServiceMock.dialogRefWithClose(onClose$.asObservable());
   }
 
   function createIconClickEvent(): TableIconClickEvent {

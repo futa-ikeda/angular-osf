@@ -94,13 +94,10 @@
         [currentFolder]="currentFolder()!"
         [files]="projectFiles()"
         [totalCount]="filesTotalCount()"
-        [storage]="null"
-        [selectionMode]="null"
         [isLoading]="areProjectFilesLoading() || isCurrentFolderLoading()"
-        [resourceId]="selectedProjectId()!"
         [scrollHeight]="'500px'"
-        (entryFileClicked)="selectProjectFile($event)"
-        (setCurrentFolder)="setCurrentFolder($event)"
+        (fileOpened)="selectProjectFile($event)"
+        (currentFolderChanged)="setCurrentFolder($event)"
         (loadFiles)="onLoadFiles($event)"
       />
     }

@@ -5,7 +5,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { Skeleton } from 'primeng/skeleton';
 
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { ContributorsListComponent } from '@osf/shared/components/contributors-list/contributors-list.component';
@@ -31,5 +31,5 @@ export class FileResourceMetadataComponent {
   isResourceMetadataLoading = select(FilesSelectors.isResourceMetadataLoading);
   isResourceContributorsLoading = select(FilesSelectors.isResourceContributorsLoading);
 
-  hasViewOnly = computed(() => this.viewOnlyService.hasViewOnlyParam(this.router));
+  hasViewOnly = this.viewOnlyService.hasViewOnlyParam(this.router);
 }

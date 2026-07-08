@@ -5,20 +5,22 @@ import { HttpEvent } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
 import { ENVIRONMENT } from '@core/provider/environment.provider';
-import { MapFileCustomMetadata, MapFileRevision } from '@osf/features/files/mappers';
+import { MapFileCustomMetadata } from '@osf/features/files/mappers/file-custom-metadata.mapper';
+import { MapFileRevision } from '@osf/features/files/mappers/file-revision.mapper';
+import { OsfFileCustomMetadata } from '@osf/features/files/models/file-custom-metadata.model';
+import { OsfFileRevision } from '@osf/features/files/models/file-revisions.model';
+import { GetCustomMetadataResponse } from '@osf/features/files/models/get-custom-metadata-response.model';
 import {
   FileCustomMetadata,
-  GetCustomMetadataResponse,
   GetFileMetadataResponse,
-  GetFileRevisionsResponse,
-  GetShortInfoResponse,
-  OsfFileCustomMetadata,
-  OsfFileRevision,
-  PatchFileMetadata,
-} from '@osf/features/files/models';
+} from '@osf/features/files/models/get-file-metadata-response.model';
+import { GetFileRevisionsResponse } from '@osf/features/files/models/get-file-revisions-response.model';
+import { GetShortInfoResponse } from '@osf/features/files/models/get-short-info-response.model';
+import { PatchFileMetadata } from '@osf/features/files/models/patch-file-metadata.model';
 import { PaginatedData } from '@osf/shared/models/paginated-data.model';
 
 import { FileKind } from '../enums/file-kind.enum';
+import { ResourceType } from '../enums/resource-type.enum';
 import { AddonMapper } from '../mappers/addon.mapper';
 import { ContributorsMapper } from '../mappers/contributors';
 import { FilesMapper } from '../mappers/files/files.mapper';
@@ -36,6 +38,7 @@ import {
   FileFoldersResponseJsonApi,
 } from '../models/files/file-folder-json-api.model';
 import {
+  FileDetailsDataJsonApi,
   FileDetailsResponseJsonApi,
   FileResponseJsonApi,
   FilesResponseJsonApi,
@@ -60,7 +63,13 @@ export class FilesService {
     return this.environment.addonsApiUrl;
   }
 
-  filesFields = 'name,guid,kind,extra,size,path,materialized_path,date_modified,parent_folder,files';
+  private readonly filesFields = 'name,guid,kind,extra,size,path,materialized_path,date_modified,parent_folder,files';
+
+  private readonly resourcePathMap: Record<number, string> = {
+    [ResourceType.Project]: 'nodes',
+    [ResourceType.Registration]: 'registrations',
+    [ResourceType.Preprint]: 'preprints',
+  };
 
   getFiles(
     filesLink: string,
@@ -86,10 +95,17 @@ export class FilesService {
       .pipe(map((response) => ({ files: FilesMapper.getFileFolders(response.data), meta: response.meta })));
   }
 
+  getRootFolders(
+    resourceId: string,
+    resourceType: ResourceType
+  ): Observable<{ files: FileFolderModel[]; meta?: MetaJsonApi }> {
+    const resourcePath = this.resourcePathMap[resourceType];
+    return this.getFolders(`${this.apiUrl}/${resourcePath}/${resourceId}/files/`);
+  }
+
   getFilesWithoutFiltering(filesLink: string, page = 1): Observable<PaginatedData<FileModel[]>> {
-    const params: Record<string, string> = {
-      page: page.toString(),
-    };
+    const params: Record<string, string> = { page: page.toString() };
+
     return this.jsonApiService.get<FilesResponseJsonApi>(filesLink, params).pipe(
       map((response) => ({
         data: FilesMapper.getFiles(response.data),
@@ -169,9 +185,7 @@ export class FilesService {
   }
 
   getFileGuid(id: string): Observable<FileModel> {
-    const params = {
-      create_guid: 'true',
-    };
+    const params = { create_guid: 'true' };
 
     return this.jsonApiService
       .get<FileResponseJsonApi>(`${this.apiUrl}/files/${id}/`, params)
@@ -252,15 +266,13 @@ export class FilesService {
         id: fileGuid,
         type: 'files',
         relationships: {},
-        attributes: {
-          tags: tags,
-        },
+        attributes: { tags: tags },
       },
     };
 
     return this.jsonApiService
-      .patch<FileDetailsResponseJsonApi>(`${this.apiUrl}/files/${fileGuid}/`, payload)
-      .pipe(map((response) => FilesMapper.getFileDetails(response.data)));
+      .patch<FileDetailsDataJsonApi>(`${this.apiUrl}/files/${fileGuid}/`, payload)
+      .pipe(map((response) => FilesMapper.getFileDetails(response)));
   }
 
   copyFileToAnotherLocation(moveLink: string, provider: string, resourceId: string) {
@@ -278,9 +290,7 @@ export class FilesService {
   }
 
   getResourceReferences(resourceUri: string): Observable<string> {
-    const params = {
-      'filter[resource_uri]': resourceUri,
-    };
+    const params = { 'filter[resource_uri]': resourceUri };
 
     return this.jsonApiService
       .get<
@@ -289,7 +299,9 @@ export class FilesService {
       .pipe(map((response) => response.data?.[0]?.links?.self ?? ''));
   }
 
-  getConfiguredStorageAddons(resourceUri: string): Observable<ConfiguredAddonModel[]> {
+  getConfiguredStorageAddons(resourceId: string): Observable<ConfiguredAddonModel[]> {
+    const resourceUri = `${this.environment.webUrl}/${resourceId}`;
+
     return this.getResourceReferences(resourceUri).pipe(
       switchMap((referenceUrl: string) => {
         if (!referenceUrl) return of([]);
