@@ -14,6 +14,8 @@
           [label]="'common.buttons.disable' | translate"
           severity="danger"
           (onClick)="showDisableDialog()"
+          [disabled]="isProjectReadOnly()"
+          [pTooltip]="isProjectReadOnly() ? ('common.errorMessages.actionUnavailable' | translate) : ''"
           data-test-addon-card-disconnect
         ></p-button>
       }
@@ -21,7 +23,8 @@
       <p-button
         [label]="buttonLabel() | translate"
         severity="secondary"
-        [disabled]="!canConfigure()"
+        [disabled]="!canConfigure() || isProjectReadOnly()"
+        [pTooltip]="isProjectReadOnly() ? ('common.errorMessages.actionUnavailable' | translate) : ''"
         [class.opacity-0]="!canConfigure()"
         (onClick)="!isConfiguredAddon() ? onConnectAddon() : onConfigureAddon()"
       ></p-button>

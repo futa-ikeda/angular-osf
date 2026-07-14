@@ -1,12 +1,14 @@
-import { createDispatchMap } from '@ngxs/store';
+import { createDispatchMap, select } from '@ngxs/store';
 
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
 
 import { Component, computed, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { UserSelectors } from '@osf/core/store/user/user.selectors';
 import { getAddonTypeString, isConfiguredAddon } from '@osf/shared/helpers/addon-type.helper';
 import { CustomConfirmationService } from '@osf/shared/services/custom-confirmation.service';
 import { LoaderService } from '@osf/shared/services/loader.service';
@@ -18,7 +20,7 @@ import { DeleteAuthorizedAddon } from '@shared/stores/addons';
 
 @Component({
   selector: 'osf-addon-card',
-  imports: [Button, TranslatePipe],
+  imports: [Button, TranslatePipe, Tooltip],
   templateUrl: './addon-card.component.html',
   styleUrl: './addon-card.component.scss',
 })
@@ -27,6 +29,8 @@ export class AddonCardComponent {
   private readonly customConfirmationService = inject(CustomConfirmationService);
   private readonly loaderService = inject(LoaderService);
   private readonly actions = createDispatchMap({ deleteAuthorizedAddon: DeleteAuthorizedAddon });
+
+  readonly isProjectReadOnly = select(UserSelectors.isProjectReadOnly);
 
   readonly card = input<AddonModel | AuthorizedAccountModel | ConfiguredAddonModel | AddonCardModel | null>(null);
   readonly isConnected = input<boolean>(false);
