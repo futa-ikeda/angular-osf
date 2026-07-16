@@ -1130,7 +1130,7 @@
       "deleteProject": "Delete Project",
       "descriptions": {
         "file_updated": {
-          "instant": "You'll be notified immediately when files are updated.",
+          "instantly": "You'll be notified immediately when files are updated.",
           "daily": "You'll receive a daily summary of file updates.",
           "none": "You won't receive file update notifications."
         }
