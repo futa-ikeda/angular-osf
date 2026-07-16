@@ -80,6 +80,59 @@ export class ContributorsTableComponent {
     this.isProjectReadonly() && this.isProject() ? 'common.errorMessages.actionUnavailable' : ''
   );
 
+  readOnlyPermissionInfo = computed(() => {
+    const translationPrefix = 'project.contributors.permissionInfo.';
+    if (!this.isProject()) {
+      return [translationPrefix + 'viewRegistrationContent'];
+    }
+    return this.isProjectReadonly()
+      ? [translationPrefix + 'readOnlyViewProjectContent']
+      : [translationPrefix + 'viewProjectContent'];
+  });
+
+  writePermissionInfo = computed(() => {
+    const translationPrefix = 'project.contributors.permissionInfo.';
+    const projectPermissions = [
+      translationPrefix + 'read',
+      translationPrefix + 'addComponents',
+      translationPrefix + 'editContent',
+    ];
+    const registrationPermissions = [
+      translationPrefix + 'read',
+      translationPrefix + 'editMetadata',
+      translationPrefix + 'addResourcesLinks',
+    ];
+
+    if (!this.isProject()) {
+      return registrationPermissions;
+    }
+
+    return this.isProjectReadonly() ? [translationPrefix + 'readOnlyViewProjectContent'] : projectPermissions;
+  });
+
+  adminPermissionInfo = computed(() => {
+    const translationPrefix = 'project.contributors.permissionInfo.';
+    const projectPermissions = [
+      translationPrefix + 'readWrite',
+      translationPrefix + 'manageContributors',
+      translationPrefix + 'deleteRegister',
+      translationPrefix + 'publicPrivate',
+    ];
+    const registrationPermissions = [
+      translationPrefix + 'readWrite',
+      translationPrefix + 'manageContributors',
+      translationPrefix + 'withdrawRegistration',
+      translationPrefix + 'endEmbargoEarly',
+    ];
+
+    if (!this.isProject()) {
+      return registrationPermissions;
+    }
+    return this.isProjectReadonly()
+      ? [translationPrefix + 'manageViewOnlyLinks', translationPrefix + 'deleteProject']
+      : projectPermissions;
+  });
+
   removeContributor(contributor: ContributorModel) {
     this.remove.emit(contributor);
   }
