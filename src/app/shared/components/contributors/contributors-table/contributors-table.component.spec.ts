@@ -116,6 +116,77 @@ describe('ContributorsTableComponent', () => {
     expect(component.showLoadMore()).toBe(true);
   });
 
+  it('should compute readOnlyPermissionInfo correctly', () => {
+    setup({ selectorOverrides: [{ selector: UserSelectors.isProjectReadOnly, value: true }] });
+    fixture.detectChanges();
+    expect(component.readOnlyPermissionInfo()).toEqual([
+      'project.contributors.permissionInfo.readOnlyViewProjectContent',
+    ]);
+
+    setup({ selectorOverrides: [{ selector: UserSelectors.isProjectReadOnly, value: false }] });
+    fixture.componentRef.setInput('resourceType', ResourceType.Project);
+    fixture.detectChanges();
+    expect(component.readOnlyPermissionInfo()).toEqual(['project.contributors.permissionInfo.viewProjectContent']);
+
+    setup({ selectorOverrides: [{ selector: UserSelectors.isProjectReadOnly, value: true }] });
+    fixture.componentRef.setInput('resourceType', ResourceType.Registration);
+    fixture.detectChanges();
+    expect(component.readOnlyPermissionInfo()).toEqual(['project.contributors.permissionInfo.viewRegistrationContent']);
+  });
+
+  it('should compute writePermissionInfo correctly', () => {
+    setup({ selectorOverrides: [{ selector: UserSelectors.isProjectReadOnly, value: true }] });
+    fixture.detectChanges();
+    expect(component.writePermissionInfo()).toEqual(['project.contributors.permissionInfo.readOnlyViewProjectContent']);
+
+    setup({ selectorOverrides: [{ selector: UserSelectors.isProjectReadOnly, value: false }] });
+    fixture.componentRef.setInput('resourceType', ResourceType.Project);
+    fixture.detectChanges();
+    expect(component.writePermissionInfo()).toEqual([
+      'project.contributors.permissionInfo.read',
+      'project.contributors.permissionInfo.addComponents',
+      'project.contributors.permissionInfo.editContent',
+    ]);
+
+    setup({ selectorOverrides: [{ selector: UserSelectors.isProjectReadOnly, value: true }] });
+    fixture.componentRef.setInput('resourceType', ResourceType.Registration);
+    fixture.detectChanges();
+    expect(component.writePermissionInfo()).toEqual([
+      'project.contributors.permissionInfo.read',
+      'project.contributors.permissionInfo.editMetadata',
+      'project.contributors.permissionInfo.addResourcesLinks',
+    ]);
+  });
+
+  it('should compute adminPermissionInfo correctly', () => {
+    setup({ selectorOverrides: [{ selector: UserSelectors.isProjectReadOnly, value: true }] });
+    fixture.detectChanges();
+    expect(component.adminPermissionInfo()).toEqual([
+      'project.contributors.permissionInfo.manageViewOnlyLinks',
+      'project.contributors.permissionInfo.deleteProject',
+    ]);
+
+    setup({ selectorOverrides: [{ selector: UserSelectors.isProjectReadOnly, value: false }] });
+    fixture.componentRef.setInput('resourceType', ResourceType.Project);
+    fixture.detectChanges();
+    expect(component.adminPermissionInfo()).toEqual([
+      'project.contributors.permissionInfo.readWrite',
+      'project.contributors.permissionInfo.manageContributors',
+      'project.contributors.permissionInfo.deleteRegister',
+      'project.contributors.permissionInfo.publicPrivate',
+    ]);
+
+    setup({ selectorOverrides: [{ selector: UserSelectors.isProjectReadOnly, value: true }] });
+    fixture.componentRef.setInput('resourceType', ResourceType.Registration);
+    fixture.detectChanges();
+    expect(component.adminPermissionInfo()).toEqual([
+      'project.contributors.permissionInfo.readWrite',
+      'project.contributors.permissionInfo.manageContributors',
+      'project.contributors.permissionInfo.withdrawRegistration',
+      'project.contributors.permissionInfo.endEmbargoEarly',
+    ]);
+  });
+
   it('should compute properties when hasAdminAccess is true and isProjectReadonly is false', () => {
     setup({ selectorOverrides: [{ selector: UserSelectors.isProjectReadOnly, value: false }] });
     fixture.componentRef.setInput('hasAdminAccess', true);
