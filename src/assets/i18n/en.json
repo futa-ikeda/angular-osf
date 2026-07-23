@@ -2310,6 +2310,8 @@
     "commentLabel": "Comment (Optional)",
     "helpMessage": "If this should not have occurred, please contact",
     "message": "Ask for access, or switch to an account with permission.",
+    "messageReadOnly": "This project is in a read-only state, and new access can no longer be granted. If you are already a contributor, please switch to the account that has access to this project. <br><br> If you need assistance locating the correct account or have questions, please contact support at",
+    "readOnlyTitle": "You Don't Have Access",
     "requestAccess": "Request Access",
     "requestedSuccessMessage": "Your request for access has been sent.",
     "switchAccount": "Switch Account",
