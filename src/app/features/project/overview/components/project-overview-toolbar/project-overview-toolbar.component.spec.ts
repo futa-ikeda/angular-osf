@@ -194,6 +194,34 @@ describe('ProjectOverviewToolbarComponent', () => {
 
       expect(customDialogServiceMock.open).not.toHaveBeenCalled();
     });
+
+    it('should compute disableProjectPrivacyToggle when isProjectReadOnly is false', () => {
+      setup();
+      fixture.detectChanges();
+
+      expect(component.isPublic()).toBe(true);
+      expect(component.disableProjectPrivacyToggle()).toBe(false);
+
+      fixture.componentRef.setInput('currentResource', { ...mockResource, isPublic: false });
+      fixture.detectChanges();
+
+      expect(component.isPublic()).toBe(false);
+      expect(component.disableProjectPrivacyToggle()).toBe(false);
+    });
+
+    it('should compute disableProjectPrivacyToggle when isProjectReadOnly is true', () => {
+      setup({ selectors: [{ selector: UserSelectors.isProjectReadOnly, value: true }] });
+      fixture.detectChanges();
+
+      expect(component.isPublic()).toBe(true);
+      expect(component.disableProjectPrivacyToggle()).toBe(true);
+
+      fixture.componentRef.setInput('currentResource', { ...mockResource, isPublic: false });
+      fixture.detectChanges();
+
+      expect(component.isPublic()).toBe(false);
+      expect(component.disableProjectPrivacyToggle()).toBe(false);
+    });
   });
 
   describe('Properties', () => {
@@ -227,6 +255,10 @@ describe('ProjectOverviewToolbarComponent', () => {
     it('should return empty string when isProjectReadOnly is false', () => {
       setup();
       expect(component.projectReadOnlyTooltip()).toBe('');
+
+      fixture.componentRef.setInput('currentResource', { ...mockResource, isPublic: false });
+      fixture.detectChanges();
+      expect(component.projectReadOnlyTooltip()).toBe('');
     });
 
     it('should return tooltip message when isProjectReadOnly is true', () => {
@@ -235,6 +267,10 @@ describe('ProjectOverviewToolbarComponent', () => {
       });
       fixture.detectChanges();
       expect(component.projectReadOnlyTooltip()).toBe('common.errorMessages.actionUnavailable');
+
+      fixture.componentRef.setInput('currentResource', { ...mockResource, isPublic: false });
+      fixture.detectChanges();
+      expect(component.projectReadOnlyTooltip()).toBe('');
     });
   });
 });
