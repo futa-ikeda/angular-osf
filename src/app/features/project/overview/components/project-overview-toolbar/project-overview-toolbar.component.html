@@ -15,7 +15,7 @@
             [ariaLabel]="'common.accessibility.toggleProjectVisibility' | translate"
             [(ngModel)]="isPublic"
             (onChange)="handleToggleProjectPublicity()"
-            [disabled]="isProjectReadOnly()"
+            [disabled]="disableProjectPrivacyToggle()"
           />
         </span>
 

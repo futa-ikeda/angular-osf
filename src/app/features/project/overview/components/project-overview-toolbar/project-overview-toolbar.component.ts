@@ -78,7 +78,10 @@ export class ProjectOverviewToolbarComponent {
   preventDuplicateCreation = select(UserSelectors.isProjectCreationDisabled);
   isProjectReadOnly = select(UserSelectors.isProjectReadOnly);
 
-  projectReadOnlyTooltip = computed(() => (this.isProjectReadOnly() ? 'common.errorMessages.actionUnavailable' : ''));
+  disableProjectPrivacyToggle = computed(() => this.isProjectReadOnly() && this.isPublic());
+  projectReadOnlyTooltip = computed(() =>
+    this.disableProjectPrivacyToggle() ? 'common.errorMessages.actionUnavailable' : ''
+  );
 
   actions = createDispatchMap({
     getResourceBookmark: GetResourceBookmark,
