@@ -10,6 +10,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Prerender,
   },
   {
+    path: 'choose-repository',
+    renderMode: RenderMode.Prerender,
+  },
+  {
     path: 'forbidden',
     renderMode: RenderMode.Prerender,
   },

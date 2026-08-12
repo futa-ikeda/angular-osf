@@ -1,0 +1,26 @@
+:host {
+  flex: 1;
+}
+
+.container {
+  background-color: var(--white);
+}
+
+.repository-card {
+  background-color: var(--white);
+  border: 1px solid var(--grey-2);
+  border-radius: 0.5rem;
+}
+
+.repository-card-logo {
+  width: 7.5rem;
+  height: 7.5rem;
+  object-fit: contain;
+}
+
+.repository-card-link {
+  --p-button-outlined-primary-color: var(--dark-blue-1);
+  --p-button-outlined-primary-border-color: var(--grey-2);
+  --p-button-outlined-primary-hover-background: var(--bg-blue-2);
+  --p-button-outlined-primary-active-background: var(--bg-blue-2);
+}

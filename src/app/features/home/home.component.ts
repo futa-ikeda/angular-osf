@@ -3,7 +3,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { Button } from 'primeng/button';
 import { Carousel } from 'primeng/carousel';
 
-import { NgOptimizedImage } from '@angular/common';
+import { NgOptimizedImage, NgTemplateOutlet } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -11,11 +11,20 @@ import { Router, RouterLink } from '@angular/router';
 import { IconComponent } from '@osf/shared/components/icon/icon.component';
 import { SearchInputComponent } from '@osf/shared/components/search-input/search-input.component';
 
-import { INTEGRATION_ICONS, SLIDES } from './constants';
+import { INTEGRATION_ICONS, SLIDES } from './constants/data';
 
 @Component({
   selector: 'osf-home',
-  imports: [Carousel, Button, SearchInputComponent, IconComponent, NgOptimizedImage, TranslatePipe, RouterLink],
+  imports: [
+    Carousel,
+    Button,
+    SearchInputComponent,
+    IconComponent,
+    NgOptimizedImage,
+    NgTemplateOutlet,
+    TranslatePipe,
+    RouterLink,
+  ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })

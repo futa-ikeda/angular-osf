@@ -1,0 +1,15 @@
+<section class="workflow-launcher flex flex-column gap-4 py-6 px-3 md:px-4 xl:px-4">
+  <div class="flex flex-column gap-3">
+    <h1>{{ 'home.loggedIn.dashboard.workflowLauncher.title' | translate }}</h1>
+    <p>{{ 'home.loggedIn.dashboard.workflowLauncher.description1' | translate }}</p>
+    <p class="rich-text" [innerHTML]="'home.loggedIn.dashboard.workflowLauncher.description2' | translate"></p>
+  </div>
+
+  <div class="grid">
+    @for (card of cards; track card.titleKey) {
+      <div class="col-12 md:col-6 xl:col-3">
+        <osf-workflow-launcher-card [card]="card" />
+      </div>
+    }
+  </div>
+</section>

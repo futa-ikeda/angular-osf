@@ -1,0 +1,51 @@
+.workflow-launcher-card {
+  background-color: var(--white);
+  border: 1px solid var(--grey-2);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.card-header {
+  background-color: var(--workflow-launcher-card-header-bg);
+}
+
+.card-icon {
+  color: var(--workflow-launcher-card-icon-color);
+}
+
+.card-button {
+  --p-button-primary-background: var(--workflow-launcher-card-button-bg);
+  --p-button-primary-hover-background: var(--workflow-launcher-card-button-hover-bg);
+  --p-button-primary-active-background: var(--workflow-launcher-card-button-hover-bg);
+  --p-button-primary-border-color: var(--workflow-launcher-card-button-bg);
+  --p-button-primary-hover-border-color: var(--workflow-launcher-card-button-hover-bg);
+  --p-button-primary-active-border-color: var(--workflow-launcher-card-button-hover-bg);
+}
+
+.workflow-launcher-card--blue {
+  --workflow-launcher-card-header-bg: var(--bg-blue-2);
+  --workflow-launcher-card-icon-color: var(--blue-2);
+  --workflow-launcher-card-button-bg: var(--blue-2);
+  --workflow-launcher-card-button-hover-bg: var(--pr-blue-3);
+}
+
+.workflow-launcher-card--teal {
+  --workflow-launcher-card-header-bg: var(--blue-1-bg);
+  --workflow-launcher-card-icon-color: var(--blue-1);
+  --workflow-launcher-card-button-bg: var(--blue-1);
+  --workflow-launcher-card-button-hover-bg: var(--blue-3);
+}
+
+.workflow-launcher-card--teal-green {
+  --workflow-launcher-card-header-bg: var(--green-2-bg);
+  --workflow-launcher-card-icon-color: var(--green-2-alt);
+  --workflow-launcher-card-button-bg: var(--green-2-alt);
+  --workflow-launcher-card-button-hover-bg: var(--green-1-alt);
+}
+
+.workflow-launcher-card--green {
+  --workflow-launcher-card-header-bg: var(--green-1-bg);
+  --workflow-launcher-card-icon-color: var(--green-1-alt);
+  --workflow-launcher-card-button-bg: var(--green-1-alt);
+  --workflow-launcher-card-button-hover-bg: var(--green-2-alt);
+}

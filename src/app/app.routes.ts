@@ -61,6 +61,13 @@ export const routes: Routes = [
         data: { skipBreadcrumbs: true },
       },
       {
+        path: 'choose-repository',
+        loadComponent: () =>
+          import('./features/home/pages/choose-repository/choose-repository.component').then(
+            (mod) => mod.ChooseRepositoryComponent
+          ),
+      },
+      {
         path: 'search',
         loadComponent: () => import('./features/search/search.component').then((mod) => mod.SearchComponent),
       },

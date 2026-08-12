@@ -32,6 +32,7 @@ import { SelectComponent } from '@osf/shared/components/select/select.component'
 import { SubHeaderComponent } from '@osf/shared/components/sub-header/sub-header.component';
 import { ADDON_CATEGORY_OPTIONS } from '@osf/shared/constants/addons-category-options.const';
 import { ADDON_TAB_OPTIONS } from '@osf/shared/constants/addons-tab-options.const';
+import { FEATURE_FLAGS } from '@osf/shared/constants/feature-flags.const';
 import { AddonTabValue } from '@osf/shared/enums/addon-tab.enum';
 import { AddonCategory } from '@osf/shared/enums/addons-category.enum';
 import { createAddonCardModel, sortAddonCardsAlphabetically } from '@osf/shared/helpers/addon-card.helper';
@@ -114,7 +115,7 @@ export class ProjectAddonsComponent implements OnInit {
   activeFlags = select(UserSelectors.getActiveFlags);
 
   readonly categoryOptions = computed(() => {
-    if (this.activeFlags().includes('gravy_redirect')) {
+    if (this.activeFlags().includes(FEATURE_FLAGS.GRAVY_REDIRECT)) {
       return [
         ...ADDON_CATEGORY_OPTIONS,
         {

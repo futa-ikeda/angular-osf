@@ -21,6 +21,7 @@ import { PaginatedData } from '@osf/shared/models/paginated-data.model';
 
 import { FileKind } from '../enums/file-kind.enum';
 import { ResourceType } from '../enums/resource-type.enum';
+import { appendDownloadTrackingParams } from '../helpers/download-link.helper';
 import { AddonMapper } from '../mappers/addon.mapper';
 import { ContributorsMapper } from '../mappers/contributors';
 import { FilesMapper } from '../mappers/files/files.mapper';
@@ -30,7 +31,7 @@ import { ConfiguredAddonModel } from '../models/addons/configured-addon.model';
 import { ApiData, JsonApiResponse, MetaJsonApi } from '../models/common/json-api.model';
 import { ContributorModel } from '../models/contributors/contributor.model';
 import { ContributorsResponseJsonApi } from '../models/contributors/contributor-response-json-api.model';
-import { FileDetailsModel, FileModel } from '../models/files/file.model';
+import { FileDetailsModel, FileDetailsWithMeta, FileModel } from '../models/files/file.model';
 import { FileFolderModel } from '../models/files/file-folder.model';
 import {
   FileFolderDataJsonApi,
@@ -173,15 +174,15 @@ export class FilesService {
     return this.jsonApiService.post<FileResponseJsonApi>(link, body);
   }
 
-  getFolderDownloadLink(link: string): string {
+  getFolderDownloadLink(link: string, source = ''): string {
     const separator = link.includes('?') ? '&' : '?';
-    return `${link}${separator}zip=`;
+    return appendDownloadTrackingParams(`${link}${separator}zip=`, source);
   }
 
-  getFileTarget(fileGuid: string): Observable<FileDetailsModel> {
+  getFileTarget(fileGuid: string): Observable<FileDetailsWithMeta> {
     return this.jsonApiService
       .get<FileDetailsResponseJsonApi>(`${this.apiUrl}/files/${fileGuid}/?embed=target`)
-      .pipe(map((response) => FilesMapper.getFileDetails(response.data)));
+      .pipe(map((response) => ({ file: FilesMapper.getFileDetails(response.data), meta: response.meta })));
   }
 
   getFileGuid(id: string): Observable<FileModel> {

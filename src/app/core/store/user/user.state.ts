@@ -9,7 +9,8 @@ import { UserService } from '@core/services/user.service';
 import { ProfileSettingsKey } from '@osf/shared/enums/profile-settings-key.enum';
 import { removeNullable } from '@osf/shared/helpers/remove-nullable.helper';
 import { UserMapper } from '@osf/shared/mappers/user';
-import { UserModel } from '@osf/shared/models/user/user.model';
+import { AsyncStateModel } from '@osf/shared/models/store/async-state.model';
+import { UserData, UserModel } from '@osf/shared/models/user/user.model';
 import { SocialModel } from '@shared/models/user/social.model';
 
 import {
@@ -30,74 +31,23 @@ import { USER_STATE_INITIAL, UserStateModel } from './user.model';
 })
 @Injectable()
 export class UserState {
-  private userService = inject(UserService);
-  private storage = inject(StorageService);
+  private readonly userService = inject(UserService);
+  private readonly storageService = inject(StorageService);
 
   @Action(GetCurrentUser)
   getCurrentUser(ctx: StateContext<UserStateModel>) {
-    const currentUser = this.storage.getItem('currentUser');
-    const activeFlags = this.storage.getItem('activeFlags');
+    const hadCachedUser = this.hydrateFromStorage(ctx);
 
-    if (activeFlags) {
-      ctx.patchState({
-        activeFlags: JSON.parse(activeFlags),
-      });
-    }
-
-    if (currentUser) {
-      const parsedUser = JSON.parse(currentUser);
-
-      ctx.patchState({
-        currentUser: {
-          data: parsedUser,
-          isLoading: false,
-          error: null,
-        },
-      });
-
-      return;
-    }
-
-    ctx.patchState({
-      currentUser: {
-        ...ctx.getState().currentUser,
-        isLoading: true,
-      },
-    });
-
-    return this.userService.getCurrentUser().pipe(
-      tap((data) => {
-        ctx.patchState({
-          currentUser: {
-            data: data.currentUser,
-            isLoading: false,
-            error: null,
-          },
-          activeFlags: data.activeFlags,
-        });
-
-        if (data.currentUser) {
-          this.storage.setItem('currentUser', JSON.stringify(data.currentUser));
-        }
-
-        if (data.activeFlags) {
-          this.storage.setItem('activeFlags', JSON.stringify(data.activeFlags));
-        }
-      })
-    );
+    return this.userService.getCurrentUser().pipe(tap((data) => this.applySession(ctx, data, hadCachedUser)));
   }
 
   @Action(SetCurrentUser)
   setCurrentUser(ctx: StateContext<UserStateModel>, action: SetCurrentUser) {
     ctx.patchState({
-      currentUser: {
-        data: action.user,
-        isLoading: false,
-        error: null,
-      },
+      currentUser: this.toUserState(action.user, false),
     });
 
-    this.storage.setItem('currentUser', JSON.stringify(action.user));
+    this.storageService.setCachedUser(action.user);
   }
 
   @Action(UpdateProfileSettingsEmployment)
@@ -113,14 +63,7 @@ export class UserState {
 
     return this.userService.updateUserProfile(userId, ProfileSettingsKey.Employment, withoutNulls).pipe(
       tap((user) => {
-        ctx.patchState({
-          currentUser: {
-            ...state.currentUser,
-            data: user,
-          },
-        });
-
-        this.storage.setItem('currentUser', JSON.stringify(user));
+        this.updateCurrentUser(ctx, state, user);
       })
     );
   }
@@ -138,14 +81,7 @@ export class UserState {
 
     return this.userService.updateUserProfile(userId, ProfileSettingsKey.Education, withoutNulls).pipe(
       tap((user) => {
-        ctx.patchState({
-          currentUser: {
-            ...state.currentUser,
-            data: user,
-          },
-        });
-
-        this.storage.setItem('currentUser', JSON.stringify(user));
+        this.updateCurrentUser(ctx, state, user);
       })
     );
   }
@@ -163,14 +99,7 @@ export class UserState {
 
     return this.userService.updateUserProfile(userId, ProfileSettingsKey.User, withoutNulls).pipe(
       tap((user) => {
-        ctx.patchState({
-          currentUser: {
-            ...state.currentUser,
-            data: user,
-          },
-        });
-
-        this.storage.setItem('currentUser', JSON.stringify(user));
+        this.updateCurrentUser(ctx, state, user);
       })
     );
   }
@@ -195,14 +124,7 @@ export class UserState {
 
     return this.userService.updateUserProfile(userId, ProfileSettingsKey.Social, social).pipe(
       tap((user) => {
-        ctx.patchState({
-          currentUser: {
-            ...state.currentUser,
-            data: user,
-          },
-        });
-
-        this.storage.setItem('currentUser', JSON.stringify(user));
+        this.updateCurrentUser(ctx, state, user);
       })
     );
   }
@@ -233,7 +155,7 @@ export class UserState {
               },
             },
           });
-          this.storage.setItem('currentUser', JSON.stringify(response));
+          this.storageService.setCachedUser(response);
         }
       })
     );
@@ -241,15 +163,66 @@ export class UserState {
 
   @Action(ClearCurrentUser)
   clearCurrentUser(ctx: StateContext<UserStateModel>) {
+    this.userService.resetCurrentUserCache();
+
     ctx.patchState({
-      currentUser: {
-        data: null,
-        isLoading: false,
-        error: null,
-      },
+      currentUser: this.toUserState(null, false),
       activeFlags: [],
     });
 
-    this.storage.removeItem('currentUser');
+    this.storageService.clearSession();
+  }
+
+  private hydrateFromStorage(ctx: StateContext<UserStateModel>): boolean {
+    const cachedUser = this.storageService.getCachedUser();
+
+    ctx.patchState({
+      activeFlags: this.storageService.getCachedActiveFlags(),
+      currentUser: cachedUser
+        ? this.toUserState(cachedUser, false)
+        : { ...ctx.getState().currentUser, isLoading: true },
+    });
+
+    return !!cachedUser;
+  }
+
+  private applySession(ctx: StateContext<UserStateModel>, data: UserData, hadCachedUser: boolean): void {
+    const activeFlags = data.activeFlags ?? [];
+
+    this.storageService.setCachedActiveFlags(activeFlags);
+
+    if (data.currentUser) {
+      this.storageService.setCachedUser(data.currentUser);
+      ctx.patchState({
+        activeFlags,
+        currentUser: this.toUserState(data.currentUser, false),
+      });
+      return;
+    }
+
+    if (!hadCachedUser) {
+      ctx.patchState({
+        activeFlags,
+        currentUser: this.toUserState(null, false),
+      });
+      return;
+    }
+
+    ctx.patchState({ activeFlags });
+  }
+
+  private updateCurrentUser(ctx: StateContext<UserStateModel>, state: UserStateModel, user: UserModel): void {
+    ctx.patchState({
+      currentUser: {
+        ...state.currentUser,
+        data: user,
+      },
+    });
+
+    this.storageService.setCachedUser(user);
+  }
+
+  private toUserState(data: UserModel | null, isLoading: boolean): AsyncStateModel<UserModel | null> {
+    return { data, isLoading, error: null };
   }
 }

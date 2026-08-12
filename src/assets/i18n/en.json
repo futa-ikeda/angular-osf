@@ -285,6 +285,7 @@
   },
   "collections": {
     "addToCollection": {
+      "cedarFormNotAvailable": "CEDAR metadata form is not available for this collection.",
       "collectionMetadata": "Collection Metadata",
       "confirmationDialogHeader": "Add to Collection",
       "confirmationDialogMessage": "Once submitted to the collection, the project will be made public. It can later be made private again. A moderator will review your submission before it is included in the collection.",
@@ -303,7 +304,8 @@
       "projectMetadataUpdateSuccess": "Project Metadata successfully updated.",
       "resourceMetadata": "Project Metadata",
       "selectProject": "Select a project",
-      "tooltipMessage": "Complete previous step to edit this section"
+      "tooltipMessage": "Complete previous step to edit this section",
+      "updateError": "Failed to submit to the collection. Please try again."
     },
     "common": {
       "by": "by",
@@ -312,68 +314,13 @@
     },
     "filters": {
       "additionalFilters": "Additional Filters",
-      "collectedType": {
-        "description": "Please select the collected type from the dropdown below or start typing to find it",
-        "label": "Type",
-        "placeholder": "Select collected types"
-      },
-      "dataType": {
-        "description": "Please select the data type from the dropdown below or start typing to find it",
-        "label": "Data Type",
-        "placeholder": "Select data types"
-      },
-      "disease": {
-        "description": "Please select the disease from the dropdown below or start typing to find it",
-        "label": "Disease",
-        "placeholder": "Select diseases"
-      },
-      "gradeLevels": {
-        "description": "Please select the grade level from the dropdown below or start typing to find it",
-        "label": "Grade Levels",
-        "placeholder": "Select grade levels"
-      },
-      "issue": {
-        "description": "Please select the issue from the dropdown below or start typing to find it",
-        "label": "Issue",
-        "placeholder": "Select issues"
-      },
       "noFiltersAvailable": "No filters available",
       "noOptionsAvailable": "No options available",
-      "programArea": {
-        "description": "Please select the program area from the dropdown below or start typing to find it",
-        "label": "Program Area",
-        "placeholder": "Select program areas"
-      },
-      "reviewsState": {
-        "description": "Please select the reviews state from the dropdown below or start typing to find it",
-        "label": "Reviews State",
-        "placeholder": "Select reviews states"
-      },
-      "schoolType": {
-        "description": "Please select the school type from the dropdown below or start typing to find it",
-        "label": "School Type",
-        "placeholder": "Select school types"
-      },
       "searchCreators": "Search for creators",
       "sort": {
         "label": "Sort by:"
       },
-      "sortBy": "Sort by",
-      "status": {
-        "description": "Please select the status from the dropdown below or start typing to find it",
-        "label": "Status",
-        "placeholder": "Select status"
-      },
-      "studyDesign": {
-        "description": "Please select the study design from the dropdown below or start typing to find it",
-        "label": "Study Design",
-        "placeholder": "Select study designs"
-      },
-      "volume": {
-        "description": "Please select the volume from the dropdown below or start typing to find it",
-        "label": "Volume",
-        "placeholder": "Select volumes"
-      }
+      "sortBy": "Sort by"
     },
     "helpDialog": {
       "header": "Search help",
@@ -393,6 +340,43 @@
       "noResults": "0 results",
       "noResultsFoundMessage": "Try broadening your search terms",
       "results": "results"
+    }
+  },
+  "chooseRepository": {
+    "title": "Choose a Repository for Your Research Materials",
+    "intro": "For the data, code, and materials that come out of your work, a dedicated repository is the right home. The repositories below are publicly trusted, and built to make your research outputs findable and citable for the long term. Discover more repository options at <a href=\"https://www.re3data.org/\" target=\"_blank\" rel=\"noopener\">https://www.re3data.org/</a>.",
+    "learnMore": "Learn more",
+    "repositories": {
+      "dryad": {
+        "title": "Dryad",
+        "description": "Focused on research data underlying published findings. Best suited for <b>datasets</b> that accompany a journal article. Includes built-in curation support to help meet sharing standards.",
+        "linkText": "Go to Dryad"
+      },
+      "figshare": {
+        "title": "Figshare",
+        "description": "Accepts <b>datasets, code, images, presentations, and more</b> from any discipline, and supports sharing multiple output types from a single project.",
+        "linkText": "Go to Figshare"
+      },
+      "harvardDataverse": {
+        "title": "Harvard Dataverse",
+        "description": "A robust repository for research <b>data</b> across all disciplines, hosted across multiple institutions globally. Widely recognized by journals and funders.",
+        "linkText": "Go to Dataverse"
+      },
+      "mendeleyData": {
+        "title": "Mendeley Data",
+        "description": "Mendeley Data is a free cloud-based collaborative repository for <b>data storage</b>. A good option for researchers already using Mendeley or working within the Elsevier ecosystem.",
+        "linkText": "Go to Mendeley"
+      },
+      "vivli": {
+        "title": "Vivli",
+        "description": "Specialized for clinical and biomedical research, particularly <b>individual participant-level data from clinical trials</b>. Best suited for health sciences researchers with funder or journal data sharing requirements.",
+        "linkText": "Go to Vivli"
+      },
+      "zenodo": {
+        "title": "Zenodo (recommended)",
+        "description": "A free, general-purpose repository hosted by CERN for researchers. Accepts <b>any research output type</b> and assigns a permanent DOI to every object.",
+        "linkText": "Go to Zenodo"
+      }
     }
   },
   "common": {
@@ -812,8 +796,36 @@
           "osfPreprintsImageAltTest": "OSF Preprints",
           "osfRegistriesImageAltTest": "OSF Registries"
         },
-        "noCreatedProject": "You haven’t created a project yet. Click the \"Create New Project\" button above to get started.",
+        "noCreatedProject": "You haven’t created a project yet.",
         "noCreatedProjectAndCreateProjectDisabled": "You don't have any projects.",
+        "workflowLauncher": {
+          "title": "Plan and document the lifecycle of your research",
+          "description1": "OSF is designed to support your research process — planning your study, registering your methods, and sharing your findings as preprints. ",
+          "description2": "Clarify your plan, connect all data and materials that resulted from the study, and then post your preprint. Open scholarship enables more discoverability, increased transparency, and ensures research rigor. (Learn more about the <a href=\"https://help.osf.io/article/727-osf-projects-transition\" target=\"_blank\" rel=\"noopener\">OSF Project transition</a>).",
+          "cards": {
+            "studyPlans": {
+              "title": "Study Plans",
+              "description": "Document your research questions, methods, and analysis plans before you analyze data.",
+              "button": "Add Study Plan"
+            },
+            "researchMaterials": {
+              "title": "Research Materials",
+              "description": "Store and share datasets, code, materials, and other outputs from your research in a trusted public repository.",
+              "button": "Store Research Materials"
+            },
+            "preprints": {
+              "title": "Preprints",
+              "description": "Publish the outcomes of your research with an open access preprint, and connect the preprint to your study plan.",
+              "button": "Add Preprint"
+            },
+            "search": {
+              "title": "Search",
+              "description": "Search across study plans and preprints with enhanced metadata and filters.",
+              "button": "Go to Search"
+            }
+          }
+        },
+        "projectTransition": "New projects can no longer be created after November 16th, and all existing projects will become read-only on February 19th. You can read more about the upcoming transition <a href='https://help.osf.io/article/727-osf-projects-transition' target='_blank' rel='noopener noreferrer'>here</a>.",
         "quickSearch": {
           "goTo": "Go to",
           "myProjects": "My Projects",
@@ -823,16 +835,12 @@
           "toOrganize": "to organize your work or"
         },
         "title": "Dashboard",
-        "watchVideoBelow": "Watch the short video below or visit the OSF Get Started help guides to learn more.",
         "welcome": "Welcome to OSF!"
       },
       "latestResearch": {
         "button": "View Preprints",
         "subtitle": "Check out the latest preprints hosted on OSF covering a variety of research areas",
         "title": "Browse the latest research"
-      },
-      "publicProjects": {
-        "title": "Discover Public Projects"
       }
     },
     "loggedOut": {
@@ -842,6 +850,7 @@
         "title": "<span class='highlight'>Discover</span> Public Research"
       },
       "hero": {
+        "betterResearchImageAltText": "Better research",
         "signUp": "Sign Up",
         "subtitle": "OSF is a free, open platform to support your research and enable collaboration",
         "title": "There's a <span class='highlight'>better way</span> to manage your research"
@@ -850,31 +859,14 @@
         "categories": {
           "authentication": "Authentication",
           "discovery": "Discovery",
-          "references": "References",
-          "storage": "Storage"
+          "references": "References"
         },
+        "iconImageAltText": "Integration icon",
         "title": "OSF <span class='highlight'>integrations</span> make your workflow more efficient"
       },
       "support": {
-        "sections": {
-          "collect": {
-            "description": "Store data, code, and other materials in OSF Storage, or connect your Dropbox or other third-party account. Every file gets a unique, persistent URL for citing and sharing",
-            "title": "Collect and Analyze Data"
-          },
-          "design": {
-            "description": "Start a project and add collaborators, giving them access to protocols and other research materials. Built-in version control tracks the evolution of your study",
-            "title": "Design Your Study"
-          },
-          "publish": {
-            "description": "Share papers in OSF Preprints or a community-based preprint provider, so others can find and cite your work. Track impact with metrics like downloads and view counts",
-            "title": "Publish Your Reports"
-          },
-          "search": {
-            "description": "Find papers, data, and materials to inspire your next research project. Search public projects to build on the work of others and find new collaborators",
-            "title": "Search And Discover"
-          }
-        },
-        "title": "How OSF <span class='highlight'>Supports</span> your research"
+        "title": "How OSF <span class='highlight'>Supports</span> your research",
+        "connectedRecord": "Connected record"
       },
       "testimonials": {
         "slides": {
@@ -1172,12 +1164,39 @@
       "wikiText": "Enable the wiki in {{projectName}}"
     },
     "table": {
-      "searchPlaceholder": "Filter by title, description, and tags"
+      "emptyState": {
+        "all": {
+          "both": "You don't have any projects or components.",
+          "private": "You don't have any private projects or components.",
+          "public": "You don't have any public projects or components."
+        },
+        "components": {
+          "both": "You don't have any components.",
+          "private": "You don't have any private components.",
+          "public": "You don't have any public components."
+        },
+        "projects": {
+          "both": "You don't have any projects.",
+          "private": "You don't have any private projects.",
+          "public": "You don't have any public projects."
+        }
+      },
+      "searchPlaceholder": "Filter by title, description, and tags",
+      "download": {
+        "addonFiles": "Download {{addonName}} files",
+        "files": "Download OSF Storage files",
+        "metadata": "Download metadata"
+      }
     },
     "tabOptions": {
-      "all": "All",
+      "all": "Projects and Components",
       "component": "Components",
       "root": "Projects"
+    },
+    "visibilityFilterOptions": {
+      "all": "Public and Private",
+      "private": "Private",
+      "public": "Public"
     },
     "tabs": {
       "bookmarks": "Bookmarks",

@@ -1,0 +1,16 @@
+<section class="workflow-launcher-card h-full flex flex-column" [class]="'workflow-launcher-card--' + card().theme">
+  <header class="card-header flex align-items-center gap-2 p-3">
+    <osf-icon class="card-icon" [iconClass]="card().iconClass"></osf-icon>
+    <h3>{{ card().titleKey | translate }}</h3>
+  </header>
+
+  <div class="flex flex-column flex-1 p-3 gap-4">
+    <p>{{ card().descriptionKey | translate }}</p>
+
+    <p-button
+      class="card-button btn-full-width mt-auto"
+      [label]="card().buttonLabelKey | translate"
+      [routerLink]="card().routerLink"
+    />
+  </div>
+</section>

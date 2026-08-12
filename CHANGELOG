@@ -2,6 +2,31 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+26.16.1 (2026-08-11)
+====================
+
+* Hotfix to update homepage and dashboard copy and images
+
+26.16.0 (2026-08-10)
+====================
+
+* Workflow Launcher
+
+26.15.0 (2026-08-03)
+====================
+
+* Improve tracking for download dashboard.
+
+26.14.0 (2026-07-20)
+====================
+
+* My Projects Page Improvements & DAZ Improvements
+
+26.13.0 (2026-06-23)
+====================
+
+* PB&S and ES2 code cleanup
+
 26.12.0 (2026-06-23)
 ====================
 

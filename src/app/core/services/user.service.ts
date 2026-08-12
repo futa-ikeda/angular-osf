@@ -1,4 +1,4 @@
-import { map, Observable } from 'rxjs';
+import { finalize, map, Observable, shareReplay } from 'rxjs';
 
 import { inject, Injectable } from '@angular/core';
 
@@ -21,6 +21,7 @@ import {
 export class UserService {
   private readonly jsonApiService = inject(JsonApiService);
   private readonly environment = inject(ENVIRONMENT);
+  private currentUserRequest: Observable<UserData> | null = null;
 
   get apiUrl() {
     return `${this.environment.apiDomainUrl}/v2`;
@@ -33,9 +34,21 @@ export class UserService {
   }
 
   getCurrentUser(): Observable<UserData> {
-    return this.jsonApiService
-      .get<UserDataResponseJsonApi>(`${this.apiUrl}/`)
-      .pipe(map((response) => UserMapper.fromUserDataGetResponse(response)));
+    if (!this.currentUserRequest) {
+      this.currentUserRequest = this.jsonApiService.get<UserDataResponseJsonApi>(`${this.apiUrl}/`).pipe(
+        map((response) => UserMapper.fromUserDataGetResponse(response)),
+        finalize(() => {
+          this.currentUserRequest = null;
+        }),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
+    }
+
+    return this.currentUserRequest;
+  }
+
+  resetCurrentUserCache(): void {
+    this.currentUserRequest = null;
   }
 
   updateUserProfile(userId: string, key: string, data: ProfileSettingsUpdate): Observable<UserModel> {

@@ -62,17 +62,4 @@ export const INTEGRATION_ICONS = [
       width: '152',
     },
   },
-  {
-    title: 'home.loggedOut.integrations.categories.storage',
-    first: {
-      path: 'assets/images/integrations/dropbox.png',
-      height: '34',
-      width: '175',
-    },
-    second: {
-      path: 'assets/images/integrations/google-drive.png',
-      height: '35',
-      width: '207',
-    },
-  },
 ];
