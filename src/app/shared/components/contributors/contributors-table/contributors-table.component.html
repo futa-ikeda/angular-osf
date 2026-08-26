@@ -169,6 +169,7 @@
                 (!canEditContributors() && contributor.userId !== currentUserId() ? controlDisabledTooltip() : '')
                   | translate
               "
+              tooltipPosition="left"
               [ariaLabel]="'common.buttons.delete' | translate"
               (onClick)="removeContributor(contributor)"
               data-test-remove-contributor-button
