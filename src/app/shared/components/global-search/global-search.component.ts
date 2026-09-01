@@ -23,7 +23,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PreprintProviderDetails } from '@osf/features/preprints/models';
 import { normalizeQuotes } from '@osf/shared/helpers/normalize-quotes';
 import { DiscoverableFilter, FilterOption } from '@osf/shared/models/search/discoverable-filter.model';
-import { FilterOptionRemoved } from '@osf/shared/models/search/filter-option-removed';
+import { FilterOptionRemoved } from '@osf/shared/models/search/filter-option-removed.model';
 import { FilterOptionSelected } from '@osf/shared/models/search/filter-option-selected.model';
 import { FilterOptionsSearchText } from '@osf/shared/models/search/filter-options-search-text.model';
 import { SearchFiltersComponent } from '@shared/components/search-filters/search-filters.component';

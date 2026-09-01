@@ -8,9 +8,9 @@ import { Tag } from 'primeng/tag';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { CedarMetadataDataTemplateJsonApi, CedarMetadataRecordData } from '@osf/features/metadata/models';
+import { CedarMetadataRecordModel, CedarMetadataTemplateModel } from '@osf/features/metadata/models';
 import { StopPropagationDirective } from '@osf/shared/directives/stop-propagation.directive';
-import { CollectionSubmission } from '@osf/shared/models/collections/collections.model';
+import { CollectionSubmission } from '@osf/shared/models/collections/collection-submissions.model';
 import { KeyValueModel } from '@osf/shared/models/common/key-value.model';
 import { CollectionStatusSeverityPipe } from '@osf/shared/pipes/collection-status-severity.pipe';
 
@@ -36,14 +36,14 @@ import { CollectionStatusSeverityPipe } from '@osf/shared/pipes/collection-statu
 export class OverviewCollectionsComponent {
   projectSubmissions = input<CollectionSubmission[] | null>(null);
   isProjectSubmissionsLoading = input<boolean>(false);
-  cedarRecords = input<CedarMetadataRecordData[] | null>(null);
-  cedarTemplates = input<CedarMetadataDataTemplateJsonApi[] | null>(null);
+  cedarRecords = input<CedarMetadataRecordModel[] | null>(null);
+  cedarTemplates = input<CedarMetadataTemplateModel[] | null>(null);
 
   cedarRecordByTemplateId = computed(() => {
     const records = this.cedarRecords();
     return new Map(
       records?.flatMap((record) => {
-        const templateId = record.relationships?.template?.data?.id;
+        const templateId = record.templateId;
         return templateId ? [[templateId, record] as const] : [];
       }) ?? []
     );
@@ -54,9 +54,9 @@ export class OverviewCollectionsComponent {
     return new Map(templates?.map((t) => [t.id, t] as const) ?? []);
   });
 
-  getCedarAttributes(record: CedarMetadataRecordData, template: CedarMetadataDataTemplateJsonApi): KeyValueModel[] {
-    const { order, propertyLabels } = template.attributes.template._ui;
-    const metadata = record.attributes.metadata as Record<string, unknown>;
+  getCedarAttributes(record: CedarMetadataRecordModel, template: CedarMetadataTemplateModel): KeyValueModel[] {
+    const { order, propertyLabels } = template.template._ui;
+    const metadata = record.metadata as Record<string, unknown>;
     const attributes: KeyValueModel[] = [];
 
     for (const key of order) {

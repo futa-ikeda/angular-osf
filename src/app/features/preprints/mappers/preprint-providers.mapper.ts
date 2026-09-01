@@ -1,6 +1,6 @@
 import { replaceBadEncodedChars } from '@osf/shared/helpers/format-bad-encoding.helper';
-import { BrandDataJsonApi } from '@osf/shared/models/brand/brand.json-api.model';
 import { BrandModel } from '@osf/shared/models/brand/brand.model';
+import { BrandDataJsonApi } from '@osf/shared/models/brand/brand-json-api.model';
 import { SubjectModel } from '@osf/shared/models/subject/subject.model';
 import { SubjectDataJsonApi } from '@osf/shared/models/subject/subjects-json-api.model';
 
@@ -8,7 +8,7 @@ import { PreprintProviderDetails, PreprintProviderDetailsJsonApi, PreprintProvid
 
 export class PreprintProvidersMapper {
   static fromPreprintProviderDetailsGetResponse(response: PreprintProviderDetailsJsonApi): PreprintProviderDetails {
-    const brandRaw = response.embeds!.brand?.data;
+    const brandRaw = response.embeds?.brand?.data;
     return {
       id: response.id,
       name: replaceBadEncodedChars(response.attributes.name),
@@ -32,7 +32,7 @@ export class PreprintProvidersMapper {
     };
   }
 
-  static parseBrand(brandRaw: BrandDataJsonApi): BrandModel {
+  static parseBrand(brandRaw: BrandDataJsonApi | undefined): BrandModel {
     if (!brandRaw) {
       return {
         primaryColor: 'var(--osf-provider-primary-color)',

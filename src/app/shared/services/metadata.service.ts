@@ -4,18 +4,21 @@ import { map } from 'rxjs/operators';
 import { inject, Injectable } from '@angular/core';
 
 import { ENVIRONMENT } from '@core/provider/environment.provider';
-import { CedarRecordsMapper, MetadataMapper, RorMapper } from '@osf/features/metadata/mappers';
+import { CedarMetadataMapper, CedarRecordsMapper, MetadataMapper, RorMapper } from '@osf/features/metadata/mappers';
 import {
-  CedarMetadataRecord,
+  CedarMetadataRecordDataJsonApi,
   CedarMetadataRecordJsonApi,
+  CedarMetadataRecordModel,
+  CedarMetadataRecordResponseJsonApi,
   CedarMetadataTemplateJsonApi,
   CedarRecordDataBinding,
   CustomItemMetadataRecord,
-  CustomMetadataJsonApi,
-  CustomMetadataJsonApiResponse,
-  MetadataJsonApi,
-  MetadataJsonApiResponse,
+  CustomMetadataDataJsonApi,
+  CustomMetadataResponseJsonApi,
+  MetadataDataJsonApi,
   MetadataModel,
+  MetadataResponseJsonApi,
+  PaginatedCedarTemplatesModel,
   RorFunderOption,
   RorSearchResponse,
 } from '@osf/features/metadata/models';
@@ -54,7 +57,7 @@ export class MetadataService {
 
   getCustomItemMetadata(guid: string): Observable<CustomItemMetadataRecord> {
     return this.jsonApiService
-      .get<CustomMetadataJsonApiResponse>(`${this.apiUrl}/custom_item_metadata_records/${guid}/`)
+      .get<CustomMetadataResponseJsonApi>(`${this.apiUrl}/custom_item_metadata_records/${guid}/`)
       .pipe(map((response) => MetadataMapper.fromCustomMetadataApiResponse(response.data)));
   }
 
@@ -62,7 +65,7 @@ export class MetadataService {
     const payload = MetadataMapper.toCustomMetadataApiRequest(guid, metadata);
 
     return this.jsonApiService
-      .put<CustomMetadataJsonApi>(`${this.apiUrl}/custom_item_metadata_records/${guid}/`, payload)
+      .put<CustomMetadataDataJsonApi>(`${this.apiUrl}/custom_item_metadata_records/${guid}/`, payload)
       .pipe(map((response) => MetadataMapper.fromCustomMetadataApiResponse(response)));
   }
 
@@ -96,40 +99,44 @@ export class MetadataService {
       .pipe(map((response) => RorMapper.toFunderOptions(response)));
   }
 
-  getMetadataCedarTemplates(url?: string): Observable<CedarMetadataTemplateJsonApi> {
-    return this.jsonApiService.get<CedarMetadataTemplateJsonApi>(
-      url || `${this.apiDomainUrl}/_/cedar_metadata_templates/`,
-      { 'page[size]': 100 }
-    );
+  getMetadataCedarTemplates(url?: string): Observable<PaginatedCedarTemplatesModel> {
+    return this.jsonApiService
+      .get<CedarMetadataTemplateJsonApi>(url || `${this.apiDomainUrl}/_/cedar_metadata_templates/`, {
+        'page[size]': 100,
+      })
+      .pipe(map((response) => CedarMetadataMapper.fromTemplatesResponse(response)));
   }
 
   getMetadataCedarRecords(
     resourceId: string,
     resourceType: ResourceType,
     url?: string
-  ): Observable<CedarMetadataRecordJsonApi> {
+  ): Observable<CedarMetadataRecordModel[]> {
     const params: Record<string, unknown> = {
       embed: 'template',
       'page[size]': 20,
     };
 
-    // [NS] TODO: Check if it can be simplified
     let cedarUrl = `${this.apiUrl}/${this.urlMap.get(resourceType)}/${resourceId}/cedar_metadata_records/`;
 
     if (url) {
       cedarUrl = this.getMetadataUrl(url);
     }
 
-    return this.jsonApiService.get<CedarMetadataRecordJsonApi>(cedarUrl, params);
+    return this.jsonApiService
+      .get<CedarMetadataRecordJsonApi>(cedarUrl, params)
+      .pipe(map((response) => response.data.map((item) => CedarMetadataMapper.fromRecord(item))));
   }
 
   createMetadataCedarRecord(
     data: CedarRecordDataBinding,
     resourceId: string,
     resourceType: ResourceType
-  ): Observable<CedarMetadataRecord> {
+  ): Observable<CedarMetadataRecordModel> {
     const payload = CedarRecordsMapper.toCedarRecordsPayload(data, resourceId, this.urlMap.get(resourceType) as string);
-    return this.jsonApiService.post<CedarMetadataRecord>(`${this.apiDomainUrl}/_/cedar_metadata_records/`, payload);
+    return this.jsonApiService
+      .post<CedarMetadataRecordResponseJsonApi>(`${this.apiDomainUrl}/_/cedar_metadata_records/`, payload)
+      .pipe(map((response) => CedarMetadataMapper.fromRecord(response.data)));
   }
 
   updateMetadataCedarRecord(
@@ -137,13 +144,12 @@ export class MetadataService {
     recordId: string,
     resourceId: string,
     resourceType: ResourceType
-  ): Observable<CedarMetadataRecord> {
+  ): Observable<CedarMetadataRecordModel> {
     const payload = CedarRecordsMapper.toCedarRecordsPayload(data, resourceId, this.urlMap.get(resourceType) as string);
 
-    return this.jsonApiService.patch<CedarMetadataRecord>(
-      `${this.apiDomainUrl}/_/cedar_metadata_records/${recordId}/`,
-      payload
-    );
+    return this.jsonApiService
+      .patch<CedarMetadataRecordDataJsonApi>(`${this.apiDomainUrl}/_/cedar_metadata_records/${recordId}/`, payload)
+      .pipe(map((response) => CedarMetadataMapper.fromRecord(response)));
   }
 
   getResourceMetadata(resourceId: string, resourceType: ResourceType): Observable<Partial<MetadataModel>> {
@@ -152,7 +158,7 @@ export class MetadataService {
     const baseUrl = `${this.apiUrl}/${this.urlMap.get(resourceType)}/${resourceId}/`;
 
     return this.jsonApiService
-      .get<MetadataJsonApiResponse>(baseUrl, params)
+      .get<MetadataResponseJsonApi>(baseUrl, params)
       .pipe(map((response) => MetadataMapper.fromMetadataApiResponse(response.data)));
   }
 
@@ -173,7 +179,7 @@ export class MetadataService {
     const params = this.getMetadataParams(resourceType);
 
     return this.jsonApiService
-      .patch<MetadataJsonApi>(baseUrl, payload, params)
+      .patch<MetadataDataJsonApi>(baseUrl, payload, params)
       .pipe(map((response) => MetadataMapper.fromMetadataApiResponse(response)));
   }
 
@@ -210,7 +216,7 @@ export class MetadataService {
     const params = this.getMetadataParams(resourceType);
 
     return this.jsonApiService
-      .patch<MetadataJsonApi>(baseUrl, payload, params)
+      .patch<MetadataDataJsonApi>(baseUrl, payload, params)
       .pipe(map((response) => MetadataMapper.fromMetadataApiResponse(response)));
   }
 

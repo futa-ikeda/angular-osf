@@ -2,7 +2,7 @@
   <div class="cedar-template-form bg-white">
     @if (readonly()) {
       <div class="flex justify-content-between gap-4 p-4">
-        @if (existingRecord()?.attributes?.is_published) {
+        @if (existingRecord()?.isPublished) {
           <h3 class="text-lg">{{ 'project.metadata.addMetadata.publishedText' | translate }}</h3>
         } @else {
           <h3 class="text-lg text-red-500">{{ 'project.metadata.addMetadata.notPublishedText' | translate }}</h3>
@@ -58,14 +58,14 @@
         <cedar-artifact-viewer
           #cedarViewer
           [config]="cedarViewerConfig"
-          [templateObject]="template().attributes.template"
+          [templateObject]="template().template"
           [instanceObject]="formData()"
         ></cedar-artifact-viewer>
       } @else {
         <cedar-embeddable-editor
           #cedarEditor
           [config]="cedarConfig"
-          [templateObject]="template().attributes.template"
+          [templateObject]="template().template"
           [metadata]="formData()"
           (change)="onCedarChange($event)"
           (pointerover)="validateCedarMetadata()"

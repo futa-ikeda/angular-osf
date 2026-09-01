@@ -58,7 +58,7 @@ export const MOCK_USER: UserModel = {
   allowIndexing: true,
   canViewReviews: true,
   mergedBy: undefined,
-  external_identity: {},
+  externalIdentity: {},
 };
 
 export const MOCK_USER_RELATED_COUNTS: UserRelatedCounts = {

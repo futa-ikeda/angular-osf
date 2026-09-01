@@ -1,4 +1,3 @@
-import { MetaJsonApi } from '../common/json-api.model';
 import { BaseNodeModel } from '../nodes/base-node.model';
 
 import { FileKind } from './../../enums/file-kind.enum';
@@ -33,9 +32,9 @@ export interface FileDetailsModel extends BaseFileModel {
   target: BaseNodeModel | null;
 }
 
-export interface FileDetailsWithMeta {
+export interface FileDetailsResult {
   file: FileDetailsModel;
-  meta?: MetaJsonApi;
+  isAnonymous: boolean;
 }
 
 export interface FileExtraModel {

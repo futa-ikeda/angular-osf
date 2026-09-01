@@ -8,10 +8,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
-  CedarMetadataDataTemplateJsonApi,
-  CedarMetadataRecordData,
+  CedarMetadataRecordModel,
+  CedarMetadataTemplateModel,
   CedarRecordDataBinding,
-  CedarTemplate,
 } from '@osf/features/metadata/models';
 import { GetCedarMetadataRecords, MetadataSelectors, UpdateCedarMetadataRecord } from '@osf/features/metadata/store';
 import { LoadingSpinnerComponent } from '@osf/shared/components/loading-spinner/loading-spinner.component';
@@ -355,26 +354,22 @@ describe('FileDetailComponent', () => {
   });
 
   it('should select cedar record when metadata tab matches cedar record id', () => {
-    const cedarRecord = {
+    const cedarRecord: CedarMetadataRecordModel = {
       id: 'rec-1',
-      attributes: {
-        metadata: {},
-        is_published: false,
-      },
-      relationships: {
-        template: { data: { type: 'cedar-metadata-templates', id: 'tpl-1' } },
-        target: { data: { type: 'files', id: 'file-1' } },
-      },
-    } as CedarMetadataRecordData;
-    const cedarTemplate = {
+      metadata: {} as CedarMetadataRecordModel['metadata'],
+      isPublished: false,
+      templateId: 'tpl-1',
+      targetId: 'file-1',
+      schemaName: 'Schema A',
+    };
+    const cedarTemplate: CedarMetadataTemplateModel = {
       id: 'tpl-1',
-      type: 'cedar-metadata-templates',
-      attributes: {
-        schema_name: 'Schema A',
-        cedar_id: 'cedar',
-        template: {} as CedarTemplate,
-      },
-    } as CedarMetadataDataTemplateJsonApi;
+      schemaName: 'Schema A',
+      isForCollections: false,
+      active: true,
+      cedarId: 'cedar',
+      template: {} as CedarMetadataTemplateModel['template'],
+    };
     setup({
       selectorOverrides: [
         { selector: MetadataSelectors.getCedarRecords, value: [cedarRecord] },
@@ -389,26 +384,22 @@ describe('FileDetailComponent', () => {
   });
 
   it('should dispatch cedar update and refresh records on cedar form submit', async () => {
-    const cedarRecord = {
+    const cedarRecord: CedarMetadataRecordModel = {
       id: 'rec-1',
-      attributes: {
-        metadata: {},
-        is_published: false,
-      },
-      relationships: {
-        template: { data: { type: 'cedar-metadata-templates', id: 'tpl-1' } },
-        target: { data: { type: 'files', id: 'file-1' } },
-      },
-    } as CedarMetadataRecordData;
-    const cedarTemplate = {
+      metadata: {} as CedarMetadataRecordModel['metadata'],
+      isPublished: false,
+      templateId: 'tpl-1',
+      targetId: 'file-1',
+      schemaName: 'Schema A',
+    };
+    const cedarTemplate: CedarMetadataTemplateModel = {
       id: 'tpl-1',
-      type: 'cedar-metadata-templates',
-      attributes: {
-        schema_name: 'Schema A',
-        cedar_id: 'cedar',
-        template: {} as CedarTemplate,
-      },
-    } as CedarMetadataDataTemplateJsonApi;
+      schemaName: 'Schema A',
+      isForCollections: false,
+      active: true,
+      cedarId: 'cedar',
+      template: {} as CedarMetadataTemplateModel['template'],
+    };
     setup({
       selectorOverrides: [
         { selector: MetadataSelectors.getCedarRecords, value: [cedarRecord] },

@@ -11,7 +11,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { CreateCollectionSubmission } from '@osf/features/collections/store/add-to-collection/add-to-collection.actions';
-import { CedarMetadataRecordData, CedarRecordDataBinding } from '@osf/features/metadata/models';
+import { CedarMetadataRecordModel, CedarRecordDataBinding } from '@osf/features/metadata/models';
 import { CreateCedarMetadataRecord, UpdateCedarMetadataRecord } from '@osf/features/metadata/store';
 import { UpdateProjectPublicStatus } from '@osf/features/project/overview/store';
 import { ResourceType } from '@osf/shared/enums/resource-type.enum';
@@ -26,12 +26,15 @@ import { ToastService } from '@osf/shared/services/toast.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddToCollectionConfirmationDialogComponent {
-  private toastService = inject(ToastService);
-  dialogRef = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
-  destroyRef = inject(DestroyRef);
-  isSubmitting = signal<boolean>(false);
-  actions = createDispatchMap({
+  readonly dialogRef = inject(DynamicDialogRef);
+
+  private readonly toastService = inject(ToastService);
+  private readonly config = inject(DynamicDialogConfig);
+  private readonly destroyRef = inject(DestroyRef);
+
+  readonly isSubmitting = signal<boolean>(false);
+
+  private readonly actions = createDispatchMap({
     createCollectionSubmission: CreateCollectionSubmission,
     updateProjectPublicStatus: UpdateProjectPublicStatus,
     createCedarRecord: CreateCedarMetadataRecord,
@@ -42,7 +45,7 @@ export class AddToCollectionConfirmationDialogComponent {
     const payload = this.config.data.payload;
     const project = this.config.data.project as ProjectModel | null | undefined;
     const cedarData = this.config.data.cedarData as CedarRecordDataBinding | null | undefined;
-    const existingCedarRecord = this.config.data.existingCedarRecord as CedarMetadataRecordData | null | undefined;
+    const existingCedarRecord = this.config.data.existingCedarRecord as CedarMetadataRecordModel | null | undefined;
 
     if (!payload || !project) return;
 

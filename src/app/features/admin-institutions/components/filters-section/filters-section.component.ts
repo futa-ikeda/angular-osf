@@ -10,7 +10,7 @@ import { ChangeDetectionStrategy, Component, model } from '@angular/core';
 import { FilterChipsComponent } from '@osf/shared/components/filter-chips/filter-chips.component';
 import { SearchFiltersComponent } from '@osf/shared/components/search-filters/search-filters.component';
 import { DiscoverableFilter } from '@osf/shared/models/search/discoverable-filter.model';
-import { FilterOptionRemoved } from '@osf/shared/models/search/filter-option-removed';
+import { FilterOptionRemoved } from '@osf/shared/models/search/filter-option-removed.model';
 import { FilterOptionSelected } from '@osf/shared/models/search/filter-option-selected.model';
 import { FilterOptionsSearchText } from '@osf/shared/models/search/filter-options-search-text.model';
 import {

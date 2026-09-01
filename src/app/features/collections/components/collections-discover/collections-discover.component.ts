@@ -125,10 +125,8 @@ export class CollectionsDiscoverComponent {
 
       this.actions.setDefaultFilterValue('isPartOfCollection', collectionIri);
 
-      if (provider.requiredMetadataTemplate?.attributes?.template) {
-        const extraFilters = CedarTemplateFilterMapper.fromTemplate(
-          provider.requiredMetadataTemplate.attributes.template
-        );
+      if (provider.requiredMetadataTemplate?.template) {
+        const extraFilters = CedarTemplateFilterMapper.fromTemplate(provider.requiredMetadataTemplate.template);
         this.actions.setExtraFilters(extraFilters);
       }
 

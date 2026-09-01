@@ -25,9 +25,9 @@ import { OperationNames } from '@osf/shared/enums/operation-names.enum';
 import { ProjectAddonsStepperValue } from '@osf/shared/enums/profile-addons-stepper.enum';
 import { getAddonTypeString } from '@osf/shared/helpers/addon-type.helper';
 import { AddonModel } from '@osf/shared/models/addons/addon.model';
-import { AuthorizedAddonRequestJsonApi } from '@osf/shared/models/addons/addon-json-api.model';
 import { AddonTerm } from '@osf/shared/models/addons/addon-utils.model';
 import { AuthorizedAccountModel } from '@osf/shared/models/addons/authorized-account.model';
+import { AuthorizedAddonRequestJsonApi } from '@osf/shared/models/addons/authorized-addon-json-api.model';
 import { AddonFormService } from '@osf/shared/services/addons/addon-form.service';
 import { AddonOAuthService } from '@osf/shared/services/addons/addon-oauth.service';
 import { AddonOperationInvocationService } from '@osf/shared/services/addons/addon-operation-invocation.service';
@@ -156,7 +156,7 @@ export class ConnectConfiguredAddonComponent {
     }
     const openURL = new URL(addon.redirectUrl);
     openURL.searchParams.set('nodeIri', this.resourceUri());
-    openURL.searchParams.set('userIri', this.addonsUserReference()[0]?.attributes.user_uri);
+    openURL.searchParams.set('userIri', this.addonsUserReference()[0]?.userUri);
     return openURL.toString();
   });
 

@@ -1,21 +1,19 @@
 import {
-  CedarMetadataRecord,
-  CedarMetadataRecordData,
-  CedarMetadataTemplateJsonApi,
+  CedarMetadataRecordModel,
   CustomItemMetadataRecord,
+  MetadataModel,
+  PaginatedCedarTemplatesModel,
+  RorFunderOption,
 } from '@osf/features/metadata/models';
 import { AsyncStateModel } from '@osf/shared/models/store/async-state.model';
-
-import { MetadataModel } from '../models';
-import { RorFunderOption } from '../models/ror.model';
 
 export interface MetadataStateModel {
   metadata: AsyncStateModel<MetadataModel | null>;
   customMetadata: AsyncStateModel<CustomItemMetadataRecord | null>;
   fundersList: AsyncStateModel<RorFunderOption[]>;
-  cedarTemplates: AsyncStateModel<CedarMetadataTemplateJsonApi | null>;
-  cedarRecord: AsyncStateModel<CedarMetadataRecord | null>;
-  cedarRecords: AsyncStateModel<CedarMetadataRecordData[]>;
+  cedarTemplates: AsyncStateModel<PaginatedCedarTemplatesModel | null>;
+  cedarRecord: AsyncStateModel<CedarMetadataRecordModel | null>;
+  cedarRecords: AsyncStateModel<CedarMetadataRecordModel[]>;
 }
 
 export const METADATA_STATE_DEFAULTS: MetadataStateModel = {

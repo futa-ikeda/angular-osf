@@ -1,11 +1,11 @@
-import { CedarMetadataRecord, CedarRecordDataBinding } from '../models';
+import { CedarMetadataRecordResponseJsonApi, CedarRecordDataBinding } from '../models';
 
 export class CedarRecordsMapper {
   static toCedarRecordsPayload(
     data: CedarRecordDataBinding,
     resourceId: string,
     resourceType: string
-  ): CedarMetadataRecord {
+  ): CedarMetadataRecordResponseJsonApi {
     return {
       data: {
         type: 'cedar_metadata_records',

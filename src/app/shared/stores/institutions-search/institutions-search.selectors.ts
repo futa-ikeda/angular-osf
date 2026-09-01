@@ -1,16 +1,16 @@
 import { Selector } from '@ngxs/store';
 
-import { InstitutionsSearchModel } from './institutions-search.model';
+import { InstitutionsSearchStateModel } from './institutions-search.model';
 import { InstitutionsSearchState } from './institutions-search.state';
 
 export class InstitutionsSearchSelectors {
   @Selector([InstitutionsSearchState])
-  static getInstitution(state: InstitutionsSearchModel) {
+  static getInstitution(state: InstitutionsSearchStateModel) {
     return state.institution.data;
   }
 
   @Selector([InstitutionsSearchState])
-  static getInstitutionLoading(state: InstitutionsSearchModel) {
+  static getInstitutionLoading(state: InstitutionsSearchStateModel) {
     return state.institution.isLoading;
   }
 }

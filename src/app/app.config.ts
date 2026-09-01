@@ -5,7 +5,7 @@ import { providePrimeNG } from 'primeng/config';
 import { DialogService } from 'primeng/dynamicdialog';
 
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { ApplicationConfig, ErrorHandler } from '@angular/core';
+import { ApplicationConfig, ErrorHandler, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
@@ -34,6 +34,7 @@ export const appConfig: ApplicationConfig = {
     },
     SENTRY_PROVIDER,
     provideTranslation,
+    provideBrowserGlobalErrorListeners(),
     provideClientHydration(withEventReplay()),
     provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })),
     provideHttpClient(withInterceptors([authInterceptor, viewOnlyInterceptor, errorInterceptor]), withFetch()),

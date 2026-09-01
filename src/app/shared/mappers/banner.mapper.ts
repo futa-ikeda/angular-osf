@@ -1,5 +1,5 @@
 import { BannerModel } from '../../core/components/osf-banners/models/banner.model';
-import { BannerJsonApi } from '../models/banner.json-api.model';
+import { BannerJsonApi } from '../models/banner-json-api.model';
 
 /**
  * A utility class for transforming banner data from a JSON:API format

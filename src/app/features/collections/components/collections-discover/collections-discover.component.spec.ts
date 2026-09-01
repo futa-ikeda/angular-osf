@@ -39,37 +39,36 @@ const MOCK_COLLECTION_PROVIDER_WITH_TEMPLATE = {
   ...MOCK_COLLECTION_PROVIDER,
   requiredMetadataTemplate: {
     id: 'template-1',
-    type: 'cedar-metadata-templates' as const,
-    attributes: {
-      schema_name: 'Test',
-      cedar_id: 'cedar-1',
-      template: {
-        '@id': 'https://repo.metadatacenter.org/templates/test',
-        '@type': 'https://schema.metadatacenter.org/core/Template',
-        type: 'object',
-        title: 'Test',
-        description: '',
-        $schema: 'http://json-schema.org/draft-04/schema',
-        '@context': {} as never,
-        required: [],
-        properties: {
-          '@context': {
-            properties: {
-              field1: { enum: ['https://schema.metadatacenter.org/properties/test-field-uuid'] },
-            },
-          },
-          field1: {
-            '@type': 'https://schema.metadatacenter.org/core/TemplateField',
-            _valueConstraints: {
-              literals: [{ label: 'Option A' }, { label: 'Option B' }],
-            },
+    schemaName: 'Test',
+    isForCollections: false,
+    active: true,
+    cedarId: 'cedar-1',
+    template: {
+      '@id': 'https://repo.metadatacenter.org/templates/test',
+      '@type': 'https://schema.metadatacenter.org/core/Template',
+      type: 'object',
+      title: 'Test',
+      description: '',
+      $schema: 'http://json-schema.org/draft-04/schema',
+      '@context': {} as never,
+      required: [],
+      properties: {
+        '@context': {
+          properties: {
+            field1: { enum: ['https://schema.metadatacenter.org/properties/test-field-uuid'] },
           },
         },
-        _ui: {
-          order: ['field1'],
-          propertyLabels: { field1: 'Field One' },
-          propertyDescriptions: {},
+        field1: {
+          '@type': 'https://schema.metadatacenter.org/core/TemplateField',
+          _valueConstraints: {
+            literals: [{ label: 'Option A' }, { label: 'Option B' }],
+          },
         },
+      },
+      _ui: {
+        order: ['field1'],
+        propertyLabels: { field1: 'Field One' },
+        propertyDescriptions: {},
       },
     },
   },

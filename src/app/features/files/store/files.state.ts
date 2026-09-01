@@ -159,11 +159,11 @@ export class FilesState {
     ctx.patchState({ tags: { ...state.tags, isLoading: true, error: null } });
 
     return this.filesService.getFileTarget(action.fileGuid).pipe(
-      tap(({ file, meta }) => {
+      tap(({ file, isAnonymous }) => {
         ctx.patchState({
           openedFile: { data: file, isLoading: false, error: null },
           tags: { data: file.tags, isLoading: false, error: null },
-          isAnonymous: meta?.anonymous ?? false,
+          isAnonymous,
         });
       }),
       catchError((error) => handleSectionError(ctx, 'openedFile', error))
@@ -267,11 +267,11 @@ export class FilesState {
       tap((response) =>
         ctx.patchState({
           rootFolders: {
-            data: response.files,
+            data: response.data,
             isLoading: false,
             error: null,
           },
-          isAnonymous: response.meta?.anonymous ?? false,
+          isAnonymous: response.isAnonymous,
         })
       ),
       catchError((error) => handleSectionError(ctx, 'rootFolders', error))
@@ -287,11 +287,11 @@ export class FilesState {
       tap((response) =>
         ctx.patchState({
           moveDialogRootFolders: {
-            data: response.files,
+            data: response.data,
             isLoading: false,
             error: null,
           },
-          isAnonymous: response.meta?.anonymous ?? false,
+          isAnonymous: response.isAnonymous,
         })
       ),
       catchError((error) => handleSectionError(ctx, 'moveDialogRootFolders', error))

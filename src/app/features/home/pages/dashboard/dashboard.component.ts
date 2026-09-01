@@ -24,7 +24,7 @@ import { SubHeaderComponent } from '@osf/shared/components/sub-header/sub-header
 import { DEFAULT_TABLE_PARAMS } from '@osf/shared/constants/default-table-params.constants';
 import { FEATURE_FLAGS } from '@osf/shared/constants/feature-flags.const';
 import { SortOrder } from '@osf/shared/enums/sort-order.enum';
-import { MyResourcesItem } from '@osf/shared/models/my-resources/my-resources.model';
+import { MyResourcesItem } from '@osf/shared/models/my-resources/my-resources-item.model';
 import { MyResourcesSearchFilters } from '@osf/shared/models/my-resources/my-resources-search-filters.model';
 import { TableParameters } from '@osf/shared/models/table-parameters.model';
 import { CustomDialogService } from '@osf/shared/services/custom-dialog.service';

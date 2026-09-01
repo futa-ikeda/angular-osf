@@ -52,7 +52,7 @@ export class MetadataSelectors {
     if (!templates) return null;
     return {
       ...templates,
-      data: templates.data.filter((t) => !t.attributes.is_for_collections),
+      data: templates.data.filter((t) => !t.isForCollections),
     };
   }
 

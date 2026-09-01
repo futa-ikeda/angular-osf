@@ -1,11 +1,14 @@
-import { ResponseDataJsonApi } from '../common/json-api.model';
+import { ResourceLinksJsonApi } from '../common/json-api/links.model';
+import { ToOneRelData } from '../common/json-api/relationships.model';
+import { JsonApiResource } from '../common/json-api/resource.model';
+import { ItemResponse } from '../common/json-api/responses.model';
 
 import { Education } from './education.model';
 import { Employment } from './employment.model';
 import { ExternalIdentityModel } from './external-identity.model';
 import { SocialModel } from './social.model';
 
-export type UserResponseJsonApi = ResponseDataJsonApi<UserDataJsonApi>;
+export type UserResponseJsonApi = ItemResponse<UserDataJsonApi>;
 
 export interface UserDataResponseJsonApi {
   meta: {
@@ -25,10 +28,7 @@ export interface UserDataErrorResponseJsonApi {
   errors?: UserErrorResponseJsonApi[];
 }
 
-export interface UserDataJsonApi {
-  id: string;
-  type: string;
-  attributes: UserAttributesJsonApi;
+export interface UserDataJsonApi extends JsonApiResource<string, UserAttributesJsonApi> {
   relationships: UserRelationshipsJsonApi;
   links: UserLinksJsonApi;
 }
@@ -52,14 +52,14 @@ export interface UserAttributesJsonApi {
   timezone: string;
 }
 
-export interface UserErrorResponseJsonApi {
+interface UserErrorResponseJsonApi {
   source: Record<string, unknown>;
   detail: string;
   meta: UserErrorMetaJsonApi;
   status: string;
 }
 
-export interface UserErrorMetaJsonApi {
+interface UserErrorMetaJsonApi {
   full_name: string;
   family_name: string;
   given_name: string;
@@ -67,21 +67,11 @@ export interface UserErrorMetaJsonApi {
   profile_image: string;
 }
 
-interface UserLinksJsonApi {
-  html: string;
-  iri: string;
-  profile_image: string;
-  self: string;
+interface UserLinksJsonApi extends ResourceLinksJsonApi {
   merged_by?: string;
+  profile_image: string;
 }
 
 interface UserRelationshipsJsonApi {
-  default_region: DefaultRegionJsonApi;
-}
-
-interface DefaultRegionJsonApi {
-  data: {
-    id: string;
-    type: 'regions';
-  };
+  default_region: ToOneRelData<'regions'>;
 }

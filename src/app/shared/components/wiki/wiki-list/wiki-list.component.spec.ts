@@ -6,8 +6,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
 import { UserSelectors } from '@osf/core/store/user/user.selectors';
+import { WikiItemType } from '@osf/shared/enums/wiki-type.enum';
 import { WikiModel } from '@osf/shared/models/wiki/wiki.model';
-import { WikiItemType } from '@osf/shared/models/wiki/wiki-type.model';
 import { CustomConfirmationService } from '@osf/shared/services/custom-confirmation.service';
 import { CustomDialogService } from '@osf/shared/services/custom-dialog.service';
 import { ComponentWiki } from '@osf/shared/stores/wiki';

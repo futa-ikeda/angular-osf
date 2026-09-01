@@ -1,59 +1,97 @@
 # 📂 Folder Structure
 
-Project based on principle **Feature-based Architecture**, this approach provides reusable and consistant
-features across the application.
+Project based on principle **Feature-based Architecture**: each feature owns its UI, routes, models, mappers, services, and store when needed. Shared and core code live outside features.
 
 ```bash
 📦 src/
- ├── 📂 features/            # Каталог із функціональними модулями
- │   ├── 📂 feature-name/
- │   │   ├── 📂 feature.component.ts/html/scss  # Component with template and styles, and base logic file
- │   │   ├── 📂 feature-service.ts              # Service or Facade to provide data for NGXS
- │   │   ├── 📂 feature.store.ts                # NGXS Store for feature
- │   │   ├── 📂 feature.entitity.ts             # Feature Interface for data, Types, Enums
- │   │   ├── 📂 feature.guards.ts               # Guard's for feature routing and permissions
- │   │   ├── 📂 feature.resolvers.ts            # Resolvers for data fetching and preloading
- │   │   ├── 📂 feature.utils.ts                # Additinal utils for feature (formBuilders, converters, mappers)
- │   │   ├── feature.module.ts                  # Optional, if standalone
- │   │   ├── feature.routing.ts                 # Export of standalone components by path
+ ├── 📂 app/
+ │   ├── 📂 features/                    # Feature modules
+ │   │   └── 📂 feature-name/
+ │   │       ├── 📂 components/          # Feature UI pieces
+ │   │       ├── 📂 pages/               # Route-level pages (when used)
+ │   │       ├── 📂 models/              # Feature-local *.model.ts types
+ │   │       ├── 📂 mappers/             # Feature API ↔ domain mappers
+ │   │       ├── 📂 services/            # Feature HTTP / facade services
+ │   │       ├── 📂 store/               # Feature NGXS state (actions, model, state, selectors)
+ │   │       ├── 📂 enums/               # Feature enums
+ │   │       ├── 📂 constants/           # Feature constants
+ │   │       ├── feature.routes.ts       # Feature routes
+ │   │       └── feature.component.ts    # Feature shell / entry component
+ │   │
+ │   ├── 📂 core/                        # App-wide infrastructure
+ │   │   ├── 📂 components/              # Shell UI (header, banners, …)
+ │   │   ├── 📂 services/                # Global services
+ │   │   ├── 📂 store/                   # Core NGXS state (user, emails, …)
+ │   │   ├── 📂 models/                  # Core config / routing types
+ │   │   ├── 📂 guards/
+ │   │   ├── 📂 interceptors/
+ │   │   ├── 📂 helpers/
+ │   │   └── 📂 provider/
+ │   │
+ │   ├── 📂 shared/                      # Cross-feature reusable code
+ │   │   ├── 📂 components/              # Shared UI
+ │   │   ├── 📂 directives/
+ │   │   ├── 📂 pipes/
+ │   │   ├── 📂 services/                # Shared HTTP / helpers
+ │   │   ├── 📂 stores/                  # Shared NGXS domains
+ │   │   ├── 📂 models/                  # Shared domain + JSON:API models
+ │   │   ├── 📂 mappers/                 # Shared mappers
+ │   │   ├── 📂 enums/
+ │   │   ├── 📂 guards/
+ │   │   └── 📂 helpers/
+ │   │
+ │   ├── app.component.ts
+ │   ├── app.config.ts
+ │   ├── app.config.server.ts            # SSR app config
+ │   ├── app.routes.ts
+ │   └── app.routes.server.ts            # SSR routes
  │
- ├── 📂 core/                # Base module for global services, components, and state
- │   ├── 📂 services/        # Global services (API, Auth, LocalStorage)
- │   ├── 📂 components/      # Global components (Header, Footer, Sidebar)
- │   ├── 📂 store/           # Core state management (Auth, Settings, Router)
- │   ├── core.module.ts      # Optional, but must have a provider for core.
- │
- ├── 📂 shared/              # Shared module for common components, directives, pipes, and services
- │   ├── 📂 ui/              # Shared UI components (Button, Input, Modal), or wrappers for 3rd party
- │   ├── 📂 directives/      # Shared Directives (ClickOutside, Draggable)
- │   ├── 📂 pipes/           # Shared Pipes (Filter, Sort, Format)
- │   ├── 📂 services/        # Services, Facades for shared logic (Http, LocalStorage)
- │   ├── 📂 store/           # Shared State management (Settings, Theme, Language)
- │
- ├── app.routes.ts           # General Entry point for routing
- ├── main.ts                 # Providers Setup and Bootstrap
- ├── package.json            # Dependencies and Scripts
-
+ ├── 📂 assets/
+ ├── 📂 environments/
+ ├── 📂 styles/
+ ├── 📂 testing/                         # Test helpers, mocks, builders (@testing/*)
+ ├── main.ts                             # Browser bootstrap
+ ├── main.server.ts                      # SSR bootstrap
+ ├── server.ts                           # Express / SSR server entry
+ └── index.html
+```
 
 ---
-```
+
+## 📋 Models and mappers
+
+- Types live in `*.model.ts` files (interfaces/types, not classes).
+- Shared catalog: `shared/models/<domain>/` with optional `*-json-api.model.ts` twins.
+- Feature-local types: `features/<feature>/models/`.
+- Mappers convert JSON:API ↔ domain at the service boundary.
+
+See [Models Conventions](./models.md).
+
+---
+
+## 🗃️ State
+
+- Shared domains: `shared/stores/<domain>/`
+- Feature domains: `features/<feature>/store/`
+- Core domains: `core/store/`
+
+See [NGXS State Management](./ngxs.md).
+
+---
 
 ## 🚀 Dynamic File Generation (Schematics)
 
-Use Angular CLI to generate new feature components, services, and modules.
+Use Angular CLI for scaffolding:
 
 ```sh
 ng generate component feature-name/components/new-component
+```
 
 ### 📌 Other Schematics:
 
-| **Entity**  | **Command** |
-|--------------|----------------------------------------------|
-| 📌 **Service**  | `ng g s feature-name/services/new-service` |
-| 📦 **Module**  | `ng g m feature-name` |
-| 🔐 **Guard**   | `ng g g feature-name/guards/auth-guard` |
-| 🔄 **Pipe**    | `ng g p shared/pipes/currency-format` |
-| ✨ **Directive** | `ng g d shared/directives/highlight` |
-
-
-```
+| **Entity**       | **Command**                                |
+| ---------------- | ------------------------------------------ |
+| 📌 **Service**   | `ng g s feature-name/services/new-service` |
+| 🔐 **Guard**     | `ng g g feature-name/guards/auth-guard`    |
+| 🔄 **Pipe**      | `ng g p shared/pipes/currency-format`      |
+| ✨ **Directive** | `ng g d shared/directives/highlight`       |

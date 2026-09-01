@@ -7,7 +7,7 @@ import { inject, Injectable } from '@angular/core';
 import { handleSectionError } from '@osf/shared/helpers/state-error.handler';
 import { MetadataService } from '@osf/shared/services/metadata.service';
 
-import { CedarMetadataRecord, CedarMetadataRecordJsonApi, MetadataModel } from '../models';
+import { CedarMetadataRecordModel, MetadataModel } from '../models';
 
 import {
   AddCedarMetadataRecordToState,
@@ -179,10 +179,10 @@ export class MetadataState {
       },
     });
     return this.metadataService.getMetadataCedarRecords(action.resourceId, action.resourceType, action.url).pipe(
-      tap((response: CedarMetadataRecordJsonApi) => {
+      tap((records: CedarMetadataRecordModel[]) => {
         ctx.patchState({
           cedarRecords: {
-            data: response.data,
+            data: records,
             error: null,
             isLoading: false,
           },
@@ -194,15 +194,15 @@ export class MetadataState {
   @Action(CreateCedarMetadataRecord)
   createCedarMetadataRecord(ctx: StateContext<MetadataStateModel>, action: CreateCedarMetadataRecord) {
     return this.metadataService.createMetadataCedarRecord(action.record, action.resourceId, action.resourceType).pipe(
-      tap((response: CedarMetadataRecord) => {
+      tap((record: CedarMetadataRecordModel) => {
         ctx.patchState({
           cedarRecord: {
-            data: response,
+            data: record,
             error: null,
             isLoading: false,
           },
         });
-        ctx.dispatch(new AddCedarMetadataRecordToState(response.data));
+        ctx.dispatch(new AddCedarMetadataRecordToState(record));
       })
     );
   }
@@ -212,10 +212,10 @@ export class MetadataState {
     return this.metadataService
       .updateMetadataCedarRecord(action.record, action.recordId, action.resourceId, action.resourceType)
       .pipe(
-        tap((response: CedarMetadataRecord) => {
+        tap((updatedRecord: CedarMetadataRecordModel) => {
           const state = ctx.getState();
           const updatedRecords = state.cedarRecords.data.map((record) =>
-            record.id === action.recordId ? response.data : record
+            record.id === action.recordId ? updatedRecord : record
           );
           ctx.patchState({
             cedarRecords: {

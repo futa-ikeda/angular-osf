@@ -23,8 +23,8 @@ import { AddToCollectionSteps } from '@osf/features/collections/enums';
 import { CEDAR_CONFIG, CEDAR_VIEWER_CONFIG } from '@osf/features/metadata/constants';
 import {
   CedarEditorElement,
-  CedarMetadataDataTemplateJsonApi,
-  CedarMetadataRecordData,
+  CedarMetadataRecordModel,
+  CedarMetadataTemplateModel,
   CedarRecordDataBinding,
 } from '@osf/features/metadata/models';
 
@@ -41,8 +41,8 @@ export class CollectionMetadataStepComponent {
   stepperActiveValue = input.required<number>();
   targetStepValue = input.required<number>();
   isDisabled = input.required<boolean>();
-  cedarTemplate = input<CedarMetadataDataTemplateJsonApi | null>(null);
-  existingCedarRecord = input<CedarMetadataRecordData | null>(null);
+  cedarTemplate = input<CedarMetadataTemplateModel | null>(null);
+  existingCedarRecord = input<CedarMetadataRecordModel | null>(null);
 
   stepChange = output<number>();
   cedarDataSaved = output<CedarRecordDataBinding>();
@@ -68,7 +68,7 @@ export class CollectionMetadataStepComponent {
 
   handleDiscardChanges() {
     const record = this.existingCedarRecord();
-    this.cedarFormData.set(record?.attributes?.metadata ? (record.attributes.metadata as Record<string, unknown>) : {});
+    this.cedarFormData.set(record?.metadata ? (record.metadata as Record<string, unknown>) : {});
     this.syncCedarInstance(this.cedarEditor()?.nativeElement);
     this.collectionMetadataSaved.set(false);
   }
@@ -111,8 +111,8 @@ export class CollectionMetadataStepComponent {
       if (this.collectionMetadataSaved()) return;
 
       const record = this.existingCedarRecord();
-      if (record?.attributes?.metadata) {
-        this.cedarFormData.set(record.attributes.metadata as Record<string, unknown>);
+      if (record?.metadata) {
+        this.cedarFormData.set(record.metadata as Record<string, unknown>);
       }
     });
 
@@ -122,7 +122,7 @@ export class CollectionMetadataStepComponent {
       const record = this.existingCedarRecord();
       const saved = this.collectionMetadataSaved();
 
-      if (!record?.attributes?.metadata && !saved) return;
+      if (!record?.metadata && !saved) return;
 
       this.syncCedarInstance(this.cedarEditor()?.nativeElement);
     });

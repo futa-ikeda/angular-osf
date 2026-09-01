@@ -30,8 +30,8 @@ import { CEDAR_CONFIG, CEDAR_VIEWER_CONFIG } from '../../constants';
 import { CedarMetadataHelper } from '../../helpers';
 import {
   CedarEditorElement,
-  CedarMetadataDataTemplateJsonApi,
-  CedarMetadataRecordData,
+  CedarMetadataRecordModel,
+  CedarMetadataTemplateModel,
   CedarRecordDataBinding,
 } from '../../models';
 
@@ -49,8 +49,8 @@ export class CedarTemplateFormComponent {
   changeTemplate = output<void>();
   toggleEditMode = output<void>();
 
-  template = input.required<CedarMetadataDataTemplateJsonApi>();
-  existingRecord = input<CedarMetadataRecordData | null>(null);
+  template = input.required<CedarMetadataTemplateModel>();
+  existingRecord = input<CedarMetadataRecordModel | null>(null);
   readonly = input<boolean>(false);
   showEditButton = input<boolean>(false);
 
@@ -91,14 +91,14 @@ export class CedarTemplateFormComponent {
   constructor() {
     effect(() => {
       const tpl = this.template();
-      if (tpl?.attributes?.template) {
+      if (tpl?.template) {
         this.initializeCedar();
       }
     });
 
     effect(() => {
       const record = this.existingRecord();
-      this.schemaName.set(record?.embeds?.template.data.attributes.schema_name || '');
+      this.schemaName.set(record?.schemaName || '');
       if (record) {
         this.initializeCedar();
       }
@@ -106,7 +106,7 @@ export class CedarTemplateFormComponent {
   }
 
   private initializeCedar(): void {
-    const metadata = this.existingRecord()?.attributes?.metadata;
+    const metadata = this.existingRecord()?.metadata;
     const editor = this.cedarEditor()?.nativeElement;
     const viewer = this.cedarViewer()?.nativeElement;
 
@@ -126,9 +126,9 @@ export class CedarTemplateFormComponent {
   }
 
   private initializeFormData(): void {
-    const template = this.template()?.attributes?.template;
+    const template = this.template()?.template;
     if (!template) return;
-    const metadata = this.existingRecord()?.attributes?.metadata;
+    const metadata = this.existingRecord()?.metadata;
     if (this.existingRecord()) {
       const structuredMetadata = CedarMetadataHelper.buildStructuredMetadata(metadata);
       this.formData.set(structuredMetadata);

@@ -11,7 +11,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CreateCollectionSubmission } from '@osf/features/collections/store/add-to-collection/add-to-collection.actions';
 import {
   CedarMetadataAttributes,
-  CedarMetadataRecordData,
+  CedarMetadataRecordModel,
   CedarRecordDataBinding,
 } from '@osf/features/metadata/models';
 import { CreateCedarMetadataRecord, UpdateCedarMetadataRecord } from '@osf/features/metadata/store';
@@ -33,13 +33,13 @@ const MOCK_CEDAR_DATA: CedarRecordDataBinding = {
   isPublished: true,
 };
 
-const MOCK_EXISTING_CEDAR_RECORD: CedarMetadataRecordData = {
+const MOCK_EXISTING_CEDAR_RECORD: CedarMetadataRecordModel = {
   id: 'cedar-record-1',
-  attributes: { metadata: {} as CedarMetadataAttributes, is_published: true },
-  relationships: {
-    template: { data: { type: 'cedar-metadata-templates', id: 'template-1' } },
-    target: { data: { type: 'nodes', id: 'project-1' } },
-  },
+  metadata: {} as CedarMetadataAttributes,
+  isPublished: true,
+  templateId: 'template-1',
+  targetId: 'project-1',
+  schemaName: 'Test Schema',
 };
 
 describe('AddToCollectionConfirmationDialogComponent', () => {
@@ -53,7 +53,7 @@ describe('AddToCollectionConfirmationDialogComponent', () => {
       payload?: CollectionSubmissionPayload;
       project?: { id: string; isPublic: boolean };
       cedarData?: CedarRecordDataBinding | null;
-      existingCedarRecord?: CedarMetadataRecordData | null;
+      existingCedarRecord?: CedarMetadataRecordModel | null;
     };
   };
 

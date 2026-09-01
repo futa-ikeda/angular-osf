@@ -34,7 +34,7 @@ The goal of using NGXS is to centralize and streamline the handling of applicati
 
 ### Diagram
 
-[![OSF NGRX Diagram](./assets/osf-ngxs-diagram.png)](./assets/osf-ngxs-diagram.png)
+[![OSF NGXS Diagram](./assets/osf-ngxs-diagram.png)](./assets/osf-ngxs-diagram.png)
 
 ---
 
@@ -45,44 +45,51 @@ Typical NGXS-related files are organized as follows:
 ```
 src/app/shared/stores/
   └── addons/
-      ├── addons.actions.ts       # All action definitions
-      ├── addons.model.ts        # Interfaces & data model
-      ├── addons.state.ts         # State implementation
-      ├── addons.selectors.ts     # Reusable selectors
+      ├── addons.actions.ts       # Action definitions
+      ├── addons.model.ts         # State interface (*StateModel) and defaults
+      ├── addons.state.ts          # State implementation
+      ├── addons.selectors.ts     # Selectors
 ```
 
 ```
 src/app/shared/services/
   └── addons/
-      ├── addons.service.ts       # External API calls
+      ├── addons.service.ts       # External API calls (map JSON:API → domain)
 ```
+
+Feature stores follow the same file set under `features/<feature>/store/`. Core stores live under `core/store/`.
 
 ---
 
 ## State Models
 
-The OSF Angular project follows a consistent NGXS state model structure to ensure clarity, predictability, and alignment across all features. The recommended shape for each domain-specific state is as follows:
+State interfaces are named `*StateModel` and live in the colocated `*.model.ts` file. They are TypeScript interfaces (not classes). Domain entity types come from `shared/models` or feature `models/` — see [Models Conventions](./models.md).
 
-1. Domain state pattern:
+Use `AsyncStateModel<T>` (and `AsyncStateWithTotalCount` when a total count is needed) from `shared/models/store/`:
 
 ```ts
-domain: {
-  data: [],             // Array of typed model data (e.g., Project[], User[])
-  isLoading: false,     // Indicates if data retrieval (GET) is in progress
-  isSubmitting: false,  // Indicates if data submission (POST/PUT/DELETE) is in progress
-  error: null,          // Captures error messages from failed HTTP requests
+export interface AsyncStateModel<T> {
+  data: T;
+  isLoading: boolean;
+  isSubmitting?: boolean;
+  error: string | null;
 }
 ```
 
-2. `data` holds the strongly typed collection of entities defined by the feature's interface or model class.
+Example store shape:
 
-3. `isLoading` is a signal used to inform the component and template layer that a read or fetch operation is currently pending.
+```ts
+export interface FilesStateModel {
+  files: AsyncStateModel<FileModel[]>;
+}
+```
 
-4. `isSubmitting` signals that a write operation (form submission, update, delete, etc.) is currently in progress.
+1. `data` holds strongly typed domain data (not raw JSON:API payloads when a domain model exists).
+2. `isLoading` indicates a read/fetch is in progress.
+3. `isSubmitting` indicates a write (create/update/delete) is in progress.
+4. `error` stores a failed request message for UI or logging.
 
-5. `error` stores error state information (commonly strings or structured error objects) that result from failed service interactions. This can be displayed in UI or logged for debugging.
-
-Each domain state should be minimal, normalized, and scoped to its specific feature, mirroring the structure and shape of the corresponding OSF backend API response.
+Each domain state should be minimal and scoped to its feature.
 
 ---
 
@@ -96,12 +103,13 @@ Each domain state should be minimal, normalized, and scoped to its specific feat
 
 ## Testing
 
-- [Testing Strategy](docs/testing.md)
-- [NGXS State Testing Strategy](docs/testing.md#ngxs-state-testing-strategy)
+- [Testing Strategy](./testing.md)
+- [NGXS State Testing Strategy](./testing.md#15-testing-ngxs-state)
 
 ---
 
 ## Documentation
 
-Refer to the official NGXS documentation for full API details and advanced usage:
-[https://www.ngxs.io/docs](https://www.ngxs.io/docs)
+- [Models Conventions](./models.md)
+- [Folder Structure](./arch.md)
+- Official NGXS docs: [https://www.ngxs.io/docs](https://www.ngxs.io/docs)

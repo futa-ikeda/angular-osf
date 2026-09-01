@@ -75,8 +75,8 @@ import { PublicationDoiDialogComponent } from './dialogs/publication-doi-dialog/
 import { ResourceInformationDialogComponent } from './dialogs/resource-information-dialog/resource-information-dialog.component';
 import { ResourceInfoTooltipComponent } from './dialogs/resource-tooltip-info/resource-tooltip-info.component';
 import {
-  CedarMetadataDataTemplateJsonApi,
-  CedarMetadataRecordData,
+  CedarMetadataRecordModel,
+  CedarMetadataTemplateModel,
   CedarRecordDataBinding,
   DialogValueModel,
 } from './models';
@@ -134,8 +134,8 @@ export class MetadataComponent implements OnInit, OnDestroy {
   tabs = signal<MetadataTabsModel[]>([]);
   selectedTab = signal('osf');
 
-  selectedCedarRecord = signal<CedarMetadataRecordData | null>(null);
-  selectedCedarTemplate = signal<CedarMetadataDataTemplateJsonApi | null>(null);
+  selectedCedarRecord = signal<CedarMetadataRecordModel | null>(null);
+  selectedCedarTemplate = signal<CedarMetadataTemplateModel | null>(null);
   cedarFormReadonly = signal<boolean>(true);
   resourceType = signal<ResourceType>(this.activeRoute.parent?.snapshot.data['resourceType'] || ResourceType.Project);
 
@@ -237,7 +237,7 @@ export class MetadataComponent implements OnInit, OnDestroy {
       const cedarTabs =
         records?.map((record) => ({
           id: record.id || '',
-          label: record.embeds?.template?.data?.attributes?.schema_name || `Record ${record.id}`,
+          label: record.schemaName || `Record ${record.id}`,
           type: MetadataResourceEnum.CEDAR,
         })) || [];
 
@@ -250,7 +250,7 @@ export class MetadataComponent implements OnInit, OnDestroy {
       const selectedRecord = this.selectedCedarRecord();
 
       if (selectedRecord && templates?.data && !this.selectedCedarTemplate()) {
-        const templateId = selectedRecord.relationships?.template?.data?.id;
+        const templateId = selectedRecord.templateId;
         if (templateId) {
           const template = templates.data.find((t) => t.id === templateId);
           if (template) {
@@ -592,7 +592,7 @@ export class MetadataComponent implements OnInit, OnDestroy {
     this.selectedCedarRecord.set(record);
     this.cedarFormReadonly.set(true);
 
-    const templateId = record.relationships?.template?.data?.id;
+    const templateId = record.templateId;
 
     if (templateId && templates?.data) {
       const template = templates.data.find((t) => t.id === templateId);

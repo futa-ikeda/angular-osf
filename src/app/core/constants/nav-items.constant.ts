@@ -380,7 +380,7 @@ export const MENU_ITEMS: CustomMenuItem[] = [
         routerLink: '/settings/profile',
         label: 'navigation.profileSettings',
         visible: true,
-        routerLinkActiveOptions: { exact: true },
+        routerLinkActiveOptions: { exact: false },
       },
       {
         id: 'settings-account',

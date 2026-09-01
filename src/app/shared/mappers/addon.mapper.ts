@@ -1,22 +1,37 @@
 import { AuthorizedAccountType, ConfiguredAddonType } from '../enums/addon-type.enum';
 import { AddonCategory } from '../enums/addons-category.enum';
 import { AddonModel } from '../models/addons/addon.model';
+import { IncludedAddonData } from '../models/addons/addon-included-json-api.model';
 import {
-  AddonGetResponseJsonApi,
-  AuthorizedAddonGetResponseJsonApi,
-  ConfiguredAddonGetResponseJsonApi,
-  IncludedAddonData,
-} from '../models/addons/addon-json-api.model';
-import {
-  OperationInvocationResponseJsonApi,
+  OperationInvocationDataJsonApi,
   StorageItemResponseJsonApi,
 } from '../models/addons/addon-operations-json-api.model';
+import { ResourceReferenceJsonApi, UserReferenceJsonApi } from '../models/addons/addon-reference-json-api.model';
 import { AuthorizedAccountModel } from '../models/addons/authorized-account.model';
+import { AuthorizedAddonDataJsonApi } from '../models/addons/authorized-addon-json-api.model';
 import { ConfiguredAddonModel } from '../models/addons/configured-addon.model';
+import { ConfiguredAddonDataJsonApi } from '../models/addons/configured-addon-json-api.model';
+import { AddonGetDataJsonApi } from '../models/addons/external-addon-json-api.model';
 import { OperationInvocation } from '../models/addons/operation-invocation.model';
+import { ResourceReferenceModel } from '../models/addons/resource-reference.model';
+import { UserReferenceModel } from '../models/addons/user-reference.model';
 
 export class AddonMapper {
-  static fromResponse(response: AddonGetResponseJsonApi): AddonModel {
+  static fromUserReferenceResponse(response: UserReferenceJsonApi): UserReferenceModel {
+    return {
+      id: response.id,
+      userUri: response.attributes.user_uri,
+    };
+  }
+
+  static fromResourceReferenceResponse(response: ResourceReferenceJsonApi): ResourceReferenceModel {
+    return {
+      id: response.id,
+      resourceUri: response.attributes.resource_uri,
+    };
+  }
+
+  static fromResponse(response: AddonGetDataJsonApi): AddonModel {
     return {
       type: response.type,
       id: response.id,
@@ -35,7 +50,7 @@ export class AddonMapper {
   }
 
   static fromAuthorizedAddonResponse(
-    response: AuthorizedAddonGetResponseJsonApi,
+    response: AuthorizedAddonDataJsonApi,
     included?: IncludedAddonData[]
   ): AuthorizedAccountModel {
     const externalServiceData =
@@ -81,7 +96,7 @@ export class AddonMapper {
   }
 
   static fromConfiguredAddonResponse(
-    response: ConfiguredAddonGetResponseJsonApi,
+    response: ConfiguredAddonDataJsonApi,
     included?: IncludedAddonData[]
   ): ConfiguredAddonModel {
     const isLinkAddon = response.type === ConfiguredAddonType.LINK;
@@ -120,7 +135,7 @@ export class AddonMapper {
     };
   }
 
-  static fromOperationInvocationResponse(response: OperationInvocationResponseJsonApi): OperationInvocation {
+  static fromOperationInvocationResponse(response: OperationInvocationDataJsonApi): OperationInvocation {
     const operationResult = response.attributes.operation_result;
     // [NM] TODO: Double check this condition
     // const isOperationResult = 'items' in operationResult && 'total_count' in operationResult;

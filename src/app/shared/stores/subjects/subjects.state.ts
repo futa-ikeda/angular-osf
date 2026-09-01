@@ -14,9 +14,9 @@ import {
   FetchSubjects,
   UpdateResourceSubjects,
 } from './subjects.actions';
-import { SUBJECT_STATE_DEFAULTS, SubjectsModel } from './subjects.model';
+import { SUBJECT_STATE_DEFAULTS, SubjectsStateModel } from './subjects.model';
 
-@State<SubjectsModel>({
+@State<SubjectsStateModel>({
   name: 'subjects',
   defaults: SUBJECT_STATE_DEFAULTS,
 })
@@ -25,7 +25,7 @@ export class SubjectsState {
   private readonly subjectsService = inject(SubjectsService);
 
   @Action(FetchSubjects)
-  fetchSubjects(ctx: StateContext<SubjectsModel>, { providerId, resourceType, search }: FetchSubjects) {
+  fetchSubjects(ctx: StateContext<SubjectsStateModel>, { providerId, resourceType, search }: FetchSubjects) {
     if (!resourceType) {
       return;
     }
@@ -55,7 +55,7 @@ export class SubjectsState {
   }
 
   @Action(FetchChildrenSubjects)
-  fetchSubjectsChildren(ctx: StateContext<SubjectsModel>, { parentId }: FetchChildrenSubjects) {
+  fetchSubjectsChildren(ctx: StateContext<SubjectsStateModel>, { parentId }: FetchChildrenSubjects) {
     ctx.patchState({
       subjects: {
         ...ctx.getState().subjects,
@@ -81,7 +81,7 @@ export class SubjectsState {
   }
 
   @Action(FetchSelectedSubjects)
-  fetchSelectedSubjects(ctx: StateContext<SubjectsModel>, { resourceId, resourceType }: FetchSelectedSubjects) {
+  fetchSelectedSubjects(ctx: StateContext<SubjectsStateModel>, { resourceId, resourceType }: FetchSelectedSubjects) {
     if (!resourceType) {
       return;
     }
@@ -110,7 +110,7 @@ export class SubjectsState {
 
   @Action(UpdateResourceSubjects)
   updateResourceSubjects(
-    ctx: StateContext<SubjectsModel>,
+    ctx: StateContext<SubjectsStateModel>,
     { resourceId, resourceType, subjects }: UpdateResourceSubjects
   ) {
     if (!resourceType) {

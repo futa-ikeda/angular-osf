@@ -17,7 +17,7 @@
               <cedar-artifact-viewer
                 #cedarViewer
                 [config]="cedarViewerConfig"
-                [templateObject]="cedarTpl.attributes.template"
+                [templateObject]="cedarTpl.template"
                 [instanceObject]="cedarFormData()"
               ></cedar-artifact-viewer>
             }
@@ -44,7 +44,7 @@
             <cedar-embeddable-editor
               #cedarEditor
               [config]="cedarConfig"
-              [templateObject]="cedarTpl.attributes.template"
+              [templateObject]="cedarTpl.template"
               [metadata]="cedarFormData()"
               (change)="onCedarChange($event)"
               (keyup)="onCedarChange($event)"

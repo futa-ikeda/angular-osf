@@ -92,7 +92,7 @@ describe('ProfileInformationComponent', () => {
   it('should expose ORCID id only when verified', () => {
     setup({
       ...MOCK_USER,
-      external_identity: {
+      externalIdentity: {
         ORCID: {
           id: '0000-0002-1825-0097',
           status: ExternalIdentityStatus.VERIFIED,
@@ -106,7 +106,7 @@ describe('ProfileInformationComponent', () => {
   it('should return undefined ORCID when status is not verified', () => {
     setup({
       ...MOCK_USER,
-      external_identity: {
+      externalIdentity: {
         ORCID: {
           id: '0000-0002-1825-0097',
           status: ExternalIdentityStatus.LINK,

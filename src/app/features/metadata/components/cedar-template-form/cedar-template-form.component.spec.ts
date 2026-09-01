@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { CedarMetadataHelper } from '@osf/features/metadata/helpers';
 
-import { CEDAR_METADATA_DATA_TEMPLATE_JSON_API_MOCK } from '@testing/mocks/cedar-metadata-data-template-json-api.mock';
+import { MOCK_CEDAR_METADATA_RECORD, MOCK_CEDAR_METADATA_TEMPLATE } from '@testing/mocks/cedar-metadata-domain.mock';
 import { provideOSFCore } from '@testing/osf.testing.provider';
 import { ActivatedRouteMockBuilder } from '@testing/providers/route-provider.mock';
 
@@ -15,7 +15,8 @@ describe('CedarTemplateFormComponent', () => {
   let component: CedarTemplateFormComponent;
   let fixture: ComponentFixture<CedarTemplateFormComponent>;
 
-  const mockTemplate = CEDAR_METADATA_DATA_TEMPLATE_JSON_API_MOCK;
+  const mockTemplate = MOCK_CEDAR_METADATA_TEMPLATE;
+  const mockRecord = MOCK_CEDAR_METADATA_RECORD;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -43,10 +44,10 @@ describe('CedarTemplateFormComponent', () => {
   });
 
   it('should set existingRecord input', () => {
-    fixture.componentRef.setInput('existingRecord', mockTemplate);
+    fixture.componentRef.setInput('existingRecord', mockRecord);
     fixture.detectChanges();
 
-    expect(component.existingRecord()).toEqual(mockTemplate);
+    expect(component.existingRecord()).toEqual(mockRecord);
   });
 
   it('should set readonly input', () => {

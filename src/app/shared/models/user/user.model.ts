@@ -25,7 +25,7 @@ export interface UserModel {
   timezone: string;
   locale: string;
   social: SocialModel;
-  external_identity: ExternalIdentityModel;
+  externalIdentity: ExternalIdentityModel;
   defaultRegionId: string;
   link?: string;
   iri?: string;

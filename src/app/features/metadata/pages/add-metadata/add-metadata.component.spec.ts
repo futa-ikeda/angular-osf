@@ -8,8 +8,7 @@ import { SubHeaderComponent } from '@osf/shared/components/sub-header/sub-header
 import { ResourceType } from '@osf/shared/enums/resource-type.enum';
 import { ToastService } from '@osf/shared/services/toast.service';
 
-import { CEDAR_METADATA_DATA_TEMPLATE_JSON_API_MOCK } from '@testing/mocks/cedar-metadata-data-template-json-api.mock';
-import { MOCK_CEDAR_METADATA_RECORD_DATA } from '@testing/mocks/cedar-metadata-record.mock';
+import { MOCK_CEDAR_METADATA_RECORD, MOCK_CEDAR_METADATA_TEMPLATE } from '@testing/mocks/cedar-metadata-domain.mock';
 import { provideOSFCore } from '@testing/osf.testing.provider';
 import { ActivatedRouteMockBuilder } from '@testing/providers/route-provider.mock';
 import { provideMockStore } from '@testing/providers/store-provider.mock';
@@ -27,8 +26,8 @@ describe('AddMetadataComponent', () => {
   let activatedRoute: Partial<ActivatedRoute>;
   let toastService: ReturnType<ToastServiceMockBuilder['build']>;
 
-  const mockTemplate = CEDAR_METADATA_DATA_TEMPLATE_JSON_API_MOCK;
-  const mockRecord = MOCK_CEDAR_METADATA_RECORD_DATA;
+  const mockTemplate = MOCK_CEDAR_METADATA_TEMPLATE;
+  const mockRecord = MOCK_CEDAR_METADATA_RECORD;
 
   const mockCedarTemplates = {
     data: [mockTemplate],
@@ -81,7 +80,7 @@ describe('AddMetadataComponent', () => {
             { selector: MetadataSelectors.getCedarTemplatesExcludingCollections, value: mockCedarTemplates },
             { selector: MetadataSelectors.getCedarRecords, value: mockCedarRecords },
             { selector: MetadataSelectors.getCedarTemplatesLoading, value: false },
-            { selector: MetadataSelectors.getCedarRecord, value: { data: mockRecord } },
+            { selector: MetadataSelectors.getCedarRecord, value: mockRecord },
           ],
         }),
       ],

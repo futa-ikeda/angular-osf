@@ -7,7 +7,7 @@ import { ENVIRONMENT } from '@core/provider/environment.provider';
 
 import { RegionsMapper } from '../mappers/regions';
 import { IdNameModel } from '../models/common/id-name.model';
-import { RegionsResponseJsonApi } from '../models/regions/regions.json-api.model';
+import { RegionsResponseJsonApi } from '../models/regions/regions-json-api.model';
 
 @Injectable({
   providedIn: 'root',

@@ -10,9 +10,9 @@ import { Institution } from '@osf/shared/models/institutions/institutions.model'
 import { InstitutionsService } from '@osf/shared/services/institutions.service';
 
 import { FetchInstitutionById } from './institutions-search.actions';
-import { INSTITUTIONS_SEARCH_STATE_DEFAULTS, InstitutionsSearchModel } from './institutions-search.model';
+import { INSTITUTIONS_SEARCH_STATE_DEFAULTS, InstitutionsSearchStateModel } from './institutions-search.model';
 
-@State<InstitutionsSearchModel>({
+@State<InstitutionsSearchStateModel>({
   name: 'institutionsSearch',
   defaults: INSTITUTIONS_SEARCH_STATE_DEFAULTS,
 })
@@ -21,7 +21,7 @@ export class InstitutionsSearchState {
   private readonly institutionsService = inject(InstitutionsService);
 
   @Action(FetchInstitutionById)
-  fetchInstitutionById(ctx: StateContext<InstitutionsSearchModel>, action: FetchInstitutionById) {
+  fetchInstitutionById(ctx: StateContext<InstitutionsSearchStateModel>, action: FetchInstitutionById) {
     ctx.patchState({ institution: { data: {} as Institution, isLoading: true, error: null } });
 
     return this.institutionsService.getInstitutionById(action.institutionId).pipe(

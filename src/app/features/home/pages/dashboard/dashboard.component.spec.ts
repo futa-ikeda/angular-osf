@@ -19,7 +19,7 @@ import { SearchInputComponent } from '@osf/shared/components/search-input/search
 import { SubHeaderComponent } from '@osf/shared/components/sub-header/sub-header.component';
 import { FEATURE_FLAGS } from '@osf/shared/constants/feature-flags.const';
 import { SortOrder } from '@osf/shared/enums/sort-order.enum';
-import { MyResourcesItem } from '@osf/shared/models/my-resources/my-resources.model';
+import { MyResourcesItem } from '@osf/shared/models/my-resources/my-resources-item.model';
 import { CustomDialogService } from '@osf/shared/services/custom-dialog.service';
 import { ProjectRedirectDialogService } from '@osf/shared/services/project-redirect-dialog.service';
 import { ClearMyResources, GetMyProjects, MyResourcesSelectors } from '@osf/shared/stores/my-resources';

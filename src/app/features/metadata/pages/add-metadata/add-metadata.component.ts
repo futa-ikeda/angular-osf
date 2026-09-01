@@ -25,7 +25,7 @@ import { IS_MEDIUM } from '@osf/shared/helpers/breakpoints.tokens';
 import { ToastService } from '@osf/shared/services/toast.service';
 
 import { CedarTemplateFormComponent } from '../../components/cedar-template-form/cedar-template-form.component';
-import { CedarMetadataDataTemplateJsonApi, CedarMetadataRecordData, CedarRecordDataBinding } from '../../models';
+import { CedarMetadataRecordModel, CedarMetadataTemplateModel, CedarRecordDataBinding } from '../../models';
 import {
   CreateCedarMetadataRecord,
   GetCedarMetadataRecords,
@@ -53,8 +53,8 @@ export class AddMetadataComponent implements OnInit {
 
   private resourceId = '';
   isEditMode = true;
-  selectedTemplate: CedarMetadataDataTemplateJsonApi | null = null;
-  existingRecord: CedarMetadataRecordData | null = null;
+  selectedTemplate: CedarMetadataTemplateModel | null = null;
+  existingRecord: CedarMetadataRecordModel | null = null;
 
   readonly cedarTemplates = select(MetadataSelectors.getCedarTemplatesExcludingCollections);
   readonly cedarRecords = select(MetadataSelectors.getCedarRecords);
@@ -84,7 +84,7 @@ export class AddMetadataComponent implements OnInit {
           return record.id === recordId;
         });
         if (existingRecord) {
-          const templateId = existingRecord.relationships.template.data.id;
+          const templateId = existingRecord.templateId;
           const matchingTemplate = cedarTemplatesData.find((template) => template.id === templateId);
 
           if (matchingTemplate) {
@@ -111,7 +111,7 @@ export class AddMetadataComponent implements OnInit {
     this.actions.getCedarTemplates();
   }
 
-  onSelect(template: CedarMetadataDataTemplateJsonApi): void {
+  onSelect(template: CedarMetadataTemplateModel): void {
     if (this.hasExistingRecord(template.id)) {
       return;
     }
@@ -157,7 +157,7 @@ export class AddMetadataComponent implements OnInit {
     const records = this.cedarRecords();
     if (!records) return false;
 
-    return records.some((record) => record.relationships.template.data.id === templateId);
+    return records.some((record) => record.templateId === templateId);
   }
 
   createRecordMetadata(data: CedarRecordDataBinding): void {
@@ -192,7 +192,7 @@ export class AddMetadataComponent implements OnInit {
   }
 
   private navigateToRecord(resourceId: string, resourceType: ResourceType): void {
-    const recordId = this.cedarRecord()?.data.id;
+    const recordId = this.cedarRecord()?.id;
     if (resourceType === ResourceType.File) {
       this.router.navigate([resourceId]);
     } else {

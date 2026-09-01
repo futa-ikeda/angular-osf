@@ -34,9 +34,7 @@
                 @let cedarTemplate = cedarTemplateById().get(templateId) ?? null;
 
                 @let attributes =
-                  cedarRecord && cedarTemplate?.attributes?.template
-                    ? getCedarAttributes(cedarRecord, cedarTemplate!)
-                    : [];
+                  cedarRecord && cedarTemplate?.template ? getCedarAttributes(cedarRecord, cedarTemplate!) : [];
 
                 @if (attributes.length) {
                   <div class="flex flex-column gap-2 mt-2">

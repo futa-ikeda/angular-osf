@@ -57,7 +57,7 @@ export class RegistryState {
             isLoading: false,
             error: null,
           },
-          isAnonymous: response.meta?.anonymous ?? false,
+          isAnonymous: response.isAnonymous,
         });
       }),
       catchError((error) => handleSectionError(ctx, 'registry', error))
@@ -85,7 +85,7 @@ export class RegistryState {
             isLoading: false,
             error: null,
           },
-          isAnonymous: response.meta?.anonymous ?? false,
+          isAnonymous: response.isAnonymous,
         });
 
         if (registryOverview.providerId) {

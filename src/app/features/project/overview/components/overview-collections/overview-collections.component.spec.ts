@@ -1,11 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
-import { CedarMetadataDataTemplateJsonApi } from '@osf/features/metadata/models';
-import { CollectionSubmission } from '@osf/shared/models/collections/collections.model';
+import { CedarMetadataTemplateModel } from '@osf/features/metadata/models';
+import { CollectionSubmission } from '@osf/shared/models/collections/collection-submissions.model';
 
-import { CEDAR_METADATA_DATA_TEMPLATE_JSON_API_MOCK } from '@testing/mocks/cedar-metadata-data-template-json-api.mock';
-import { MOCK_CEDAR_METADATA_RECORD_DATA } from '@testing/mocks/cedar-metadata-record.mock';
+import { MOCK_CEDAR_METADATA_RECORD, MOCK_CEDAR_METADATA_TEMPLATE } from '@testing/mocks/cedar-metadata-domain.mock';
 import {
   MOCK_COLLECTION_SUBMISSION_BASE,
   MOCK_COLLECTION_SUBMISSIONS,
@@ -43,7 +42,7 @@ describe('OverviewCollectionsComponent', () => {
       ...s,
       collectionTitle: s.title,
       collectionId: `col-${s.id}`,
-    })) as CollectionSubmission[];
+    }));
     fixture.componentRef.setInput('projectSubmissions', submissions);
     fixture.componentRef.setInput('isProjectSubmissionsLoading', true);
     fixture.detectChanges();
@@ -56,11 +55,10 @@ describe('OverviewCollectionsComponent', () => {
       ...MOCK_COLLECTION_SUBMISSION_BASE,
       requiredMetadataTemplateId: 'template-1',
     };
-    const cedarTemplate: CedarMetadataDataTemplateJsonApi =
-      CEDAR_METADATA_DATA_TEMPLATE_JSON_API_MOCK as CedarMetadataDataTemplateJsonApi;
+    const cedarTemplate: CedarMetadataTemplateModel = MOCK_CEDAR_METADATA_TEMPLATE;
 
     fixture.componentRef.setInput('projectSubmissions', [cedarSubmission]);
-    fixture.componentRef.setInput('cedarRecords', [MOCK_CEDAR_METADATA_RECORD_DATA]);
+    fixture.componentRef.setInput('cedarRecords', [MOCK_CEDAR_METADATA_RECORD]);
     fixture.componentRef.setInput('cedarTemplates', [cedarTemplate]);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -88,10 +86,9 @@ describe('OverviewCollectionsComponent', () => {
   });
 
   it('should extract key-value pairs from a cedar record using template field order and labels', () => {
-    const cedarTemplate: CedarMetadataDataTemplateJsonApi =
-      CEDAR_METADATA_DATA_TEMPLATE_JSON_API_MOCK as CedarMetadataDataTemplateJsonApi;
+    const cedarTemplate: CedarMetadataTemplateModel = MOCK_CEDAR_METADATA_TEMPLATE;
 
-    const result = component.getCedarAttributes(MOCK_CEDAR_METADATA_RECORD_DATA, cedarTemplate);
+    const result = component.getCedarAttributes(MOCK_CEDAR_METADATA_RECORD, cedarTemplate);
 
     expect(result).toContainEqual({ key: 'Project Name', label: 'Project Name', value: 'Test Project Name' });
   });

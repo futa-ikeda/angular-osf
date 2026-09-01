@@ -4,7 +4,7 @@ import { AsyncStateWithTotalCount } from '@osf/shared/models/store/async-state-w
 
 import { InstitutionDepartment, InstitutionSearchFilter, InstitutionSummaryMetrics, InstitutionUser } from '../models';
 
-export interface InstitutionsAdminModel {
+export interface InstitutionsAdminStateModel {
   departments: AsyncStateModel<InstitutionDepartment[]>;
   summaryMetrics: AsyncStateModel<InstitutionSummaryMetrics>;
   hasOsfAddonSearch: AsyncStateModel<InstitutionSearchFilter[]>;
@@ -14,7 +14,7 @@ export interface InstitutionsAdminModel {
   institution: AsyncStateModel<Institution>;
 }
 
-export const INSTITUTIONS_ADMIN_STATE_DEFAULTS: InstitutionsAdminModel = {
+export const INSTITUTIONS_ADMIN_STATE_DEFAULTS: InstitutionsAdminStateModel = {
   departments: { data: [], isLoading: false, error: null },
   summaryMetrics: { data: {} as InstitutionSummaryMetrics, isLoading: false, error: null },
   hasOsfAddonSearch: { data: [], isLoading: false, error: null },

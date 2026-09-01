@@ -5,12 +5,11 @@ import { TabsModule } from 'primeng/tabs';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CedarTemplateFormComponent } from '@osf/features/metadata/components/cedar-template-form/cedar-template-form.component';
-import { CedarMetadataDataTemplateJsonApi, CedarRecordDataBinding } from '@osf/features/metadata/models';
+import { CedarMetadataTemplateModel, CedarRecordDataBinding } from '@osf/features/metadata/models';
 import { MetadataResourceEnum } from '@osf/shared/enums/metadata-resource.enum';
 import { MetadataTabsModel } from '@shared/models/metadata-tabs.model';
 
-import { CEDAR_METADATA_DATA_TEMPLATE_JSON_API_MOCK } from '@testing/mocks/cedar-metadata-data-template-json-api.mock';
-import { MOCK_CEDAR_METADATA_RECORD_DATA } from '@testing/mocks/cedar-metadata-record.mock';
+import { MOCK_CEDAR_METADATA_RECORD, MOCK_CEDAR_METADATA_TEMPLATE } from '@testing/mocks/cedar-metadata-domain.mock';
 import { provideOSFCore } from '@testing/osf.testing.provider';
 
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
@@ -27,9 +26,9 @@ describe('MetadataTabsComponent', () => {
     { id: 'tab3', label: 'Tab 3', type: MetadataResourceEnum.REGISTRY },
   ];
 
-  const mockCedarTemplate: CedarMetadataDataTemplateJsonApi = CEDAR_METADATA_DATA_TEMPLATE_JSON_API_MOCK;
+  const mockCedarTemplate: CedarMetadataTemplateModel = MOCK_CEDAR_METADATA_TEMPLATE;
 
-  const mockCedarRecord = MOCK_CEDAR_METADATA_RECORD_DATA;
+  const mockCedarRecord = MOCK_CEDAR_METADATA_RECORD;
 
   beforeEach(() => {
     TestBed.configureTestingModule({

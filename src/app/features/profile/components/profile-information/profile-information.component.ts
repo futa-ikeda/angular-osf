@@ -50,7 +50,7 @@ export class ProfileInformationComponent {
   userSocials = computed(() => mapUserSocials(this.currentUser()?.social, SOCIAL_LINKS));
 
   orcidId = computed(() => {
-    const orcid = this.currentUser()?.external_identity?.ORCID;
+    const orcid = this.currentUser()?.externalIdentity?.ORCID;
     return orcid?.status?.toUpperCase() === ExternalIdentityStatus.VERIFIED ? orcid.id : undefined;
   });
 
